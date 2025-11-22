@@ -27,5 +27,5 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: |
-            ghcr.io/${{ github.repository }}/app:${{ github.sha }}
-            ghcr.io/${{ github.repository }}/app:${{ github.ref_name }}
+            ghcr.io/alhasan-ramadan/locknet/app:${{ github.sha }}
+            ghcr.io/alhasan-ramadan/locknet/app:main
