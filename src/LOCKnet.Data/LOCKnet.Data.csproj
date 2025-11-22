@@ -10,4 +10,13 @@
       <ProjectReference Include="..\LOCKnet.Core\LOCKnet.Core.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Models\" />
+      <Folder Include="Repositories\" />
+    </ItemGroup>
+
 </Project>

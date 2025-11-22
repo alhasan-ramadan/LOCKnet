@@ -8,6 +8,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{9C9CD8FC-C
 	ProjectSection(SolutionItems) = preProject
 		docs\references.md = docs\references.md
 		docs\architecture.md = docs\architecture.md
+		docs\prompt.md = docs\prompt.md
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LOCKnet.CLI", "src\LOCKnet.CLI\LOCKnet.CLI.csproj", "{59855357-A89A-4D0E-80AC-3593A8B7EFF8}"
