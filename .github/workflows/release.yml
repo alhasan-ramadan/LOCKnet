@@ -1,0 +1,38 @@
+name: Release on Merge to Main
+
+on:
+  pull_request:
+    branches: [ "main" ]
+    types: [ closed ]
+
+jobs:
+  release:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create version tag
+        id: tag_step
+        run: |
+          TAG="v$(date +'%Y.%m.%d')-${GITHUB_SHA::7}"
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+
+      - name: Create Git Tag
+        run: |
+          git tag ${{ steps.tag_step.outputs.tag }}
+          git push origin ${{ steps.tag_step.outputs.tag }}
+
+      - name: .NET Publish
+        run: dotnet publish -c Release -o out
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag_step.outputs.tag }}
+          name: Release ${{ steps.tag_step.outputs.tag }}
+          files: |
+            out/**
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
