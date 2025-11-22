@@ -8,7 +8,7 @@ public class CredentialsRepository : RepositoryBase
 	public CredentialsRepository(string connectionString) : base(connectionString) { }
 
 	#region CRUD 
-	
+
 	/// <summary>
 	/// Create
 	/// </summary>
@@ -59,7 +59,7 @@ public class CredentialsRepository : RepositoryBase
 
 		return list;
 	}
-	
+
 	/// <summary>
 	/// Update
 	/// </summary>
@@ -88,7 +88,7 @@ public class CredentialsRepository : RepositoryBase
 		cmd.ExecuteNonQuery();
 	}
 
-	
+
 	/// <summary>
 	/// Delete
 	/// </summary>

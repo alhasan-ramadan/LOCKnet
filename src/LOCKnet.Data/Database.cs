@@ -4,22 +4,22 @@ namespace LOCKnet.Data;
 
 public class Database
 {
-    private readonly string _connectionString;
+	private readonly string _connectionString;
 
-    public Database(string databasePath = "credentials.db")
-    {
-        _connectionString = $"Data Source={databasePath}";
-    }
+	public Database(string databasePath = "credentials.db")
+	{
+		_connectionString = $"Data Source={databasePath}";
+	}
 
-    public void Initialize()
-    {
-        using var connection = new SqliteConnection(_connectionString);
-        connection.Open();
+	public void Initialize()
+	{
+		using var connection = new SqliteConnection(_connectionString);
+		connection.Open();
 
-        // Credentials table
-        using (var cmd = connection.CreateCommand())
-        {
-            cmd.CommandText = @"
+		// Credentials table
+		using (var cmd = connection.CreateCommand())
+		{
+			cmd.CommandText = @"
                 CREATE TABLE IF NOT EXISTS Credentials (
                     Id INTEGER PRIMARY KEY AUTOINCREMENT,
                     Title TEXT NOT NULL,
@@ -30,13 +30,13 @@ public class Database
                     CreatedAt TEXT DEFAULT CURRENT_TIMESTAMP,
                     UpdatedAt TEXT DEFAULT CURRENT_TIMESTAMP
                 );";
-            cmd.ExecuteNonQuery();
-        }
+			cmd.ExecuteNonQuery();
+		}
 
-        // MasterKey table
-        using (var cmd = connection.CreateCommand())
-        {
-            cmd.CommandText = @"
+		// MasterKey table
+		using (var cmd = connection.CreateCommand())
+		{
+			cmd.CommandText = @"
                 CREATE TABLE IF NOT EXISTS MasterKey (
                     Id INTEGER PRIMARY KEY CHECK(Id = 1),
                     PasswordHash BLOB NOT NULL,
@@ -44,13 +44,13 @@ public class Database
                     CreatedAt TEXT DEFAULT CURRENT_TIMESTAMP,
                     UpdatedAt TEXT DEFAULT CURRENT_TIMESTAMP
                 );";
-            cmd.ExecuteNonQuery();
-        }
+			cmd.ExecuteNonQuery();
+		}
 
-        // Settings table
-        using (var cmd = connection.CreateCommand())
-        {
-            cmd.CommandText = @"
+		// Settings table
+		using (var cmd = connection.CreateCommand())
+		{
+			cmd.CommandText = @"
                 CREATE TABLE IF NOT EXISTS Settings (
                     Id INTEGER PRIMARY KEY AUTOINCREMENT,
                     Key TEXT NOT NULL,
@@ -58,7 +58,7 @@ public class Database
                     CreatedAt TEXT DEFAULT CURRENT_TIMESTAMP,
                     UpdatedAt TEXT DEFAULT CURRENT_TIMESTAMP
                 );";
-            cmd.ExecuteNonQuery();
-        }
-    }
+			cmd.ExecuteNonQuery();
+		}
+	}
 }
