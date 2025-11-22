@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net9.0-windows</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <UseWPF>true</UseWPF>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Avalonia" Version="11.3.9" />
+      <PackageReference Include="Avalonia.Desktop" Version="11.3.9" />
+      <PackageReference Include="Avalonia.Markup.Xaml.Loader" Version="11.3.9" />
+      <PackageReference Include="ReactiveUI.Avalonia" Version="11.3.8" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\LOCKnet.Core\LOCKnet.Core.csproj" />
+      <ProjectReference Include="..\LOCKnet.Data\LOCKnet.Data.csproj" />
+    </ItemGroup>
+
+</Project>
