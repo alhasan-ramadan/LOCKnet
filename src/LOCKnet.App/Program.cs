@@ -1,7 +1,9 @@
 ﻿using Avalonia;
+using LOCKnet.Data;
 using LOCKnet.Data.Models;
 using LOCKnet.Data.Repositories;
 using System;
+using System.Linq;
 
 namespace LOCKnet.App;
 
@@ -13,30 +15,8 @@ sealed class Program
 	[STAThread]
 	public static void Main(string[] args)
 	{
+		// Avalonia starten
 		BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
-		
-		var database = new Data.Database();
-		database.Initialize();
-		
-		var repo = new CredentialsRepository("Data Source=credentials.db");
-
-		// Neuen Credential hinzufügen
-		repo.Add(new Credential
-		{
-			Title = "E-Mail",
-			Username = "user@example.com",
-			EncryptedPassword = [],
-			URL = "https://example.com",
-			Notes = "Privat"
-		});
-
-		// Alle Credentials auslesen
-		var allCredentials = repo.GetAll();
-		foreach(var cred in allCredentials)
-		{
-			Console.WriteLine($"{cred.Title}: {cred.Username}");
-		}
-
 	}
 
 // Avalonia configuration, don't remove; also used by visual designer.

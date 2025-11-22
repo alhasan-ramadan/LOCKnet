@@ -7,6 +7,12 @@ public class CredentialsRepository : RepositoryBase
 {
 	public CredentialsRepository(string connectionString) : base(connectionString) { }
 
+	#region CRUD 
+	
+	/// <summary>
+	/// Create
+	/// </summary>
+	/// <param name="credential"></param>
 	public void Add(Credential credential)
 	{
 		using var conn = GetConnection();
@@ -24,6 +30,10 @@ public class CredentialsRepository : RepositoryBase
 		cmd.ExecuteNonQuery();
 	}
 
+	/// <summary>
+	/// Read
+	/// </summary>
+	/// <returns></returns>
 	public List<Credential> GetAll()
 	{
 		var list = new List<Credential>();
@@ -49,6 +59,48 @@ public class CredentialsRepository : RepositoryBase
 
 		return list;
 	}
+	
+	/// <summary>
+	/// Update
+	/// </summary>
+	/// <param name="credential"></param>
+	public void Update(Credential credential)
+	{
+		using var conn = GetConnection();
+		using var cmd = conn.CreateCommand();
+		cmd.CommandText = @"
+        UPDATE Credentials
+        SET Title = $title,
+            Username = $username,
+            EncryptedPassword = $password,
+            URL = $url,
+            Notes = $notes,
+            UpdatedAt = CURRENT_TIMESTAMP
+        WHERE Id = $id;";
 
-	// Update & Delete könntest du ähnlich hinzufügen
+		cmd.Parameters.AddWithValue("$id", credential.Id);
+		cmd.Parameters.AddWithValue("$title", credential.Title);
+		cmd.Parameters.AddWithValue("$username", credential.Username ?? "");
+		cmd.Parameters.AddWithValue("$password", credential.EncryptedPassword);
+		cmd.Parameters.AddWithValue("$url", credential.URL ?? "");
+		cmd.Parameters.AddWithValue("$notes", credential.Notes ?? "");
+
+		cmd.ExecuteNonQuery();
+	}
+
+	
+	/// <summary>
+	/// Delete
+	/// </summary>
+	/// <param name="credential"></param>
+	public void Remove(int id)
+	{
+		using var conn = GetConnection();
+		using var cmd = conn.CreateCommand();
+		cmd.CommandText = "DELETE FROM Credentials WHERE Id = $id;";
+		cmd.Parameters.AddWithValue("$id", id);
+		cmd.ExecuteNonQuery();
+	}
+
+	#endregion
 }
