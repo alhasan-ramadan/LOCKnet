@@ -53,7 +53,7 @@ public class Database
 			cmd.CommandText = @"
                 CREATE TABLE IF NOT EXISTS Settings (
                     Id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    Key TEXT NOT NULL,
+                    Key TEXT NOT NULL UNIQUE,
                     Value TEXT NOT NULL,
                     CreatedAt TEXT DEFAULT CURRENT_TIMESTAMP,
                     UpdatedAt TEXT DEFAULT CURRENT_TIMESTAMP

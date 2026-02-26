@@ -1,106 +1,108 @@
-﻿using LOCKnet.Data.Models;
+using LOCKnet.Core.DataAbstractions;
 using Microsoft.Data.Sqlite;
 
 namespace LOCKnet.Data.Repositories;
 
-public class CredentialsRepository : RepositoryBase
+/// <summary>
+/// SQLite-Implementierung von <see cref="ICredentialRepository"/>.
+/// </summary>
+public class CredentialsRepository : RepositoryBase, ICredentialRepository
 {
-	public CredentialsRepository(string connectionString) : base(connectionString) { }
+    public CredentialsRepository(string connectionString) : base(connectionString) { }
 
-	#region CRUD 
+    #region ICredentialRepository
 
-	/// <summary>
-	/// Create
-	/// </summary>
-	/// <param name="credential"></param>
-	public void Add(Credential credential)
-	{
-		using var conn = GetConnection();
-		using var cmd = conn.CreateCommand();
-		cmd.CommandText = @"
+    /// <inheritdoc/>
+    public void Add(CredentialRecord credential)
+    {
+        using var conn = GetConnection();
+        using var cmd = conn.CreateCommand();
+        cmd.CommandText = @"
             INSERT INTO Credentials (Title, Username, EncryptedPassword, URL, Notes)
             VALUES ($title, $username, $password, $url, $notes);";
 
-		cmd.Parameters.AddWithValue("$title", credential.Title);
-		cmd.Parameters.AddWithValue("$username", credential.Username ?? "");
-		cmd.Parameters.AddWithValue("$password", credential.EncryptedPassword);
-		cmd.Parameters.AddWithValue("$url", credential.URL ?? "");
-		cmd.Parameters.AddWithValue("$notes", credential.Notes ?? "");
+        cmd.Parameters.AddWithValue("$title", credential.Title);
+        cmd.Parameters.AddWithValue("$username", credential.Username ?? "");
+        cmd.Parameters.AddWithValue("$password", credential.EncryptedPassword);
+        cmd.Parameters.AddWithValue("$url", credential.Url ?? "");
+        cmd.Parameters.AddWithValue("$notes", credential.Notes ?? "");
 
-		cmd.ExecuteNonQuery();
-	}
+        cmd.ExecuteNonQuery();
+    }
 
-	/// <summary>
-	/// Read
-	/// </summary>
-	/// <returns></returns>
-	public List<Credential> GetAll()
-	{
-		var list = new List<Credential>();
-		using var conn = GetConnection();
-		using var cmd = conn.CreateCommand();
-		cmd.CommandText = "SELECT * FROM Credentials";
+    /// <inheritdoc/>
+    public IReadOnlyList<CredentialRecord> GetAll()
+    {
+        var list = new List<CredentialRecord>();
+        using var conn = GetConnection();
+        using var cmd = conn.CreateCommand();
+        cmd.CommandText = "SELECT Id, Title, Username, EncryptedPassword, URL, Notes, CreatedAt, UpdatedAt FROM Credentials";
 
-		using var reader = cmd.ExecuteReader();
-		while (reader.Read())
-		{
-			list.Add(new Credential
-			{
-				Id = reader.GetInt32(0),
-				Title = reader.GetString(1),
-				Username = reader.GetString(2),
-				EncryptedPassword = (byte[])reader["EncryptedPassword"],
-				URL = reader.GetString(4),
-				Notes = reader.GetString(5),
-				CreatedAt = reader.GetDateTime(6),
-				UpdatedAt = reader.GetDateTime(7)
-			});
-		}
+        using var reader = cmd.ExecuteReader();
+        while (reader.Read())
+            list.Add(MapRecord(reader));
 
-		return list;
-	}
+        return list;
+    }
 
-	/// <summary>
-	/// Update
-	/// </summary>
-	/// <param name="credential"></param>
-	public void Update(Credential credential)
-	{
-		using var conn = GetConnection();
-		using var cmd = conn.CreateCommand();
-		cmd.CommandText = @"
-        UPDATE Credentials
-        SET Title = $title,
-            Username = $username,
-            EncryptedPassword = $password,
-            URL = $url,
-            Notes = $notes,
-            UpdatedAt = CURRENT_TIMESTAMP
-        WHERE Id = $id;";
+    /// <inheritdoc/>
+    public CredentialRecord? GetById(int id)
+    {
+        using var conn = GetConnection();
+        using var cmd = conn.CreateCommand();
+        cmd.CommandText = "SELECT Id, Title, Username, EncryptedPassword, URL, Notes, CreatedAt, UpdatedAt FROM Credentials WHERE Id = $id LIMIT 1;";
+        cmd.Parameters.AddWithValue("$id", id);
 
-		cmd.Parameters.AddWithValue("$id", credential.Id);
-		cmd.Parameters.AddWithValue("$title", credential.Title);
-		cmd.Parameters.AddWithValue("$username", credential.Username ?? "");
-		cmd.Parameters.AddWithValue("$password", credential.EncryptedPassword);
-		cmd.Parameters.AddWithValue("$url", credential.URL ?? "");
-		cmd.Parameters.AddWithValue("$notes", credential.Notes ?? "");
+        using var reader = cmd.ExecuteReader();
+        return reader.Read() ? MapRecord(reader) : null;
+    }
 
-		cmd.ExecuteNonQuery();
-	}
+    /// <inheritdoc/>
+    public void Update(CredentialRecord credential)
+    {
+        using var conn = GetConnection();
+        using var cmd = conn.CreateCommand();
+        cmd.CommandText = @"
+            UPDATE Credentials
+            SET Title = $title,
+                Username = $username,
+                EncryptedPassword = $password,
+                URL = $url,
+                Notes = $notes,
+                UpdatedAt = CURRENT_TIMESTAMP
+            WHERE Id = $id;";
 
+        cmd.Parameters.AddWithValue("$id", credential.Id);
+        cmd.Parameters.AddWithValue("$title", credential.Title);
+        cmd.Parameters.AddWithValue("$username", credential.Username ?? "");
+        cmd.Parameters.AddWithValue("$password", credential.EncryptedPassword);
+        cmd.Parameters.AddWithValue("$url", credential.Url ?? "");
+        cmd.Parameters.AddWithValue("$notes", credential.Notes ?? "");
 
-	/// <summary>
-	/// Delete
-	/// </summary>
-	/// <param name="credential"></param>
-	public void Remove(int id)
-	{
-		using var conn = GetConnection();
-		using var cmd = conn.CreateCommand();
-		cmd.CommandText = "DELETE FROM Credentials WHERE Id = $id;";
-		cmd.Parameters.AddWithValue("$id", id);
-		cmd.ExecuteNonQuery();
-	}
+        cmd.ExecuteNonQuery();
+    }
 
-	#endregion
+    /// <inheritdoc/>
+    public void Remove(int id)
+    {
+        using var conn = GetConnection();
+        using var cmd = conn.CreateCommand();
+        cmd.CommandText = "DELETE FROM Credentials WHERE Id = $id;";
+        cmd.Parameters.AddWithValue("$id", id);
+        cmd.ExecuteNonQuery();
+    }
+
+    #endregion
+
+    private static CredentialRecord MapRecord(SqliteDataReader reader) => new()
+    {
+        Id = reader.GetInt32(0),
+        Title = reader.GetString(1),
+        Username = reader.IsDBNull(2) ? null : reader.GetString(2),
+        EncryptedPassword = (byte[])reader["EncryptedPassword"],
+        Url = reader.IsDBNull(4) ? null : reader.GetString(4),
+        Notes = reader.IsDBNull(5) ? null : reader.GetString(5),
+        CreatedAt = reader.GetDateTime(6),
+        UpdatedAt = reader.GetDateTime(7),
+    };
 }

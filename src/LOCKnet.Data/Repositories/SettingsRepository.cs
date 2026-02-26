@@ -1,87 +1,64 @@
-﻿using LOCKnet.Data.Models;
+using LOCKnet.Core.DataAbstractions;
 using Microsoft.Data.Sqlite;
-using System.Collections.Generic;
 
 namespace LOCKnet.Data.Repositories;
 
-public class SettingsRepository : RepositoryBase
+/// <summary>
+/// SQLite-Implementierung von <see cref="ISettingsRepository"/>.
+/// </summary>
+public class SettingsRepository : RepositoryBase, ISettingsRepository
 {
-	/// <summary>
-	/// Initializes a new instance of <see cref="SettingsRepository"/>.
-	/// </summary>
-	/// <param name="connectionString">SQLite connection string.</param>
-	public SettingsRepository(string connectionString) : base(connectionString) { }
+    public SettingsRepository(string connectionString) : base(connectionString) { }
 
-	#region CRUD
+    #region ISettingsRepository
 
-	/// <summary>
-	/// Create or update a setting.
-	/// </summary>
-	/// <param name="setting">The setting to insert or update.</param>
-	public void Set(Setting setting)
-	{
-		using var conn = GetConnection();
-		using var cmd = conn.CreateCommand();
-		cmd.CommandText = @"
+    /// <inheritdoc/>
+    public void Set(string key, string value)
+    {
+        using var conn = GetConnection();
+        using var cmd = conn.CreateCommand();
+        cmd.CommandText = @"
             INSERT INTO Settings (Key, Value) VALUES ($key, $value)
-            ON CONFLICT(Key) DO UPDATE SET Value = $value;";
-		cmd.Parameters.AddWithValue("$key", setting.Key);
-		cmd.Parameters.AddWithValue("$value", setting.Value);
-		cmd.ExecuteNonQuery();
-	}
+            ON CONFLICT(Key) DO UPDATE SET Value = $value, UpdatedAt = CURRENT_TIMESTAMP;";
+        cmd.Parameters.AddWithValue("$key", key);
+        cmd.Parameters.AddWithValue("$value", value);
+        cmd.ExecuteNonQuery();
+    }
 
-	/// <summary>
-	/// Read a setting by key.
-	/// </summary>
-	/// <param name="key">The key of the setting.</param>
-	/// <returns>The value of the setting, or null if not found.</returns>
-	public string? Get(string key)
-	{
-		using var conn = GetConnection();
-		using var cmd = conn.CreateCommand();
-		cmd.CommandText = "SELECT Value FROM Settings WHERE Key = $key";
-		cmd.Parameters.AddWithValue("$key", key);
-		return cmd.ExecuteScalar() as string;
-	}
+    /// <inheritdoc/>
+    public string? Get(string key)
+    {
+        using var conn = GetConnection();
+        using var cmd = conn.CreateCommand();
+        cmd.CommandText = "SELECT Value FROM Settings WHERE Key = $key";
+        cmd.Parameters.AddWithValue("$key", key);
+        return cmd.ExecuteScalar() as string;
+    }
 
-	/// <summary>
-	/// Read all settings.
-	/// </summary>
-	/// <returns>List of all settings in the database.</returns>
-	public List<Setting> GetAll()
-	{
-		var list = new List<Setting>();
-		using var conn = GetConnection();
-		using var cmd = conn.CreateCommand();
-		cmd.CommandText = "SELECT * FROM Settings";
+    /// <inheritdoc/>
+    public IReadOnlyDictionary<string, string> GetAll()
+    {
+        var dict = new Dictionary<string, string>();
+        using var conn = GetConnection();
+        using var cmd = conn.CreateCommand();
+        cmd.CommandText = "SELECT Key, Value FROM Settings";
 
-		using var reader = cmd.ExecuteReader();
-		while (reader.Read())
-		{
-			list.Add(new Setting
-			{
-				Id = reader.GetInt32(0),
-				Key = reader.GetString(1),
-				Value = reader.GetString(2),
-				CreatedAt = reader.GetDateTime(3),
-				UpdatedAt = reader.GetDateTime(4)
-			});
-		}
-		return list;
-	}
+        using var reader = cmd.ExecuteReader();
+        while (reader.Read())
+            dict[reader.GetString(0)] = reader.GetString(1);
 
-	/// <summary>
-	/// Delete a setting by key.
-	/// </summary>
-	/// <param name="key">The key of the setting to delete.</param>
-	public void Remove(string key)
-	{
-		using var conn = GetConnection();
-		using var cmd = conn.CreateCommand();
-		cmd.CommandText = "DELETE FROM Settings WHERE Key = $key;";
-		cmd.Parameters.AddWithValue("$key", key);
-		cmd.ExecuteNonQuery();
-	}
+        return dict;
+    }
 
-	#endregion
+    /// <inheritdoc/>
+    public void Remove(string key)
+    {
+        using var conn = GetConnection();
+        using var cmd = conn.CreateCommand();
+        cmd.CommandText = "DELETE FROM Settings WHERE Key = $key;";
+        cmd.Parameters.AddWithValue("$key", key);
+        cmd.ExecuteNonQuery();
+    }
+
+    #endregion
 }

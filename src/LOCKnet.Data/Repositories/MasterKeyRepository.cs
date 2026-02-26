@@ -1,97 +1,79 @@
-﻿using LOCKnet.Data.Models;
+using LOCKnet.Core.DataAbstractions;
 using Microsoft.Data.Sqlite;
-using System;
 
 namespace LOCKnet.Data.Repositories;
 
 /// <summary>
-/// Repository for managing the single MasterKey in the database.
-/// Only one MasterKey is allowed.
+/// SQLite-Implementierung von <see cref="IMasterKeyRepository"/>.
+/// Erzwingt, dass genau ein Master-Key in der Datenbank existiert (Id = 1).
 /// </summary>
-public class MasterKeyRepository : RepositoryBase
+public class MasterKeyRepository : RepositoryBase, IMasterKeyRepository
 {
-	/// <summary>
-	/// Initializes a new instance of <see cref="MasterKeyRepository"/>.
-	/// </summary>
-	/// <param name="connectionString">SQLite connection string.</param>
-	public MasterKeyRepository(string connectionString) : base(connectionString) { }
+    public MasterKeyRepository(string connectionString) : base(connectionString) { }
 
-	#region CRUD
+    #region IMasterKeyRepository
 
-	/// <summary>
-	/// Creates the MasterKey if it does not exist yet.
-	/// </summary>
-	/// <param name="key">The MasterKey to insert.</param>
-	public void Create(MasterKey key)
-	{
-		if (Get() != null)
-			throw new InvalidOperationException("MasterKey already exists.");
+    /// <inheritdoc/>
+    /// <exception cref="InvalidOperationException">Master-Key existiert bereits.</exception>
+    public void Create(MasterKeyRecord key)
+    {
+        if (Get() != null)
+            throw new InvalidOperationException("MasterKey already exists.");
 
-		using var conn = GetConnection();
-		using var cmd = conn.CreateCommand();
-		cmd.CommandText = @"
+        using var conn = GetConnection();
+        using var cmd = conn.CreateCommand();
+        cmd.CommandText = @"
             INSERT INTO MasterKey (Id, PasswordHash, Salt)
             VALUES (1, $hash, $salt);";
-		cmd.Parameters.AddWithValue("$hash", key.PasswordHash);
-		cmd.Parameters.AddWithValue("$salt", key.Salt);
-		cmd.ExecuteNonQuery();
-	}
+        cmd.Parameters.AddWithValue("$hash", key.PasswordHash);
+        cmd.Parameters.AddWithValue("$salt", key.Salt);
+        cmd.ExecuteNonQuery();
+    }
 
-	/// <summary>
-	/// Reads the single MasterKey from the database.
-	/// </summary>
-	/// <returns>The MasterKey if it exists, otherwise null.</returns>
-	public MasterKey? Get()
-	{
-		using var conn = GetConnection();
-		using var cmd = conn.CreateCommand();
-		cmd.CommandText = "SELECT * FROM MasterKey WHERE Id = 1 LIMIT 1;";
+    /// <inheritdoc/>
+    public MasterKeyRecord? Get()
+    {
+        using var conn = GetConnection();
+        using var cmd = conn.CreateCommand();
+        cmd.CommandText = "SELECT PasswordHash, Salt, CreatedAt, UpdatedAt FROM MasterKey WHERE Id = 1 LIMIT 1;";
 
-		using var reader = cmd.ExecuteReader();
-		if (reader.Read())
-		{
-			return new MasterKey
-			{
-				Id = reader.GetInt32(0),
-				PasswordHash = (byte[])reader["PasswordHash"],
-				Salt = (byte[])reader["Salt"],
-				CreatedAt = reader.GetDateTime(3),
-				UpdatedAt = reader.GetDateTime(4)
-			};
-		}
+        using var reader = cmd.ExecuteReader();
+        if (!reader.Read())
+            return null;
 
-		return null;
-	}
+        return new MasterKeyRecord
+        {
+            PasswordHash = (byte[])reader["PasswordHash"],
+            Salt = (byte[])reader["Salt"],
+            CreatedAt = reader.GetDateTime(2),
+            UpdatedAt = reader.GetDateTime(3),
+        };
+    }
 
-	/// <summary>
-	/// Updates the existing MasterKey with new values.
-	/// </summary>
-	/// <param name="key">The new MasterKey values.</param>
-	public void Update(MasterKey key)
-	{
-		using var conn = GetConnection();
-		using var cmd = conn.CreateCommand();
-		cmd.CommandText = @"
+    /// <inheritdoc/>
+    public void Update(MasterKeyRecord key)
+    {
+        using var conn = GetConnection();
+        using var cmd = conn.CreateCommand();
+        cmd.CommandText = @"
             UPDATE MasterKey
             SET PasswordHash = $hash,
                 Salt = $salt,
                 UpdatedAt = CURRENT_TIMESTAMP
             WHERE Id = 1;";
-		cmd.Parameters.AddWithValue("$hash", key.PasswordHash);
-		cmd.Parameters.AddWithValue("$salt", key.Salt);
-		cmd.ExecuteNonQuery();
-	}
+        cmd.Parameters.AddWithValue("$hash", key.PasswordHash);
+        cmd.Parameters.AddWithValue("$salt", key.Salt);
+        cmd.ExecuteNonQuery();
+    }
 
-	/// <summary>
-	/// Deletes the single MasterKey, effectively resetting it.
-	/// </summary>
-	public void Delete()
-	{
-		using var conn = GetConnection();
-		using var cmd = conn.CreateCommand();
-		cmd.CommandText = "DELETE FROM MasterKey WHERE Id = 1;";
-		cmd.ExecuteNonQuery();
-	}
+    /// <inheritdoc/>
+    public void Delete()
+    {
+        using var conn = GetConnection();
+        using var cmd = conn.CreateCommand();
+        cmd.CommandText = "DELETE FROM MasterKey WHERE Id = 1;";
+        cmd.ExecuteNonQuery();
+    }
 
-	#endregion
+    #endregion
 }
