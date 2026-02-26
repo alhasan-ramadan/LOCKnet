@@ -1,0 +1,118 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LOCKnet.App.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="600"
+             x:Class="LOCKnet.App.Views.LoginView"
+             x:DataType="vm:LoginViewModel"
+             Background="#1a1d2e">
+
+    <Design.DataContext>
+        <vm:LoginViewModel/>
+    </Design.DataContext>
+
+    <Grid RowDefinitions="*,Auto,*">
+        <StackPanel Grid.Row="1"
+                    Width="380"
+                    HorizontalAlignment="Center"
+                    Spacing="0">
+
+            <!-- Logo / Title -->
+            <TextBlock Text="🔒 LOCKnet"
+                       FontSize="32"
+                       FontWeight="Bold"
+                       Foreground="#e8e8f0"
+                       HorizontalAlignment="Center"
+                       Margin="0,0,0,8"/>
+            <TextBlock Text="Local Offline Credential Keeper"
+                       FontSize="13"
+                       Foreground="#8888aa"
+                       HorizontalAlignment="Center"
+                       Margin="0,0,0,40"/>
+
+            <!-- Card -->
+            <Border Background="#252840"
+                    CornerRadius="12"
+                    Padding="36,32">
+                <StackPanel Spacing="20">
+
+                    <!-- Mode heading -->
+                    <TextBlock Text="Ersteinrichtung"
+                               FontSize="18"
+                               FontWeight="SemiBold"
+                               Foreground="#e8e8f0"
+                               IsVisible="{Binding IsSetupMode}"/>
+                    <TextBlock Text="Willkommen zurück"
+                               FontSize="18"
+                               FontWeight="SemiBold"
+                               Foreground="#e8e8f0"
+                               IsVisible="{Binding !IsSetupMode}"/>
+
+                    <!-- Password -->
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="Master-Passwort"
+                                   FontSize="12"
+                                   Foreground="#8888aa"/>
+                        <TextBox Text="{Binding Password, Mode=TwoWay}"
+                                 PasswordChar="●"
+                                 Watermark="Passwort eingeben…"
+                                 Background="#2d3154"
+                                 Foreground="#e8e8f0"
+                                 BorderBrush="#3d4070"
+                                 CornerRadius="6"
+                                 Padding="12,10"/>
+                    </StackPanel>
+
+                    <!-- Confirm Password (only setup mode) -->
+                    <StackPanel Spacing="6" IsVisible="{Binding IsSetupMode}">
+                        <TextBlock Text="Passwort bestätigen"
+                                   FontSize="12"
+                                   Foreground="#8888aa"/>
+                        <TextBox Text="{Binding ConfirmPassword, Mode=TwoWay}"
+                                 PasswordChar="●"
+                                 Watermark="Passwort wiederholen…"
+                                 Background="#2d3154"
+                                 Foreground="#e8e8f0"
+                                 BorderBrush="#3d4070"
+                                 CornerRadius="6"
+                                 Padding="12,10"/>
+                    </StackPanel>
+
+                    <!-- Error -->
+                    <TextBlock Text="{Binding ErrorMessage}"
+                               Foreground="#ff4757"
+                               FontSize="12"
+                               TextWrapping="Wrap"
+                               IsVisible="{Binding ErrorMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+
+                    <!-- Buttons -->
+                    <Button Content="Entsperren"
+                            Command="{Binding UnlockCommand}"
+                            IsVisible="{Binding !IsSetupMode}"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Center"
+                            Background="#6c63ff"
+                            Foreground="White"
+                            FontWeight="SemiBold"
+                            CornerRadius="6"
+                            Padding="0,12"/>
+
+                    <Button Content="Einrichten &amp; Entsperren"
+                            Command="{Binding SetupCommand}"
+                            IsVisible="{Binding IsSetupMode}"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Center"
+                            Background="#6c63ff"
+                            Foreground="White"
+                            FontWeight="SemiBold"
+                            CornerRadius="6"
+                            Padding="0,12"/>
+
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </Grid>
+
+</UserControl>

@@ -1,0 +1,78 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:LOCKnet.App.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="600"
+             x:Class="LOCKnet.App.Views.LockScreenView"
+             x:DataType="vm:LockScreenViewModel"
+             Background="#1a1d2e">
+
+    <Design.DataContext>
+        <vm:LockScreenViewModel/>
+    </Design.DataContext>
+
+    <Grid RowDefinitions="*,Auto,*">
+        <StackPanel Grid.Row="1"
+                    Width="360"
+                    HorizontalAlignment="Center"
+                    Spacing="0">
+
+            <TextBlock Text="🔒"
+                       FontSize="48"
+                       HorizontalAlignment="Center"
+                       Margin="0,0,0,12"/>
+            <TextBlock Text="Sitzung gesperrt"
+                       FontSize="24"
+                       FontWeight="Bold"
+                       Foreground="#e8e8f0"
+                       HorizontalAlignment="Center"
+                       Margin="0,0,0,6"/>
+            <TextBlock Text="Gib dein Master-Passwort ein, um fortzufahren."
+                       FontSize="13"
+                       Foreground="#8888aa"
+                       HorizontalAlignment="Center"
+                       TextAlignment="Center"
+                       Margin="0,0,0,32"/>
+
+            <Border Background="#252840"
+                    CornerRadius="12"
+                    Padding="36,32">
+                <StackPanel Spacing="20">
+
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="Master-Passwort"
+                                   FontSize="12"
+                                   Foreground="#8888aa"/>
+                        <TextBox Text="{Binding Password, Mode=TwoWay}"
+                                 PasswordChar="●"
+                                 Watermark="Passwort eingeben…"
+                                 Background="#2d3154"
+                                 Foreground="#e8e8f0"
+                                 BorderBrush="#3d4070"
+                                 CornerRadius="6"
+                                 Padding="12,10"/>
+                    </StackPanel>
+
+                    <TextBlock Text="{Binding ErrorMessage}"
+                               Foreground="#ff4757"
+                               FontSize="12"
+                               IsVisible="{Binding ErrorMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+
+                    <Button Content="Entsperren"
+                            Command="{Binding UnlockCommand}"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Center"
+                            Background="#6c63ff"
+                            Foreground="White"
+                            FontWeight="SemiBold"
+                            CornerRadius="6"
+                            Padding="0,12"/>
+
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </Grid>
+
+</UserControl>
