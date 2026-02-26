@@ -35,6 +35,14 @@ public partial class MainWindowViewModel : ViewModelBase
         var vm = new CredentialListViewModel();
         vm.LockRequested += (_, _) => ShowLockScreen();
         vm.AddEditRequested += (_, record) => ShowCredentialDetail(record);
+        vm.TutorialRequested += (_, _) => ShowTutorial();
+        CurrentView = vm;
+    }
+
+    private void ShowTutorial()
+    {
+        var vm = new TutorialViewModel();
+        vm.Closed += (_, _) => ShowCredentialList();
         CurrentView = vm;
     }
 

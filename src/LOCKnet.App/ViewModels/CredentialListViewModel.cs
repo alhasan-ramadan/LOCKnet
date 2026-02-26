@@ -14,6 +14,7 @@ public partial class CredentialListViewModel : ViewModelBase
 {
     public event EventHandler? LockRequested;
     public event EventHandler<CredentialRecord?>? AddEditRequested;
+    public event EventHandler? TutorialRequested;
 
     private IReadOnlyList<CredentialRecord> _allCredentials = [];
 
@@ -117,6 +118,9 @@ public partial class CredentialListViewModel : ViewModelBase
             StatusMessage = ex.Message;
         }
     }
+
+    [RelayCommand]
+    private void ShowTutorial() => TutorialRequested?.Invoke(this, EventArgs.Empty);
 
     [RelayCommand]
     private void Lock()

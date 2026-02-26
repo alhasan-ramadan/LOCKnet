@@ -19,12 +19,19 @@
                     Spacing="0">
 
             <!-- Logo / Title -->
-            <TextBlock Text="🔒 LOCKnet"
-                       FontSize="32"
-                       FontWeight="Bold"
-                       Foreground="#e8e8f0"
-                       HorizontalAlignment="Center"
-                       Margin="0,0,0,8"/>
+            <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Center"
+                        Spacing="10"
+                        Margin="0,0,0,6">
+                <Image Source="/Assets/favicon-32x32.png"
+                       Width="40" Height="40"
+                       VerticalAlignment="Center"/>
+                <TextBlock Text="LOCKnet"
+                           FontSize="32"
+                           FontWeight="Bold"
+                           Foreground="#e8e8f0"
+                           VerticalAlignment="Center"/>
+            </StackPanel>
             <TextBlock Text="Local Offline Credential Keeper"
                        FontSize="13"
                        Foreground="#8888aa"
