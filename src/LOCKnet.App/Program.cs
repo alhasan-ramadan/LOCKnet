@@ -1,23 +1,25 @@
-﻿using Avalonia;
+using Avalonia;
+using System.IO;
 
 namespace LOCKnet.App;
 
 sealed class Program
 {
-	// Initialization code. Don't use any Avalonia, third-party APIs or any
-	// SynchronizationContext-reliant code before AppMain is called: things aren't initialized
-	// yet and stuff might break.
-	[STAThread]
-	public static void Main(string[] args)
-	{
-		// Avalonia starten
-		BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
-	}
+    [STAThread]
+    public static void Main(string[] args)
+    {
+        // Datenbank liegt neben der EXE (USB-Stick-Betrieb)
+        var dbPath = Path.Combine(
+            AppContext.BaseDirectory,
+            "locknet.db");
 
-	// Avalonia configuration, don't remove; also used by visual designer.
-	public static AppBuilder BuildAvaloniaApp()
-		=> AppBuilder.Configure<App>()
-			.UsePlatformDetect()
-			.WithInterFont()
-			.LogToTrace();
+        AppServices.Initialize(dbPath);
+        BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
+    }
+
+    public static AppBuilder BuildAvaloniaApp()
+        => AppBuilder.Configure<App>()
+            .UsePlatformDetect()
+            .WithInterFont()
+            .LogToTrace();
 }
