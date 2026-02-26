@@ -1,9 +1,4 @@
 ﻿using Avalonia;
-using LOCKnet.Data;
-using LOCKnet.Data.Models;
-using LOCKnet.Data.Repositories;
-using System;
-using System.Linq;
 
 namespace LOCKnet.App;
 
