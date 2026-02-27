@@ -6,7 +6,7 @@
              mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="600"
              x:Class="LOCKnet.App.Views.LockScreenView"
              x:DataType="vm:LockScreenViewModel"
-             Background="#1a1d2e">
+             Background="{StaticResource BrushBg}">
 
     <Design.DataContext>
         <vm:LockScreenViewModel/>
@@ -14,60 +14,67 @@
 
     <Grid RowDefinitions="*,Auto,*">
         <StackPanel Grid.Row="1"
-                    Width="360"
+                    Width="380"
                     HorizontalAlignment="Center"
                     Spacing="0">
 
-            <TextBlock Text="🔒"
-                       FontSize="48"
-                       HorizontalAlignment="Center"
-                       Margin="0,0,0,12"/>
+            <!-- Lock Icon -->
+            <Border Width="80" Height="80"
+                    CornerRadius="40"
+                    Background="{StaticResource BrushSurface}"
+                    HorizontalAlignment="Center"
+                    Margin="0,0,0,12">
+                <TextBlock Text="■"
+                           FontSize="28"
+                           Foreground="{StaticResource BrushAccent}"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"/>
+            </Border>
+
+            <!-- Title -->
             <TextBlock Text="Sitzung gesperrt"
-                       FontSize="24"
+                       FontSize="26"
                        FontWeight="Bold"
-                       Foreground="#e8e8f0"
+                       Foreground="{StaticResource BrushTextPrimary}"
                        HorizontalAlignment="Center"
                        Margin="0,0,0,6"/>
+
+            <!-- Subtitle -->
             <TextBlock Text="Gib dein Master-Passwort ein, um fortzufahren."
-                       FontSize="13"
-                       Foreground="#8888aa"
+                       FontSize="14"
+                       Foreground="{StaticResource BrushTextSecondary}"
                        HorizontalAlignment="Center"
                        TextAlignment="Center"
-                       Margin="0,0,0,32"/>
+                       Margin="0,0,0,40"/>
 
-            <Border Background="#252840"
-                    CornerRadius="12"
-                    Padding="36,32">
+            <!-- Card -->
+            <Border Background="{StaticResource BrushSurface}"
+                    CornerRadius="{StaticResource RadiusLg}"
+                    Padding="40,36">
                 <StackPanel Spacing="20">
 
+                    <!-- Password -->
                     <StackPanel Spacing="6">
                         <TextBlock Text="Master-Passwort"
                                    FontSize="12"
-                                   Foreground="#8888aa"/>
+                                   Foreground="{StaticResource BrushTextSecondary}"/>
                         <TextBox Text="{Binding Password, Mode=TwoWay}"
                                  PasswordChar="●"
-                                 Watermark="Passwort eingeben…"
-                                 Background="#2d3154"
-                                 Foreground="#e8e8f0"
-                                 BorderBrush="#3d4070"
-                                 CornerRadius="6"
-                                 Padding="12,10"/>
+                                 Watermark="Passwort eingeben…"/>
                     </StackPanel>
 
+                    <!-- Error -->
                     <TextBlock Text="{Binding ErrorMessage}"
-                               Foreground="#ff4757"
+                               Foreground="{StaticResource BrushError}"
                                FontSize="12"
                                IsVisible="{Binding ErrorMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
 
+                    <!-- Unlock Button -->
                     <Button Content="Entsperren"
+                            Classes="primary"
                             Command="{Binding UnlockCommand}"
                             HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Center"
-                            Background="#6c63ff"
-                            Foreground="White"
-                            FontWeight="SemiBold"
-                            CornerRadius="6"
-                            Padding="0,12"/>
+                            HorizontalContentAlignment="Center"/>
 
                 </StackPanel>
             </Border>

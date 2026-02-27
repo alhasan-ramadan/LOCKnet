@@ -17,6 +17,11 @@ public interface IActivityMonitor : IDisposable
 	bool IsRunning { get; }
 
 	/// <summary>
+	/// Zeitpunkt der letzten registrierten Aktivität.
+	/// </summary>
+	DateTimeOffset LastActivity { get; }
+
+	/// <summary>
 	/// Startet die Aktivitätsüberwachung.
 	/// </summary>
 	void Start();

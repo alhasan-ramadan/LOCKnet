@@ -6,7 +6,7 @@
              mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="600"
              x:Class="LOCKnet.App.Views.LoginView"
              x:DataType="vm:LoginViewModel"
-             Background="#1a1d2e">
+             Background="{StaticResource BrushBg}">
 
     <Design.DataContext>
         <vm:LoginViewModel/>
@@ -14,7 +14,7 @@
 
     <Grid RowDefinitions="*,Auto,*">
         <StackPanel Grid.Row="1"
-                    Width="380"
+                    Width="400"
                     HorizontalAlignment="Center"
                     Spacing="0">
 
@@ -22,99 +22,83 @@
             <StackPanel Orientation="Horizontal"
                         HorizontalAlignment="Center"
                         Spacing="10"
-                        Margin="0,0,0,6">
+                        Margin="0,0,0,8">
                 <Image Source="/Assets/favicon-32x32.png"
                        Width="40" Height="40"
                        VerticalAlignment="Center"/>
                 <TextBlock Text="LOCKnet"
-                           FontSize="32"
+                           FontSize="34"
                            FontWeight="Bold"
-                           Foreground="#e8e8f0"
+                           Foreground="{StaticResource BrushTextPrimary}"
                            VerticalAlignment="Center"/>
             </StackPanel>
             <TextBlock Text="Local Offline Credential Keeper"
                        FontSize="13"
-                       Foreground="#8888aa"
+                       Foreground="{StaticResource BrushTextSecondary}"
                        HorizontalAlignment="Center"
-                       Margin="0,0,0,40"/>
+                       Margin="0,0,0,44"/>
+
+            <Separator Background="{StaticResource BrushBorder}" Height="1" Margin="0,0,0,32"/>
 
             <!-- Card -->
-            <Border Background="#252840"
-                    CornerRadius="12"
-                    Padding="36,32">
+            <Border Background="{StaticResource BrushSurface}"
+                    CornerRadius="{StaticResource RadiusLg}"
+                    Padding="40,36">
                 <StackPanel Spacing="20">
 
                     <!-- Mode heading -->
                     <TextBlock Text="Ersteinrichtung"
                                FontSize="18"
                                FontWeight="SemiBold"
-                               Foreground="#e8e8f0"
+                               Foreground="{StaticResource BrushTextPrimary}"
                                IsVisible="{Binding IsSetupMode}"/>
                     <TextBlock Text="Willkommen zurück"
                                FontSize="18"
                                FontWeight="SemiBold"
-                               Foreground="#e8e8f0"
+                               Foreground="{StaticResource BrushTextPrimary}"
                                IsVisible="{Binding !IsSetupMode}"/>
 
                     <!-- Password -->
                     <StackPanel Spacing="6">
                         <TextBlock Text="Master-Passwort"
                                    FontSize="12"
-                                   Foreground="#8888aa"/>
+                                   Foreground="{StaticResource BrushTextSecondary}"/>
                         <TextBox Text="{Binding Password, Mode=TwoWay}"
                                  PasswordChar="●"
-                                 Watermark="Passwort eingeben…"
-                                 Background="#2d3154"
-                                 Foreground="#e8e8f0"
-                                 BorderBrush="#3d4070"
-                                 CornerRadius="6"
-                                 Padding="12,10"/>
+                                 Watermark="Passwort eingeben…"/>
                     </StackPanel>
 
                     <!-- Confirm Password (only setup mode) -->
                     <StackPanel Spacing="6" IsVisible="{Binding IsSetupMode}">
                         <TextBlock Text="Passwort bestätigen"
                                    FontSize="12"
-                                   Foreground="#8888aa"/>
+                                   Foreground="{StaticResource BrushTextSecondary}"/>
                         <TextBox Text="{Binding ConfirmPassword, Mode=TwoWay}"
                                  PasswordChar="●"
-                                 Watermark="Passwort wiederholen…"
-                                 Background="#2d3154"
-                                 Foreground="#e8e8f0"
-                                 BorderBrush="#3d4070"
-                                 CornerRadius="6"
-                                 Padding="12,10"/>
+                                 Watermark="Passwort wiederholen…"/>
                     </StackPanel>
 
                     <!-- Error -->
                     <TextBlock Text="{Binding ErrorMessage}"
-                               Foreground="#ff4757"
+                               Foreground="{StaticResource BrushError}"
                                FontSize="12"
                                TextWrapping="Wrap"
                                IsVisible="{Binding ErrorMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
 
                     <!-- Buttons -->
                     <Button Content="Entsperren"
+                            Classes="primary"
                             Command="{Binding UnlockCommand}"
                             IsVisible="{Binding !IsSetupMode}"
                             HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Center"
-                            Background="#6c63ff"
-                            Foreground="White"
-                            FontWeight="SemiBold"
-                            CornerRadius="6"
-                            Padding="0,12"/>
+                            HorizontalContentAlignment="Center"/>
 
                     <Button Content="Einrichten &amp; Entsperren"
+                            Classes="primary"
                             Command="{Binding SetupCommand}"
                             IsVisible="{Binding IsSetupMode}"
                             HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Center"
-                            Background="#6c63ff"
-                            Foreground="White"
-                            FontWeight="SemiBold"
-                            CornerRadius="6"
-                            Padding="0,12"/>
+                            HorizontalContentAlignment="Center"/>
 
                 </StackPanel>
             </Border>

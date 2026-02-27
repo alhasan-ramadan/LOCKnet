@@ -41,11 +41,15 @@ public sealed class ActivityMonitor : IActivityMonitor
 	public bool IsRunning => _running;
 
 	/// <inheritdoc/>
+	public DateTimeOffset LastActivity { get; private set; } = DateTimeOffset.UtcNow;
+
+	/// <inheritdoc/>
 	public void Start()
 	{
 		ObjectDisposedException.ThrowIf(_disposed, this);
 		if (_running) return;
 
+		LastActivity = DateTimeOffset.UtcNow;
 		_running = true;
 		_timer = new System.Threading.Timer(OnTimeout, null, _timeout, System.Threading.Timeout.InfiniteTimeSpan);
 	}
@@ -61,7 +65,10 @@ public sealed class ActivityMonitor : IActivityMonitor
 	public void RecordActivity()
 	{
 		if (_running)
+		{
+			LastActivity = DateTimeOffset.UtcNow;
 			ResetTimer();
+		}
 	}
 
 	private void ResetTimer()

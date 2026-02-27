@@ -12,26 +12,26 @@ public class Database
 {
 	private readonly string _connectionString;
 
-    /// <summary>
+	/// <summary>
 	/// Initialisiert eine neue Instanz von <see cref="Database"/> mit einem Datei-Pfad.
 	/// </summary>
 	/// <param name="databasePath">
 	/// Pfad zur SQLite-Datenbankdatei (Standard: <c>credentials.db</c> im Arbeitsverzeichnis).
 	/// </param>
 	public Database(string databasePath = "credentials.db")
-    {
-        _connectionString = $"Data Source={databasePath}";
-    }
+	{
+		_connectionString = $"Data Source={databasePath}";
+	}
 
-    /// <summary>
-    /// Initializes a <see cref="Database"/> with a fully-formed connection string.
-    /// Use this overload in tests when an in-memory connection string is needed.
-    /// </summary>
-    internal Database(string connectionString, bool useConnectionStringDirectly)
-    {
-        _ = useConnectionStringDirectly; // discriminator — not stored
-        _connectionString = connectionString;
-    }
+	/// <summary>
+	/// Initializes a <see cref="Database"/> with a fully-formed connection string.
+	/// Use this overload in tests when an in-memory connection string is needed.
+	/// </summary>
+	internal Database(string connectionString, bool useConnectionStringDirectly)
+	{
+		_ = useConnectionStringDirectly; // discriminator — not stored
+		_connectionString = connectionString;
+	}
 
 	/// <summary>
 	/// Erstellt alle Tabellen (Credentials, MasterKey, Settings) via <c>CREATE TABLE IF NOT EXISTS</c>.

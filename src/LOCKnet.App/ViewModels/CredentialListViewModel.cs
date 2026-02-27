@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LOCKnet.Core.DataAbstractions;
@@ -17,6 +18,7 @@ public partial class CredentialListViewModel : ViewModelBase
 	public event EventHandler? TutorialRequested;
 
 	private IReadOnlyList<CredentialRecord> _allCredentials = [];
+	private DispatcherTimer? _countdownTimer;
 
 	[ObservableProperty]
 	private ObservableCollection<CredentialRecord> _credentials = [];
@@ -33,12 +35,43 @@ public partial class CredentialListViewModel : ViewModelBase
 	[ObservableProperty]
 	private string _statusMessage = string.Empty;
 
+	[ObservableProperty]
+	private string _lockTimerText = string.Empty;
+
 	public CredentialListViewModel()
 	{
 		Refresh();
+		StartCountdownTimer();
 	}
 
-	// ── Data ──────────────────────────────────────────────────────────────────
+	// ── Countdown ─────────────────────────────────────────────────────────────
+
+	private void StartCountdownTimer()
+	{
+		_countdownTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+		_countdownTimer.Tick += (_, _) => UpdateLockTimer();
+		_countdownTimer.Start();
+		UpdateLockTimer();
+	}
+
+	private void UpdateLockTimer()
+	{
+		var monitor = AppServices.Current.ActivityMonitor;
+		if (!monitor.IsRunning)
+		{
+			LockTimerText = string.Empty;
+			return;
+		}
+		var elapsed = DateTimeOffset.UtcNow - monitor.LastActivity;
+		var remaining = monitor.Timeout - elapsed;
+		if (remaining <= TimeSpan.Zero)
+		{
+			LockTimerText = "⏱ 0:00";
+			return;
+		}
+		LockTimerText = $"⏱ {(int)remaining.TotalMinutes}:{remaining.Seconds:D2}";
+	}
+
 
 	public void Refresh()
 	{

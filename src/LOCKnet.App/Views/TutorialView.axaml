@@ -6,7 +6,7 @@
              mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="600"
              x:Class="LOCKnet.App.Views.TutorialView"
              x:DataType="vm:TutorialViewModel"
-             Background="#1a1d2e">
+             Background="{StaticResource BrushBg}">
 
     <Design.DataContext>
         <vm:TutorialViewModel/>
@@ -14,10 +14,10 @@
 
     <Grid RowDefinitions="*,Auto,*">
         <Border Grid.Row="1"
-                Width="560"
+                Width="580"
                 HorizontalAlignment="Center"
-                Background="#252840"
-                CornerRadius="14"
+                Background="{StaticResource BrushSurface}"
+                CornerRadius="{StaticResource RadiusLg}"
                 Padding="44,40"
                 Margin="0,24">
             <StackPanel Spacing="28">
@@ -32,30 +32,30 @@
                     <TextBlock Text="LOCKnet · Hilfe"
                                FontSize="20"
                                FontWeight="Bold"
-                               Foreground="#e8e8f0"
+                               Foreground="{StaticResource BrushTextPrimary}"
                                VerticalAlignment="Center"/>
                 </StackPanel>
 
                 <!-- Step indicator -->
                 <TextBlock Text="{Binding CurrentStepData.StepLabel}"
                            FontSize="12"
-                           Foreground="#6c63ff"
+                           Foreground="{StaticResource BrushAccent}"
                            HorizontalAlignment="Center"
                            FontWeight="SemiBold"/>
 
                 <!-- Step card -->
-                <Border Background="#1a1d2e"
-                        CornerRadius="10"
+                <Border Background="{StaticResource BrushInput}"
+                        CornerRadius="{StaticResource RadiusMd}"
                         Padding="28,24">
                     <StackPanel Spacing="14">
                         <TextBlock Text="{Binding CurrentStepData.Title}"
                                    FontSize="18"
                                    FontWeight="Bold"
-                                   Foreground="#e8e8f0"
+                                   Foreground="{StaticResource BrushTextPrimary}"
                                    TextWrapping="Wrap"/>
                         <TextBlock Text="{Binding CurrentStepData.Content}"
                                    FontSize="14"
-                                   Foreground="#b0b0c8"
+                                   Foreground="{StaticResource BrushTextSecondary}"
                                    TextWrapping="Wrap"
                                    LineHeight="22"/>
                     </StackPanel>
@@ -65,48 +65,51 @@
                 <Grid ColumnDefinitions="Auto,*,Auto">
                     <Button Grid.Column="0"
                             Content="← Zurück"
+                            Classes="secondary"
                             Command="{Binding BackCommand}"
-                            Background="#2d3154"
-                            Foreground="#e8e8f0"
-                            CornerRadius="6"
                             Padding="18,10"
                             IsVisible="{Binding CanGoBack}"/>
 
-                    <!-- Dots -->
-                    <ItemsControl Grid.Column="1"
-                                  HorizontalAlignment="Center"
-                                  VerticalAlignment="Center">
-                        <ItemsControl.Items>
-                            <Ellipse Width="8" Height="8" Fill="#6c63ff" Margin="3,0"/>
-                            <Ellipse Width="8" Height="8" Fill="#3d4070" Margin="3,0"/>
-                            <Ellipse Width="8" Height="8" Fill="#3d4070" Margin="3,0"/>
-                            <Ellipse Width="8" Height="8" Fill="#3d4070" Margin="3,0"/>
-                            <Ellipse Width="8" Height="8" Fill="#3d4070" Margin="3,0"/>
-                        </ItemsControl.Items>
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <StackPanel Orientation="Horizontal"/>
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                    </ItemsControl>
+                    <!-- Dots (Static for now, dynamic bindings would require a converter or multiple sets) -->
+                    <!-- Since I cannot add converters, I'll rely on the ViewModel if it has dot properties, but it doesn't seem to. -->
+                    <!-- The original file had HARDCODED Ellipses inside ItemsControl.Items. -->
+                    <!-- I must replicate that but with the new styles. -->
+                    <!-- Wait, if they are hardcoded, they won't update. The original file has 5 ellipses with hardcoded colors. -->
+                    <!-- "Step indicator dots: active dot is 10x10 BrushAccent; inactive dots are 8x8 BrushBorder" -->
+                    <!-- If I cannot change the ViewModel to bind this, and I cannot add a converter, how do I make them dynamic? -->
+                    <!-- The original code just had 5 ellipses: 1 accent, 4 dark. This implies the tutorial might be static or the dots were placeholders. -->
+                    <!-- I will keep them as placeholders but styled as requested, assuming the user will fix the binding logic later or it's just a visual mock for now. -->
+                    <!-- Actually, looking at the original file: -->
+                    <!-- <Ellipse Width="8" Height="8" Fill="#6c63ff" Margin="3,0"/> -->
+                    <!-- <Ellipse Width="8" Height="8" Fill="#3d4070" Margin="3,0"/> ... -->
+                    <!-- It seems the original was just a static mockup of the dots. I will replicate that static mockup with the new styles. -->
+                    
+                    <StackPanel Grid.Column="1" 
+                                Orientation="Horizontal" 
+                                HorizontalAlignment="Center" 
+                                VerticalAlignment="Center"
+                                Spacing="6">
+                        <Ellipse Width="10" Height="10" Fill="{StaticResource BrushAccent}"/>
+                        <Ellipse Width="8" Height="8" Fill="{StaticResource BrushBorder}"/>
+                        <Ellipse Width="8" Height="8" Fill="{StaticResource BrushBorder}"/>
+                        <Ellipse Width="8" Height="8" Fill="{StaticResource BrushBorder}"/>
+                        <Ellipse Width="8" Height="8" Fill="{StaticResource BrushBorder}"/>
+                    </StackPanel>
 
                     <Button Grid.Column="2"
                             Content="Weiter →"
+                            Classes="primary"
                             Command="{Binding ForwardCommand}"
-                            Background="#6c63ff"
-                            Foreground="White"
-                            FontWeight="SemiBold"
-                            CornerRadius="6"
                             Padding="18,10"
                             IsVisible="{Binding CanGoForward}"/>
 
                     <Button Grid.Column="2"
-                            Content="✓ Fertig"
+                            Content="Fertig"
                             Command="{Binding CloseCommand}"
-                            Background="#2ed573"
-                            Foreground="#1a1d2e"
+                            Background="{StaticResource BrushSuccess}"
+                            Foreground="{StaticResource BrushBg}"
                             FontWeight="Bold"
-                            CornerRadius="6"
+                            CornerRadius="{StaticResource RadiusMd}"
                             Padding="18,10"
                             IsVisible="{Binding IsLastStep}"/>
                 </Grid>

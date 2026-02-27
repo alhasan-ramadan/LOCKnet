@@ -9,12 +9,9 @@
         Icon="/Assets/favicon.ico"
         Title="LOCKnet"
         MinWidth="700" MinHeight="500"
-        Background="#1a1d2e">
-
+        Background="{StaticResource BrushBg}">
     <Design.DataContext>
         <vm:MainWindowViewModel/>
     </Design.DataContext>
-
     <ContentControl Content="{Binding CurrentView}"/>
-
 </Window>
