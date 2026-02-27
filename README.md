@@ -1,9 +1,9 @@
 # **LOCKnet – Projektbeschreibung**
 
-[![CI](https://github.com/YOUR_ORG/LOCKnet/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_ORG/LOCKnet/actions/workflows/ci.yml)
-[![Release](https://github.com/YOUR_ORG/LOCKnet/actions/workflows/release.yml/badge.svg)](https://github.com/YOUR_ORG/LOCKnet/actions/workflows/release.yml)
-[![Coverage](https://YOUR_ORG.github.io/LOCKnet/coverage/badge_linecoverage.svg)](https://YOUR_ORG.github.io/LOCKnet/coverage/)
-[![Documentation](https://img.shields.io/badge/docs-doxygen-blue)](https://YOUR_ORG.github.io/LOCKnet/doxygen/)
+[![CI](https://github.com/alhasan-ramadan/LOCKnet/actions/workflows/ci.yml/badge.svg)](https://github.com/alhasan-ramadan/LOCKnet/actions/workflows/ci.yml)
+[![Release](https://github.com/alhasan-ramadan/LOCKnet/actions/workflows/release.yml/badge.svg)](https://github.com/alhasan-ramadan/LOCKnet/actions/workflows/release.yml)
+[![Coverage](https://alhasan-ramadan.github.io/LOCKnet/coverage/badge_linecoverage.svg)](https://alhasan-ramadan.github.io/LOCKnet/coverage/)
+[![Documentation](https://img.shields.io/badge/docs-doxygen-blue)](https://alhasan-ramadan.github.io/LOCKnet/doxygen/)
 
 
 **LOCKnet** (Local Offline Credential Keeper) ist ein vollständig offline arbeitender Passwortmanager, der in **.NET 9** entwickelt wird. Die Anwendung soll direkt von einem **USB‑Stick** gestartet werden können und keinerlei externe Abhängigkeiten benötigen. Der Fokus liegt auf maximaler Sicherheit, portabler Nutzung und klarer Schichtentrennung.
@@ -74,9 +74,9 @@ Die Solution besteht aus mehreren sauber getrennten Projekten:
 
 | | Link |
 |-|-|
-| 📊 Coverage Report | <https://YOUR_ORG.github.io/LOCKnet/coverage/> |
-| 📖 API Documentation | <https://YOUR_ORG.github.io/LOCKnet/doxygen/> |
-| 🔍 Code Scanning | <https://github.com/YOUR_ORG/LOCKnet/security/code-scanning> |
+| 📊 Coverage Report | <https://alhasan-ramadan.github.io/LOCKnet/coverage/> |
+| 📖 API Documentation | <https://alhasan-ramadan.github.io/LOCKnet/doxygen/> |
+| 🔍 Code Scanning | <https://github.com/alhasan-ramadan/LOCKnet/security/code-scanning> |
 
 ---
 
