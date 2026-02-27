@@ -1,0 +1,38 @@
+Summary
+  Generated on: 02/27/2026 - 04:51:35
+  Coverage date: 02/27/2026 - 04:51:29 - 02/27/2026 - 04:51:34
+  Parser: MultiReport (2x Cobertura)
+  Assemblies: 2
+  Classes: 14
+  Files: 14
+  Line coverage: 70.6%
+  Covered lines: 404
+  Uncovered lines: 168
+  Coverable lines: 572
+  Total lines: 1021
+  Branch coverage: 63.6% (56 of 88)
+  Covered branches: 56
+  Total branches: 88
+  Method coverage: 72.4% (50 of 69)
+  Full method coverage: 66.6% (46 of 69)
+  Covered methods: 50
+  Fully covered methods: 46
+  Total methods: 69
+
+LOCKnet.Core                                          98%
+  LOCKnet.Core.Crypto.AesGcmEncryptionService       96.8%
+  LOCKnet.Core.Crypto.Pbkdf2KeyDerivationService     100%
+  LOCKnet.Core.Crypto.SecureStringService           90.6%
+  LOCKnet.Core.DataAbstractions.CredentialRecord     100%
+  LOCKnet.Core.DataAbstractions.MasterKeyRecord      100%
+  LOCKnet.Core.Security.ActivityMonitor             97.6%
+  LOCKnet.Core.Security.MasterKeyManager            98.7%
+  LOCKnet.Core.Security.SessionManager               100%
+  LOCKnet.Core.Services.CredentialService            100%
+
+LOCKnet.Data                                        22.5%
+  LOCKnet.Data.Database                              100%
+  LOCKnet.Data.Repositories.CredentialsRepository      0%
+  LOCKnet.Data.Repositories.MasterKeyRepository        0%
+  LOCKnet.Data.Repositories.RepositoryBase             0%
+  LOCKnet.Data.Repositories.SettingsRepository         0%

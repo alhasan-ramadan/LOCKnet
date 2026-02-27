@@ -1,0 +1,5 @@
+<map id="LOCKnet.Core.Security.ISessionManager" name="LOCKnet.Core.Security.ISessionManager">
+<area shape="rect" id="Node000001" title="Verwaltet den Auth&#45;Status der laufenden Sitzung." alt="" coords="5,5,231,45"/>
+<area shape="rect" id="Node000002" href="$classLOCKnet_1_1Core_1_1Security_1_1SessionManager.html" title="Implementierung von ISessionManager." alt="" coords="7,93,229,133"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="121,59,121,93,115,93,115,59"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="LOCKnet.Core.Crypto.AesGcmEncryptionService" name="LOCKnet.Core.Crypto.AesGcmEncryptionService">
+<area shape="rect" id="Node000001" title="AES&#45;256&#45;GCM&#45;Implementierung von IEncryptionService." alt="" coords="5,79,223,119"/>
+<area shape="rect" id="Node000002" href="$interfaceLOCKnet_1_1Core_1_1Crypto_1_1IEncryptionService.html" title="Verschlüsselt und entschlüsselt Daten mit AES&#45;256&#45;GCM." alt="" coords="43,5,185,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="117,44,117,79,111,79,111,44"/>
+</map>

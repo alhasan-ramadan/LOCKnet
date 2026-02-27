@@ -1,0 +1,7 @@
+<map id="LOCKnet.Core.Security.IActivityMonitor" name="LOCKnet.Core.Security.IActivityMonitor">
+<area shape="rect" id="Node000001" title="Überwacht die Benutzeraktivität und löst nach einem konfigurierbaren Inaktivitäts&#45;Timeout automatisch..." alt="" coords="5,79,231,119"/>
+<area shape="rect" id="Node000003" href="$classLOCKnet_1_1Core_1_1Security_1_1ActivityMonitor.html" title="Implementierung von IActivityMonitor." alt="" coords="7,167,229,207"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="121,133,121,166,115,166,115,133"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="69,5,167,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="121,44,121,79,115,79,115,44"/>
+</map>

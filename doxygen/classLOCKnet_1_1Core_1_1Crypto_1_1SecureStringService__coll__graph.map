@@ -1,0 +1,5 @@
+<map id="LOCKnet.Core.Crypto.SecureStringService" name="LOCKnet.Core.Crypto.SecureStringService">
+<area shape="rect" id="Node000001" title="Implementierung von ISecureStringService." alt="" coords="5,79,212,119"/>
+<area shape="rect" id="Node000002" href="$interfaceLOCKnet_1_1Core_1_1Crypto_1_1ISecureStringService.html" title="Kapselt den sicheren Umgang mit SecureString." alt="" coords="31,5,187,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="111,44,111,79,106,79,106,44"/>
+</map>

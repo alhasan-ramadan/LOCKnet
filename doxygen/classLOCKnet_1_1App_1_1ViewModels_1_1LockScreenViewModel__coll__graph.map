@@ -1,0 +1,7 @@
+<map id="LOCKnet.App.ViewModels.LockScreenViewModel" name="LOCKnet.App.ViewModels.LockScreenViewModel">
+<area shape="rect" id="Node000001" title="Wird angezeigt, wenn die Sitzung durch Auto&#45;Lock oder manuell gesperrt wurde." alt="" coords="5,152,229,192"/>
+<area shape="rect" id="Node000002" href="$classLOCKnet_1_1App_1_1ViewModels_1_1ViewModelBase.html" title=" " alt="" coords="54,79,181,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="120,118,120,152,115,152,115,118"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="48,5,187,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="120,44,120,79,115,79,115,44"/>
+</map>

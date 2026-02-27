@@ -1,0 +1,5 @@
+<map id="LOCKnet.Core.Security.MasterKeyManager" name="LOCKnet.Core.Security.MasterKeyManager">
+<area shape="rect" id="Node000001" title="Implementierung von IMasterKeyManager." alt="" coords="5,79,221,119"/>
+<area shape="rect" id="Node000002" href="$interfaceLOCKnet_1_1Core_1_1Security_1_1IMasterKeyManager.html" title="Verwaltet den Master&#45;Key der Anwendung: Erstanlage, Verifikation und Passwortänderung." alt="" coords="37,5,189,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="116,44,116,79,111,79,111,44"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="LOCKnet.Data.Repositories.SettingsRepository" name="LOCKnet.Data.Repositories.SettingsRepository">
+<area shape="rect" id="Node000001" title="SQLite&#45;Implementierung von ISettingsRepository." alt="" coords="46,79,249,119"/>
+<area shape="rect" id="Node000002" href="$classLOCKnet_1_1Data_1_1Repositories_1_1RepositoryBase.html" title=" " alt="" coords="5,5,129,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="91,38,130,77,126,80,87,42"/>
+<area shape="rect" id="Node000003" href="$interfaceLOCKnet_1_1Core_1_1DataAbstractions_1_1ISettingsRepository.html" title="Verwaltet Konfigurationseinstellungen als Key&#45;Value&#45;Paare." alt="" coords="154,5,303,31"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="209,42,169,80,165,77,205,38"/>
+</map>
