@@ -6,12 +6,12 @@ namespace LOCKnet.Core.DataAbstractions;
 /// </summary>
 public class CredentialRecord
 {
-    public int Id { get; set; }
-    public string Title { get; set; } = string.Empty;
-    public string? Username { get; set; }
-    public byte[] EncryptedPassword { get; set; } = [];
-    public string? Url { get; set; }
-    public string? Notes { get; set; }
-    public DateTime CreatedAt { get; set; }
-    public DateTime UpdatedAt { get; set; }
+	public int Id { get; set; }
+	public string Title { get; set; } = string.Empty;
+	public string? Username { get; set; }
+	public byte[] EncryptedPassword { get; set; } = [];
+	public string? Url { get; set; }
+	public string? Notes { get; set; }
+	public DateTime CreatedAt { get; set; }
+	public DateTime UpdatedAt { get; set; }
 }

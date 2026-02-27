@@ -7,31 +7,31 @@ namespace LOCKnet.Core.DataAbstractions;
 /// </summary>
 public interface ICredentialRepository
 {
-    /// <summary>
-    /// Fügt ein neues Credential ein. <see cref="CredentialRecord.EncryptedPassword"/>
-    /// muss bereits verschlüsselt sein.
-    /// </summary>
-    void Add(CredentialRecord credential);
+	/// <summary>
+	/// Fügt ein neues Credential ein. <see cref="CredentialRecord.EncryptedPassword"/>
+	/// muss bereits verschlüsselt sein.
+	/// </summary>
+	void Add(CredentialRecord credential);
 
-    /// <summary>
-    /// Gibt alle gespeicherten Credentials zurück.
-    /// Die Passwörter sind verschlüsselt.
-    /// </summary>
-    IReadOnlyList<CredentialRecord> GetAll();
+	/// <summary>
+	/// Gibt alle gespeicherten Credentials zurück.
+	/// Die Passwörter sind verschlüsselt.
+	/// </summary>
+	IReadOnlyList<CredentialRecord> GetAll();
 
-    /// <summary>
-    /// Gibt ein einzelnes Credential anhand seiner ID zurück,
-    /// oder <c>null</c> wenn es nicht existiert.
-    /// </summary>
-    CredentialRecord? GetById(int id);
+	/// <summary>
+	/// Gibt ein einzelnes Credential anhand seiner ID zurück,
+	/// oder <c>null</c> wenn es nicht existiert.
+	/// </summary>
+	CredentialRecord? GetById(int id);
 
-    /// <summary>
-    /// Aktualisiert ein bestehendes Credential vollständig.
-    /// </summary>
-    void Update(CredentialRecord credential);
+	/// <summary>
+	/// Aktualisiert ein bestehendes Credential vollständig.
+	/// </summary>
+	void Update(CredentialRecord credential);
 
-    /// <summary>
-    /// Löscht das Credential mit der angegebenen ID.
-    /// </summary>
-    void Remove(int id);
+	/// <summary>
+	/// Löscht das Credential mit der angegebenen ID.
+	/// </summary>
+	void Remove(int id);
 }

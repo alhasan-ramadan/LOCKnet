@@ -6,8 +6,8 @@ namespace LOCKnet.Core.DataAbstractions;
 /// </summary>
 public class MasterKeyRecord
 {
-    public byte[] PasswordHash { get; set; } = [];
-    public byte[] Salt { get; set; } = [];
-    public DateTime CreatedAt { get; set; }
-    public DateTime UpdatedAt { get; set; }
+	public byte[] PasswordHash { get; set; } = [];
+	public byte[] Salt { get; set; } = [];
+	public DateTime CreatedAt { get; set; }
+	public DateTime UpdatedAt { get; set; }
 }

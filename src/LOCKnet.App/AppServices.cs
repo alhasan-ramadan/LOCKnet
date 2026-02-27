@@ -13,56 +13,56 @@ namespace LOCKnet.App;
 /// </summary>
 public sealed class AppServices
 {
-    private static AppServices? _current;
+	private static AppServices? _current;
 
-    /// <summary>Die aktuelle, einmalig erzeugte Instanz.</summary>
-    public static AppServices Current => _current
-        ?? throw new InvalidOperationException("AppServices wurde noch nicht initialisiert.");
+	/// <summary>Die aktuelle, einmalig erzeugte Instanz.</summary>
+	public static AppServices Current => _current
+		?? throw new InvalidOperationException("AppServices wurde noch nicht initialisiert.");
 
-    // ── Exposed services ──────────────────────────────────────────────────────
+	// ── Exposed services ──────────────────────────────────────────────────────
 
-    public IMasterKeyManager MasterKeyManager { get; }
-    public ISessionManager SessionManager { get; }
-    public IActivityMonitor ActivityMonitor { get; }
-    public ICredentialService CredentialService { get; }
+	public IMasterKeyManager MasterKeyManager { get; }
+	public ISessionManager SessionManager { get; }
+	public IActivityMonitor ActivityMonitor { get; }
+	public ICredentialService CredentialService { get; }
 
-    // ── Constructor ───────────────────────────────────────────────────────────
+	// ── Constructor ───────────────────────────────────────────────────────────
 
-    private AppServices(string dbPath)
-    {
-        var connectionString = $"Data Source={dbPath}";
+	private AppServices(string dbPath)
+	{
+		var connectionString = $"Data Source={dbPath}";
 
-        // Data layer
-        var db = new Database(dbPath);
-        db.Initialize();
+		// Data layer
+		var db = new Database(dbPath);
+		db.Initialize();
 
-        ICredentialRepository credRepo = new CredentialsRepository(connectionString);
-        IMasterKeyRepository masterKeyRepo = new MasterKeyRepository(connectionString);
+		ICredentialRepository credRepo = new CredentialsRepository(connectionString);
+		IMasterKeyRepository masterKeyRepo = new MasterKeyRepository(connectionString);
 
-        // Crypto layer
-        IKeyDerivationService kdf = new Pbkdf2KeyDerivationService();
-        IEncryptionService encryption = new AesGcmEncryptionService();
-        ISecureStringService secureStr = new SecureStringService();
+		// Crypto layer
+		IKeyDerivationService kdf = new Pbkdf2KeyDerivationService();
+		IEncryptionService encryption = new AesGcmEncryptionService();
+		ISecureStringService secureStr = new SecureStringService();
 
-        // Security layer
-        var sessionManager = new SessionManager();
-        SessionManager = sessionManager;
-        MasterKeyManager = new MasterKeyManager(kdf, masterKeyRepo, secureStr);
-        ActivityMonitor = new ActivityMonitor(sessionManager)
-        {
-            Timeout = TimeSpan.FromSeconds(60)
-        };
+		// Security layer
+		var sessionManager = new SessionManager();
+		SessionManager = sessionManager;
+		MasterKeyManager = new MasterKeyManager(kdf, masterKeyRepo, secureStr);
+		ActivityMonitor = new ActivityMonitor(sessionManager)
+		{
+			Timeout = TimeSpan.FromSeconds(60)
+		};
 
-        // Service layer
-        CredentialService = new CredentialService(credRepo, encryption, sessionManager, secureStr);
-    }
+		// Service layer
+		CredentialService = new CredentialService(credRepo, encryption, sessionManager, secureStr);
+	}
 
-    /// <summary>
-    /// Initialisiert die AppServices einmalig.
-    /// </summary>
-    /// <param name="dbPath">Pfad zur SQLite-Datenbank.</param>
-    public static void Initialize(string dbPath)
-    {
-        _current = new AppServices(dbPath);
-    }
+	/// <summary>
+	/// Initialisiert die AppServices einmalig.
+	/// </summary>
+	/// <param name="dbPath">Pfad zur SQLite-Datenbank.</param>
+	public static void Initialize(string dbPath)
+	{
+		_current = new AppServices(dbPath);
+	}
 }

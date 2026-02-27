@@ -6,29 +6,29 @@ namespace LOCKnet.Core.Security;
 /// </summary>
 public interface IActivityMonitor : IDisposable
 {
-    /// <summary>
-    /// Timeout-Dauer nach der letzten Aktivität. Standard: 60 Sekunden.
-    /// </summary>
-    TimeSpan Timeout { get; set; }
+	/// <summary>
+	/// Timeout-Dauer nach der letzten Aktivität. Standard: 60 Sekunden.
+	/// </summary>
+	TimeSpan Timeout { get; set; }
 
-    /// <summary>
-    /// Gibt an, ob der Monitor aktuell läuft.
-    /// </summary>
-    bool IsRunning { get; }
+	/// <summary>
+	/// Gibt an, ob der Monitor aktuell läuft.
+	/// </summary>
+	bool IsRunning { get; }
 
-    /// <summary>
-    /// Startet die Aktivitätsüberwachung.
-    /// </summary>
-    void Start();
+	/// <summary>
+	/// Startet die Aktivitätsüberwachung.
+	/// </summary>
+	void Start();
 
-    /// <summary>
-    /// Stoppt die Aktivitätsüberwachung (kein Auto-Lock mehr möglich).
-    /// </summary>
-    void Stop();
+	/// <summary>
+	/// Stoppt die Aktivitätsüberwachung (kein Auto-Lock mehr möglich).
+	/// </summary>
+	void Stop();
 
-    /// <summary>
-    /// Registriert eine Benutzeraktivität — setzt den Timeout-Timer zurück.
-    /// Muss bei jeder UI-Interaktion aufgerufen werden.
-    /// </summary>
-    void RecordActivity();
+	/// <summary>
+	/// Registriert eine Benutzeraktivität — setzt den Timeout-Timer zurück.
+	/// Muss bei jeder UI-Interaktion aufgerufen werden.
+	/// </summary>
+	void RecordActivity();
 }

@@ -4,8 +4,8 @@ namespace LOCKnet.App.Views;
 
 public partial class CredentialListView : UserControl
 {
-    public CredentialListView()
-    {
-        InitializeComponent();
-    }
+	public CredentialListView()
+	{
+		InitializeComponent();
+	}
 }
