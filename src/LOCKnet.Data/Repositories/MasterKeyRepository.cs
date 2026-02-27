@@ -9,6 +9,8 @@ namespace LOCKnet.Data.Repositories;
 /// </summary>
 public class MasterKeyRepository : RepositoryBase, IMasterKeyRepository
 {
+	/// <summary>Initialisiert eine neue Instanz von <see cref="MasterKeyRepository"/>.</summary>
+	/// <param name="connectionString">Der vollständige SQLite-Connection-String.</param>
 	public MasterKeyRepository(string connectionString) : base(connectionString) { }
 
 	#region IMasterKeyRepository

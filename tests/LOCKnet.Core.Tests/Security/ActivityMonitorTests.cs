@@ -131,4 +131,23 @@ public class ActivityMonitorTests
 		sut.Dispose();
 		Assert.Throws<ObjectDisposedException>(() => sut.Start());
 	}
+
+	// ── RecordActivity edge cases ────────────────────────────────────────────────────
+
+	[Fact]
+	public void RecordActivity_WhenNotRunning_IsNoOp()
+	{
+		using var sut = new ActivityMonitor(MakeSession());
+		// Not started — must not throw
+		var ex = Record.Exception(() => sut.RecordActivity());
+		Assert.Null(ex);
+	}
+
+	[Fact]
+	public void Stop_WhenNotStarted_IsNoOp()
+	{
+		using var sut = new ActivityMonitor(MakeSession());
+		var ex = Record.Exception(() => sut.Stop());
+		Assert.Null(ex);
+	}
 }

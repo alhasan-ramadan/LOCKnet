@@ -8,6 +8,8 @@ namespace LOCKnet.Data.Repositories;
 /// </summary>
 public class CredentialsRepository : RepositoryBase, ICredentialRepository
 {
+	/// <summary>Initialisiert eine neue Instanz von <see cref="CredentialsRepository"/>.</summary>
+	/// <param name="connectionString">Der vollständige SQLite-Connection-String.</param>
 	public CredentialsRepository(string connectionString) : base(connectionString) { }
 
 	#region ICredentialRepository

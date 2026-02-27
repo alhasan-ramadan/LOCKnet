@@ -228,4 +228,33 @@ public class CredentialServiceTests
 
 		Assert.Throws<InvalidOperationException>(() => sut.GetPassword(id));
 	}
+
+
+	// ── Add title validation ────────────────────────────────────────────────────
+
+	[Fact]
+	public void Add_EmptyTitle_Throws()
+	{
+		var (sut, session, _) = BuildSut();
+		OpenSession(session);
+		Assert.Throws<ArgumentException>(() => sut.Add("", null, MakeSecure("pw")));
+	}
+
+	[Fact]
+	public void Add_WhitespaceTitleOnly_Throws()
+	{
+		var (sut, session, _) = BuildSut();
+		OpenSession(session);
+		Assert.Throws<ArgumentException>(() => sut.Add("   ", null, MakeSecure("pw")));
+	}
+
+	// ── Update when locked ──────────────────────────────────────────────────────
+
+	[Fact]
+	public void Update_WhenLocked_Throws()
+	{
+		var (sut, _, _) = BuildSut();
+		Assert.Throws<InvalidOperationException>(
+			() => sut.Update(1, "Title", null, null));
+	}
 }

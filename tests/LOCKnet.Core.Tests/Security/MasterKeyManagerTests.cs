@@ -165,4 +165,47 @@ public class MasterKeyManagerTests
 		Assert.Throws<UnauthorizedAccessException>(
 			() => sut.ChangePassword(MakeSecure("wrong"), MakeSecure("new")));
 	}
+
+	// ── ChangePassword edge cases ────────────────────────────────────────────
+
+	[Fact]
+	public void ChangePassword_BeforeInitialize_Throws()
+	{
+		var sut = BuildSut(out _);
+		Assert.Throws<InvalidOperationException>(
+			() => sut.ChangePassword(MakeSecure("old"), MakeSecure("new")));
+	}
+
+	[Fact]
+	public void ChangePassword_GeneratesNewSalt()
+	{
+		var sut = BuildSut(out var repo);
+		sut.Initialize(MakeSecure("initial"));
+		var saltBefore = repo.Get()!.Salt;
+
+		sut.ChangePassword(MakeSecure("initial"), MakeSecure("updated"));
+
+		var saltAfter = repo.Get()!.Salt;
+		Assert.False(saltBefore.SequenceEqual(saltAfter),
+			"ChangePassword must generate a fresh salt.");
+	}
+
+	// ── Initialize null guard ───────────────────────────────────────────────
+
+	[Fact]
+	public void Initialize_NullPassword_Throws()
+	{
+		var sut = BuildSut(out _);
+		Assert.Throws<ArgumentNullException>(() => sut.Initialize(null!));
+	}
+
+	// ── Unlock null guard ────────────────────────────────────────────────────
+
+	[Fact]
+	public void Unlock_NullPassword_Throws()
+	{
+		var sut = BuildSut(out _);
+		sut.Initialize(MakeSecure("pw"));
+		Assert.Throws<ArgumentNullException>(() => sut.Unlock(null!));
+	}
 }
