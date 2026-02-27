@@ -1,0 +1,82 @@
+# Doxyfile for LOCKnet
+# Generated for C# / .NET 9 — edit PROJECT_NAME and PROJECT_NUMBER as needed.
+# Run: doxygen Doxyfile
+
+#---------------------------------------------------------------------------
+# Project
+#---------------------------------------------------------------------------
+PROJECT_NAME           = "LOCKnet"
+PROJECT_NUMBER         = ""
+PROJECT_BRIEF          = "Local Offline Credential Keeper — offline password manager"
+PROJECT_LOGO           =
+OUTPUT_DIRECTORY       = doxygen-output
+
+#---------------------------------------------------------------------------
+# Input
+#---------------------------------------------------------------------------
+INPUT                  = src
+FILE_PATTERNS          = *.cs
+RECURSIVE              = YES
+# Exclude generated files and test projects
+EXCLUDE_PATTERNS       = */obj/* \
+                         */bin/* \
+                         *Designer.cs \
+                         *.axaml.cs
+EXCLUDE_SYMLINKS       = NO
+
+#---------------------------------------------------------------------------
+# Extraction
+#---------------------------------------------------------------------------
+EXTRACT_ALL            = YES
+EXTRACT_PRIVATE        = NO
+EXTRACT_STATIC         = YES
+EXTRACT_LOCAL_CLASSES  = YES
+HIDE_UNDOC_MEMBERS     = NO
+HIDE_UNDOC_CLASSES     = NO
+
+#---------------------------------------------------------------------------
+# C# / XML doc comments
+#---------------------------------------------------------------------------
+# Doxygen understands C# XML doc comments (/// <summary> etc.)
+JAVADOC_AUTOBRIEF      = YES
+QT_AUTOBRIEF           = NO
+MULTILINE_CPP_IS_BRIEF = NO
+BUILTIN_STL_SUPPORT    = YES
+
+#---------------------------------------------------------------------------
+# Output formats
+#---------------------------------------------------------------------------
+GENERATE_HTML          = YES
+HTML_OUTPUT            = html
+HTML_COLORSTYLE        = DARK
+GENERATE_LATEX         = NO
+GENERATE_RTF           = NO
+GENERATE_XML           = NO
+GENERATE_DOCBOOK       = NO
+GENERATE_MAN           = NO
+
+#---------------------------------------------------------------------------
+# Diagrams  (requires graphviz/dot — installed alongside doxygen in CI)
+#---------------------------------------------------------------------------
+HAVE_DOT               = YES
+CLASS_DIAGRAMS         = YES
+COLLABORATION_GRAPH    = YES
+INCLUDE_GRAPH          = YES
+INCLUDED_BY_GRAPH      = YES
+CALL_GRAPH             = NO
+CALLER_GRAPH           = NO
+DOT_IMAGE_FORMAT       = svg
+INTERACTIVE_SVG        = YES
+DOT_GRAPH_MAX_NODES    = 50
+
+#---------------------------------------------------------------------------
+# Misc
+#---------------------------------------------------------------------------
+QUIET                  = YES
+WARNINGS               = YES
+WARN_IF_UNDOCUMENTED   = YES
+WARN_NO_PARAMDOC       = NO
+ALPHABETICAL_INDEX     = YES
+SORT_MEMBER_DOCS       = YES
+SHOW_FILES             = YES
+SHOW_NAMESPACES        = YES

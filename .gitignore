@@ -648,3 +648,10 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.toptal.com/developers/gitignore/api/csharp,aspnetcore,dotnetcore,rider,windows,git
+# CI artifacts (generated locally or in CI, not committed)
+test-results/
+coverage-report/
+doxygen-output/
+roslynator-report.xml
+analysis.sarif
+**/analysis.sarif

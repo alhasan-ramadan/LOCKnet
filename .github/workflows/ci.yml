@@ -5,10 +5,19 @@ on:
   push:
     branches: ["main", "dev"]
 
+# Limit concurrent runs per branch/PR to avoid wasted minutes
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  security-events: write   # for SARIF upload to Code Scanning
+
 jobs:
-  # ─────────────────────────────────────────────
-  # 1. Build
-  # ─────────────────────────────────────────────
+  # ───────────────────────────────────────────────────────────────
+  # 1. BUILD  ─  compile in Release, emit SARIF from Roslyn analyzers
+  # ───────────────────────────────────────────────────────────────
   build:
     name: Build
     runs-on: ubuntu-latest
@@ -22,15 +31,48 @@ jobs:
         with:
           dotnet-version: "9.0.x"
 
+      # Cache NuGet packages keyed on lock-files / csproj hashes
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj', '**/packages.lock.json') }}
+          restore-keys: nuget-${{ runner.os }}-
+
       - name: Restore dependencies
         run: dotnet restore
 
-      - name: Build (no warnings as errors)
-        run: dotnet build --no-restore -c Release
+      # Build in Release mode and emit one SARIF file per project via Roslyn analyzers.
+      # version=2.1 is required for GitHub Code Scanning SARIF v2.1 format.
+      # AnalysisMode=recommended keeps signal-to-noise ratio high.
+      - name: Build + emit SARIF
+        run: |
+          dotnet build LOCKnet.sln --no-restore -c Release \
+            "-p:ErrorLog=analysis.sarif,version=2.1" \
+            "-p:AnalysisMode=recommended"
 
-  # ─────────────────────────────────────────────
-  # 2. Lint  (dotnet format + Roslynator analyze)
-  # ─────────────────────────────────────────────
+      # upload-sarif accepts a glob — one SARIF file is written per project
+      - name: Upload SARIF to Code Scanning
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: "**/analysis.sarif"
+        # Don't fail the workflow if Code Scanning is not enabled on this repo
+        continue-on-error: true
+
+      # Make the build output available to downstream jobs
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: |
+            **/bin/Release/
+            **/obj/
+          retention-days: 1
+
+  # ───────────────────────────────────────────────────────────────
+  # 2. LINT  ─  format check + Roslynator static analysis
+  #             Runs in parallel with test (both need: build)
+  # ───────────────────────────────────────────────────────────────
   lint:
     name: Lint
     runs-on: ubuntu-latest
@@ -45,21 +87,30 @@ jobs:
         with:
           dotnet-version: "9.0.x"
 
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj', '**/packages.lock.json') }}
+          restore-keys: nuget-${{ runner.os }}-
+
       - name: Restore dependencies
         run: dotnet restore
 
       - name: Restore local tools
         run: dotnet tool restore
 
+      # Style / whitespace check
       - name: dotnet format (style check)
         run: dotnet format --verify-no-changes --severity warn
 
+      # Roslynator 0.12.0 — correct flag is --severity-level (not --severity)
       - name: Roslynator analyze
-        run: >
-          dotnet tool run roslynator analyze
-          --diagnostic-level Warning
-          --output roslynator-report.xml
-          --output-format xml
+        run: |
+          dotnet tool run roslynator analyze \
+            --severity-level warning \
+            --output roslynator-report.xml \
+            --output-format xml
 
       - name: Upload Roslynator report
         if: always()
@@ -68,9 +119,10 @@ jobs:
           name: roslynator-report
           path: roslynator-report.xml
 
-  # ─────────────────────────────────────────────
-  # 3. Test + Coverage
-  # ─────────────────────────────────────────────
+  # ───────────────────────────────────────────────────────────────
+  # 3. TEST + COVERAGE  ─  xUnit, coverlet, ReportGenerator
+  #             Runs in parallel with lint (both need: build)
+  # ───────────────────────────────────────────────────────────────
   test:
     name: Test & Coverage
     runs-on: ubuntu-latest
@@ -84,6 +136,13 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "9.0.x"
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj', '**/packages.lock.json') }}
+          restore-keys: nuget-${{ runner.os }}-
 
       - name: Restore dependencies
         run: dotnet restore
@@ -99,12 +158,14 @@ jobs:
             --results-directory ./test-results \
             --logger "trx;LogFileName=test-results.trx"
 
-      - name: Generate coverage report
+      # Single ReportGenerator pass: HTML report + SVG badges + Cobertura + summary
+      # badge_linecoverage.svg will be used in README and Pages
+      - name: Generate coverage report + badges
         run: |
           dotnet tool run reportgenerator \
             "-reports:test-results/**/coverage.cobertura.xml" \
             "-targetdir:coverage-report" \
-            "-reporttypes:HtmlInline;TextSummary;Cobertura"
+            "-reporttypes:HtmlInline;Badges;Cobertura;TextSummary"
 
       - name: Print coverage summary
         run: cat coverage-report/Summary.txt || true
@@ -116,6 +177,7 @@ jobs:
           name: test-results
           path: test-results/
 
+      # This artifact is consumed by pages.yml for GitHub Pages deployment
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
         with:
