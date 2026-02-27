@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['lastactivity_0',['lastactivity',['../classLOCKnet_1_1Core_1_1Security_1_1ActivityMonitor.html#ad8fafde77f20de774ff62def0e4e9fed',1,'LOCKnet.Core.Security.ActivityMonitor.LastActivity'],['../interfaceLOCKnet_1_1Core_1_1Security_1_1IActivityMonitor.html#accaa0387981a7077ffac9ae30506a52b',1,'LOCKnet.Core.Security.IActivityMonitor.LastActivity']]]
+  ['lastactivity_0',['lastactivity',['../classLOCKnet_1_1Core_1_1Security_1_1ActivityMonitor.html#ad8fafde77f20de774ff62def0e4e9fed',1,'LOCKnet.Core.Security.ActivityMonitor.LastActivity'],['../interfaceLOCKnet_1_1Core_1_1Security_1_1IActivityMonitor.html#accaa0387981a7077ffac9ae30506a52b',1,'LOCKnet.Core.Security.IActivityMonitor.LastActivity']]],
+  ['locktimertext_1',['LockTimerText',['../classLOCKnet_1_1App_1_1ViewModels_1_1CredentialListDesignViewModel.html#ac94a9525359ccc4b1c6eee5b750dc31c',1,'LOCKnet::App::ViewModels::CredentialListDesignViewModel']]]
 ];
