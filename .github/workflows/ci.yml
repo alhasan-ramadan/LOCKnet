@@ -57,7 +57,7 @@ jobs:
       - name: Roslynator analyze
         run: >
           dotnet tool run roslynator analyze
-          --severity Warning
+          --diagnostic-level Warning
           --output roslynator-report.xml
           --output-format xml
 
