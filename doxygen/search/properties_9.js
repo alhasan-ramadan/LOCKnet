@@ -1,6 +1,5 @@
 var searchData=
 [
-  ['updatedat_0',['updatedat',['../classLOCKnet_1_1Core_1_1DataAbstractions_1_1CredentialRecord.html#a29ad5eb645329aa6f18c0663f379a8ec',1,'LOCKnet.Core.DataAbstractions.CredentialRecord.UpdatedAt'],['../classLOCKnet_1_1Core_1_1DataAbstractions_1_1MasterKeyRecord.html#a4990776ece7825b1c4316d7847a2b97c',1,'LOCKnet.Core.DataAbstractions.MasterKeyRecord.UpdatedAt']]],
-  ['url_1',['Url',['../classLOCKnet_1_1Core_1_1DataAbstractions_1_1CredentialRecord.html#a7ea12bdd8ee456aebc31d6e87dfeda91',1,'LOCKnet::Core::DataAbstractions::CredentialRecord']]],
-  ['username_2',['Username',['../classLOCKnet_1_1Core_1_1DataAbstractions_1_1CredentialRecord.html#a915fb679a4c8178eb7d73b714f0905ef',1,'LOCKnet::Core::DataAbstractions::CredentialRecord']]]
+  ['timeout_0',['timeout',['../classLOCKnet_1_1Core_1_1Security_1_1ActivityMonitor.html#a3d68af5266279d8c61052f2c51b19f4a',1,'LOCKnet.Core.Security.ActivityMonitor.Timeout'],['../interfaceLOCKnet_1_1Core_1_1Security_1_1IActivityMonitor.html#ae5de64b10b166de5dad813679e956a6b',1,'LOCKnet.Core.Security.IActivityMonitor.Timeout']]],
+  ['title_1',['Title',['../classLOCKnet_1_1Core_1_1DataAbstractions_1_1CredentialRecord.html#af4dcf4450f1ee70b61906109018b33d0',1,'LOCKnet::Core::DataAbstractions::CredentialRecord']]]
 ];

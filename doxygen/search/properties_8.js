@@ -1,5 +1,6 @@
 var searchData=
 [
-  ['timeout_0',['timeout',['../classLOCKnet_1_1Core_1_1Security_1_1ActivityMonitor.html#a3d68af5266279d8c61052f2c51b19f4a',1,'LOCKnet.Core.Security.ActivityMonitor.Timeout'],['../interfaceLOCKnet_1_1Core_1_1Security_1_1IActivityMonitor.html#ae5de64b10b166de5dad813679e956a6b',1,'LOCKnet.Core.Security.IActivityMonitor.Timeout']]],
-  ['title_1',['Title',['../classLOCKnet_1_1Core_1_1DataAbstractions_1_1CredentialRecord.html#af4dcf4450f1ee70b61906109018b33d0',1,'LOCKnet::Core::DataAbstractions::CredentialRecord']]]
+  ['salt_0',['Salt',['../classLOCKnet_1_1Core_1_1DataAbstractions_1_1MasterKeyRecord.html#ae9af4c02caeca7a5ad4837f722e8990a',1,'LOCKnet::Core::DataAbstractions::MasterKeyRecord']]],
+  ['sessionmanager_1',['SessionManager',['../classLOCKnet_1_1App_1_1AppServices.html#a30f0f11e5372e00cc4bf303ecd7ea6a9',1,'LOCKnet::App::AppServices']]],
+  ['steps_2',['Steps',['../classLOCKnet_1_1App_1_1ViewModels_1_1TutorialViewModel.html#a7ea47e5028fb9dcebb6b7d3d72778ed4',1,'LOCKnet::App::ViewModels::TutorialViewModel']]]
 ];

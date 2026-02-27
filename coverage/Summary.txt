@@ -1,23 +1,23 @@
 Summary
-  Generated on: 02/27/2026 - 05:31:54
-  Coverage date: 02/27/2026 - 05:31:48 - 02/27/2026 - 05:31:54
+  Generated on: 02/27/2026 - 06:06:46
+  Coverage date: 02/27/2026 - 06:06:38 - 02/27/2026 - 06:06:44
   Parser: MultiReport (2x Cobertura)
   Assemblies: 2
   Classes: 14
   Files: 14
   Line coverage: 98.2%
-  Covered lines: 567
+  Covered lines: 572
   Uncovered lines: 10
-  Coverable lines: 577
-  Total lines: 1080
+  Coverable lines: 582
+  Total lines: 1087
   Branch coverage: 90.9% (80 of 88)
   Covered branches: 80
   Total branches: 88
-  Method coverage: 98.5% (69 of 70)
-  Full method coverage: 94.2% (66 of 70)
-  Covered methods: 69
-  Fully covered methods: 66
-  Total methods: 70
+  Method coverage: 98.5% (70 of 71)
+  Full method coverage: 94.3% (67 of 71)
+  Covered methods: 70
+  Fully covered methods: 67
+  Total methods: 71
 
 LOCKnet.Core                                        98.3%
   LOCKnet.Core.Crypto.AesGcmEncryptionService       96.8%
@@ -25,7 +25,7 @@ LOCKnet.Core                                        98.3%
   LOCKnet.Core.Crypto.SecureStringService           90.6%
   LOCKnet.Core.DataAbstractions.CredentialRecord     100%
   LOCKnet.Core.DataAbstractions.MasterKeyRecord      100%
-  LOCKnet.Core.Security.ActivityMonitor             97.6%
+  LOCKnet.Core.Security.ActivityMonitor             97.9%
   LOCKnet.Core.Security.MasterKeyManager             100%
   LOCKnet.Core.Security.SessionManager               100%
   LOCKnet.Core.Services.CredentialService            100%
