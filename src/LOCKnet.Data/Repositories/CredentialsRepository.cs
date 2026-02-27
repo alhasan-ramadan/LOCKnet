@@ -20,14 +20,15 @@ public class CredentialsRepository : RepositoryBase, ICredentialRepository
 		using var conn = GetConnection();
 		using var cmd = conn.CreateCommand();
 		cmd.CommandText = @"
-            INSERT INTO Credentials (Title, Username, EncryptedPassword, URL, Notes)
-            VALUES ($title, $username, $password, $url, $notes);";
+            INSERT INTO Credentials (Title, Username, EncryptedPassword, URL, Notes, IconKey)
+            VALUES ($title, $username, $password, $url, $notes, $iconKey);";
 
 		cmd.Parameters.AddWithValue("$title", credential.Title);
 		cmd.Parameters.AddWithValue("$username", credential.Username ?? "");
 		cmd.Parameters.AddWithValue("$password", credential.EncryptedPassword);
 		cmd.Parameters.AddWithValue("$url", credential.Url ?? "");
 		cmd.Parameters.AddWithValue("$notes", credential.Notes ?? "");
+		cmd.Parameters.AddWithValue("$iconKey", (object?)credential.IconKey ?? DBNull.Value);
 
 		cmd.ExecuteNonQuery();
 	}
@@ -38,7 +39,7 @@ public class CredentialsRepository : RepositoryBase, ICredentialRepository
 		var list = new List<CredentialRecord>();
 		using var conn = GetConnection();
 		using var cmd = conn.CreateCommand();
-		cmd.CommandText = "SELECT Id, Title, Username, EncryptedPassword, URL, Notes, CreatedAt, UpdatedAt FROM Credentials";
+		cmd.CommandText = "SELECT Id, Title, Username, EncryptedPassword, URL, Notes, CreatedAt, UpdatedAt, IconKey FROM Credentials";
 
 		using var reader = cmd.ExecuteReader();
 		while (reader.Read())
@@ -52,7 +53,7 @@ public class CredentialsRepository : RepositoryBase, ICredentialRepository
 	{
 		using var conn = GetConnection();
 		using var cmd = conn.CreateCommand();
-		cmd.CommandText = "SELECT Id, Title, Username, EncryptedPassword, URL, Notes, CreatedAt, UpdatedAt FROM Credentials WHERE Id = $id LIMIT 1;";
+		cmd.CommandText = "SELECT Id, Title, Username, EncryptedPassword, URL, Notes, CreatedAt, UpdatedAt, IconKey FROM Credentials WHERE Id = $id LIMIT 1;";
 		cmd.Parameters.AddWithValue("$id", id);
 
 		using var reader = cmd.ExecuteReader();
@@ -71,6 +72,7 @@ public class CredentialsRepository : RepositoryBase, ICredentialRepository
                 EncryptedPassword = $password,
                 URL = $url,
                 Notes = $notes,
+                IconKey = $iconKey,
                 UpdatedAt = CURRENT_TIMESTAMP
             WHERE Id = $id;";
 
@@ -80,6 +82,7 @@ public class CredentialsRepository : RepositoryBase, ICredentialRepository
 		cmd.Parameters.AddWithValue("$password", credential.EncryptedPassword);
 		cmd.Parameters.AddWithValue("$url", credential.Url ?? "");
 		cmd.Parameters.AddWithValue("$notes", credential.Notes ?? "");
+		cmd.Parameters.AddWithValue("$iconKey", (object?)credential.IconKey ?? DBNull.Value);
 
 		cmd.ExecuteNonQuery();
 	}
@@ -106,5 +109,6 @@ public class CredentialsRepository : RepositoryBase, ICredentialRepository
 		Notes = reader.IsDBNull(5) ? null : reader.GetString(5),
 		CreatedAt = reader.GetDateTime(6),
 		UpdatedAt = reader.GetDateTime(7),
+		IconKey = reader.IsDBNull(8) ? null : reader.GetString(8),
 	};
 }

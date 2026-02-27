@@ -17,8 +17,9 @@ public interface ICredentialService
 	/// <param name="password">Das Klartextpasswort. Wird intern verschlüsselt, nie gespeichert.</param>
 	/// <param name="url">Optionale URL.</param>
 	/// <param name="notes">Optionale Notizen.</param>
+	/// <param name="iconKey">Optionaler Material-Icon-Schluessel.</param>
 	/// <exception cref="InvalidOperationException">Sitzung ist gesperrt.</exception>
-	void Add(string title, string? username, SecureString password, string? url = null, string? notes = null);
+	void Add(string title, string? username, SecureString password, string? url = null, string? notes = null, string? iconKey = null);
 
 	/// <summary>
 	/// Gibt alle Credentials zurück. Passwörter bleiben verschlüsselt.
@@ -46,8 +47,9 @@ public interface ICredentialService
 	/// <param name="newPassword">Neues Passwort, oder <c>null</c> um das bisherige zu behalten.</param>
 	/// <param name="url">Neue URL (oder <c>null</c>).</param>
 	/// <param name="notes">Neue Notizen (oder <c>null</c>).</param>
+	/// <param name="iconKey">Neuer Material-Icon-Schluessel (oder <c>null</c>).</param>
 	/// <exception cref="InvalidOperationException">Sitzung ist gesperrt oder Credential nicht gefunden.</exception>
-	void Update(int id, string title, string? username, SecureString? newPassword, string? url = null, string? notes = null);
+	void Update(int id, string title, string? username, SecureString? newPassword, string? url = null, string? notes = null, string? iconKey = null);
 
 	/// <summary>
 	/// Löscht das Credential mit der angegebenen ID.

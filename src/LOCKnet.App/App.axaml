@@ -2,6 +2,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="LOCKnet.App.App"
              xmlns:local="using:LOCKnet.App"
+             xmlns:conv="using:LOCKnet.App.Converters"
+             xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              RequestedThemeVariant="Dark">
     <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
@@ -47,10 +49,14 @@
         <CornerRadius x:Key="RadiusMd">8</CornerRadius>
         <CornerRadius x:Key="RadiusLg">12</CornerRadius>
         <CornerRadius x:Key="RadiusXl">16</CornerRadius>
+
+        <conv:IconSelectedBrushConverter x:Key="IconSelectedBrushConverter"/>
+        <conv:StringToMaterialIconKindConverter x:Key="StringToMaterialIconKindConverter"/>
     </Application.Resources>
 
     <Application.Styles>
         <FluentTheme />
+        <materialIcons:MaterialIconStyles />
 
         <!-- Button.primary -->
         <Style Selector="Button.primary">

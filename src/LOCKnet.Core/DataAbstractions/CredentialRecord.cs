@@ -22,4 +22,6 @@ public class CredentialRecord
 	public DateTime CreatedAt { get; set; }
 	/// <summary>UTC-Zeitstempel der letzten Änderung (von SQLite gesetzt).</summary>
 	public DateTime UpdatedAt { get; set; }
+	/// <summary>Optionaler Icon-Schluessel fuer Material-Icon-Darstellung.</summary>
+	public string? IconKey { get; set; }
 }

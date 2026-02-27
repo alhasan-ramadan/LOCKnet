@@ -59,6 +59,16 @@ public class Database
 			cmd.ExecuteNonQuery();
 		}
 
+		try
+		{
+			using var migrationCommand = connection.CreateCommand();
+			migrationCommand.CommandText = "ALTER TABLE Credentials ADD COLUMN IconKey TEXT;";
+			migrationCommand.ExecuteNonQuery();
+		}
+		catch (SqliteException)
+		{
+		}
+
 		// MasterKey table
 		using (var cmd = connection.CreateCommand())
 		{
