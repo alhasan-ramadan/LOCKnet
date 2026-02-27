@@ -1,0 +1,123 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: ["main", "dev"]
+
+jobs:
+  # ─────────────────────────────────────────────
+  # 1. Build
+  # ─────────────────────────────────────────────
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build (no warnings as errors)
+        run: dotnet build --no-restore -c Release
+
+  # ─────────────────────────────────────────────
+  # 2. Lint  (dotnet format + Roslynator analyze)
+  # ─────────────────────────────────────────────
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Restore local tools
+        run: dotnet tool restore
+
+      - name: dotnet format (style check)
+        run: dotnet format --verify-no-changes --severity warn
+
+      - name: Roslynator analyze
+        run: >
+          dotnet tool run roslynator analyze
+          --severity Warning
+          --output roslynator-report.xml
+          --output-format xml
+
+      - name: Upload Roslynator report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: roslynator-report
+          path: roslynator-report.xml
+
+  # ─────────────────────────────────────────────
+  # 3. Test + Coverage
+  # ─────────────────────────────────────────────
+  test:
+    name: Test & Coverage
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Restore local tools
+        run: dotnet tool restore
+
+      - name: Run tests with coverage
+        run: |
+          dotnet test \
+            --no-restore \
+            --collect:"XPlat Code Coverage" \
+            --results-directory ./test-results \
+            --logger "trx;LogFileName=test-results.trx"
+
+      - name: Generate coverage report
+        run: |
+          dotnet tool run reportgenerator \
+            "-reports:test-results/**/coverage.cobertura.xml" \
+            "-targetdir:coverage-report" \
+            "-reporttypes:HtmlInline;TextSummary;Cobertura"
+
+      - name: Print coverage summary
+        run: cat coverage-report/Summary.txt || true
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: test-results/
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage-report/
