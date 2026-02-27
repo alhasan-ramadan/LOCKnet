@@ -87,12 +87,16 @@ $(function() {
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="properties" name="properties"></a>
 Properties</h2></td></tr>
 <tr class="memitem:a7e0252e1e21021c1f9755d0c736ccd7d" id="r_a7e0252e1e21021c1f9755d0c736ccd7d"><td class="memItemLeft" align="right" valign="top">byte[]&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLOCKnet_1_1Core_1_1DataAbstractions_1_1MasterKeyRecord.html#a7e0252e1e21021c1f9755d0c736ccd7d">PasswordHash</a> = []<code> [get, set]</code></td></tr>
+<tr class="memdesc:a7e0252e1e21021c1f9755d0c736ccd7d"><td class="mdescLeft">&#160;</td><td class="mdescRight">PBKDF2-Hash des Master-Passworts (zum Verifizieren beim Login).  <br /></td></tr>
 <tr class="separator:a7e0252e1e21021c1f9755d0c736ccd7d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae9af4c02caeca7a5ad4837f722e8990a" id="r_ae9af4c02caeca7a5ad4837f722e8990a"><td class="memItemLeft" align="right" valign="top">byte[]&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLOCKnet_1_1Core_1_1DataAbstractions_1_1MasterKeyRecord.html#ae9af4c02caeca7a5ad4837f722e8990a">Salt</a> = []<code> [get, set]</code></td></tr>
+<tr class="memdesc:ae9af4c02caeca7a5ad4837f722e8990a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Kryptografischer Salt für die Schlüsselableitung und den Passwort-Hash.  <br /></td></tr>
 <tr class="separator:ae9af4c02caeca7a5ad4837f722e8990a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2de1469dc6303512f3b9c1e6c58aa5e4" id="r_a2de1469dc6303512f3b9c1e6c58aa5e4"><td class="memItemLeft" align="right" valign="top">DateTime&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLOCKnet_1_1Core_1_1DataAbstractions_1_1MasterKeyRecord.html#a2de1469dc6303512f3b9c1e6c58aa5e4">CreatedAt</a><code> [get, set]</code></td></tr>
+<tr class="memdesc:a2de1469dc6303512f3b9c1e6c58aa5e4"><td class="mdescLeft">&#160;</td><td class="mdescRight">UTC-Zeitstempel der Erstellung (von SQLite gesetzt).  <br /></td></tr>
 <tr class="separator:a2de1469dc6303512f3b9c1e6c58aa5e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4990776ece7825b1c4316d7847a2b97c" id="r_a4990776ece7825b1c4316d7847a2b97c"><td class="memItemLeft" align="right" valign="top">DateTime&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLOCKnet_1_1Core_1_1DataAbstractions_1_1MasterKeyRecord.html#a4990776ece7825b1c4316d7847a2b97c">UpdatedAt</a><code> [get, set]</code></td></tr>
+<tr class="memdesc:a4990776ece7825b1c4316d7847a2b97c"><td class="mdescLeft">&#160;</td><td class="mdescRight">UTC-Zeitstempel der letzten Änderung (von SQLite gesetzt).  <br /></td></tr>
 <tr class="separator:a4990776ece7825b1c4316d7847a2b97c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
@@ -119,6 +123,8 @@ Properties</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
+<p>UTC-Zeitstempel der Erstellung (von SQLite gesetzt). </p>
+
 </div>
 </div>
 <a id="a7e0252e1e21021c1f9755d0c736ccd7d" name="a7e0252e1e21021c1f9755d0c736ccd7d"></a>
@@ -140,6 +146,8 @@ Properties</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p>PBKDF2-Hash des Master-Passworts (zum Verifizieren beim Login). </p>
 
 </div>
 </div>
@@ -163,6 +171,8 @@ Properties</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
+<p>Kryptografischer Salt für die Schlüsselableitung und den Passwort-Hash. </p>
+
 </div>
 </div>
 <a id="a4990776ece7825b1c4316d7847a2b97c" name="a4990776ece7825b1c4316d7847a2b97c"></a>
@@ -184,6 +194,8 @@ Properties</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p>UTC-Zeitstempel der letzten Änderung (von SQLite gesetzt). </p>
 
 </div>
 </div>

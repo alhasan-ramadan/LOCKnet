@@ -80,15 +80,23 @@ $(function() {
   <div class="headertitle"><div class="title">LOCKnet.Data.Database Class Reference</div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>Verwaltet die SQLite-Datenbankverbindung und initialisiert das Schema.  
+ <a href="classLOCKnet_1_1Data_1_1Database.html#details">More...</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a20f36e6b6d6b594e8678bb9cd6ebd276" id="r_a20f36e6b6d6b594e8678bb9cd6ebd276"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLOCKnet_1_1Data_1_1Database.html#a20f36e6b6d6b594e8678bb9cd6ebd276">Database</a> (string databasePath=&quot;credentials.db&quot;)</td></tr>
+<tr class="memdesc:a20f36e6b6d6b594e8678bb9cd6ebd276"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialisiert eine neue Instanz von Database mit einem Datei-Pfad.  <br /></td></tr>
 <tr class="separator:a20f36e6b6d6b594e8678bb9cd6ebd276"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afe50e23f19bf838dab7b28b7e4b66b98" id="r_afe50e23f19bf838dab7b28b7e4b66b98"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLOCKnet_1_1Data_1_1Database.html#afe50e23f19bf838dab7b28b7e4b66b98">Initialize</a> ()</td></tr>
+<tr class="memdesc:afe50e23f19bf838dab7b28b7e4b66b98"><td class="mdescLeft">&#160;</td><td class="mdescRight">Erstellt alle Tabellen (Credentials, MasterKey, Settings) via <code>CREATE TABLE IF NOT EXISTS</code>.  <br /></td></tr>
 <tr class="separator:afe50e23f19bf838dab7b28b7e4b66b98"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Verwaltet die SQLite-Datenbankverbindung und initialisiert das Schema. </p>
+<p>Erstellt beim ersten Aufruf von Initialize alle benötigten Tabellen (Credentials, MasterKey, Settings) mit <code>CREATE TABLE IF NOT EXISTS</code>. </p>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a20f36e6b6d6b594e8678bb9cd6ebd276" name="a20f36e6b6d6b594e8678bb9cd6ebd276"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a20f36e6b6d6b594e8678bb9cd6ebd276">&#9670;&#160;</a></span>Database()</h2>
 
@@ -112,6 +120,14 @@ Public Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p>Initialisiert eine neue Instanz von Database mit einem Datei-Pfad. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">databasePath</td><td>Pfad zur SQLite-Datenbankdatei (Standard: <code>credentials.db</code> im Arbeitsverzeichnis). </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
@@ -138,6 +154,9 @@ Public Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p>Erstellt alle Tabellen (Credentials, MasterKey, Settings) via <code>CREATE TABLE IF NOT EXISTS</code>. </p>
+<p>Kann mehrfach aufgerufen werden — idempotent. </p>
 
 </div>
 </div>

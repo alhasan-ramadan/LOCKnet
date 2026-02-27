@@ -81,6 +81,9 @@ $(function() {
   <div class="headertitle"><div class="title">LOCKnet.Data.Repositories.RepositoryBase Class Reference<span class="mlabels"><span class="mlabel">abstract</span></span></div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>Abstrakte Basisklasse für alle SQLite-Repositories.  
+ <a href="classLOCKnet_1_1Data_1_1Repositories_1_1RepositoryBase.html#details">More...</a></p>
 <div class="dynheader">
 Inheritance diagram for LOCKnet.Data.Repositories.RepositoryBase:</div>
 <div class="dyncontent">
@@ -90,16 +93,22 @@ Inheritance diagram for LOCKnet.Data.Repositories.RepositoryBase:</div>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-methods" name="pro-methods"></a>
 Protected Member Functions</h2></td></tr>
 <tr class="memitem:ac9c167a385417c769521ff66cbb64c5c" id="r_ac9c167a385417c769521ff66cbb64c5c"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLOCKnet_1_1Data_1_1Repositories_1_1RepositoryBase.html#ac9c167a385417c769521ff66cbb64c5c">RepositoryBase</a> (string connectionString)</td></tr>
+<tr class="memdesc:ac9c167a385417c769521ff66cbb64c5c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialisiert eine neue Instanz von RepositoryBase.  <br /></td></tr>
 <tr class="separator:ac9c167a385417c769521ff66cbb64c5c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a92e5b7ba149588651bc6dbdf8ad88958" id="r_a92e5b7ba149588651bc6dbdf8ad88958"><td class="memItemLeft" align="right" valign="top">SqliteConnection&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLOCKnet_1_1Data_1_1Repositories_1_1RepositoryBase.html#a92e5b7ba149588651bc6dbdf8ad88958">GetConnection</a> ()</td></tr>
+<tr class="memdesc:a92e5b7ba149588651bc6dbdf8ad88958"><td class="mdescLeft">&#160;</td><td class="mdescRight">Öffnet eine neue SQLite-Verbindung und gibt sie zurück.  <br /></td></tr>
 <tr class="separator:a92e5b7ba149588651bc6dbdf8ad88958"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-attribs" name="pro-attribs"></a>
 Protected Attributes</h2></td></tr>
 <tr class="memitem:af34a6444886c3b584631d562fb498afb" id="r_af34a6444886c3b584631d562fb498afb"><td class="memItemLeft" align="right" valign="top">readonly string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLOCKnet_1_1Data_1_1Repositories_1_1RepositoryBase.html#af34a6444886c3b584631d562fb498afb">_connectionString</a></td></tr>
+<tr class="memdesc:af34a6444886c3b584631d562fb498afb"><td class="mdescLeft">&#160;</td><td class="mdescRight">SQLite-Connection-String für diese Repository-Instanz.  <br /></td></tr>
 <tr class="separator:af34a6444886c3b584631d562fb498afb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Abstrakte Basisklasse für alle SQLite-Repositories. </p>
+<p>Hält den Connection-String und öffnet bei Bedarf eine neue Verbindung. Jede Methode öffnet eine eigene Verbindung — kein Connection-Pooling. </p>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="ac9c167a385417c769521ff66cbb64c5c" name="ac9c167a385417c769521ff66cbb64c5c"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ac9c167a385417c769521ff66cbb64c5c">&#9670;&#160;</a></span>RepositoryBase()</h2>
 
@@ -123,6 +132,14 @@ Protected Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p>Initialisiert eine neue Instanz von RepositoryBase. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">connectionString</td><td>Der vollständige SQLite-Connection-String.</td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
@@ -150,6 +167,10 @@ Protected Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
+<p>Öffnet eine neue SQLite-Verbindung und gibt sie zurück. </p>
+<p>Der Caller ist verantwortlich für das Schließen (via <code>using</code>).</p>
+<dl class="section return"><dt>Returns</dt><dd>Eine geöffnete Microsoft.Data.Sqlite.SqliteConnection.</dd></dl>
+
 </div>
 </div>
 <h2 class="groupheader">Member Data Documentation</h2>
@@ -172,6 +193,8 @@ Protected Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p>SQLite-Connection-String für diese Repository-Instanz. </p>
 
 </div>
 </div>

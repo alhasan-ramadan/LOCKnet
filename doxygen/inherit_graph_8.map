@@ -8,7 +8,7 @@
 <area shape="rect" id="Node000006" href="$interfaceLOCKnet_1_1Core_1_1DataAbstractions_1_1ISettingsRepository.html" title="Verwaltet Konfigurationseinstellungen als Key&#45;Value&#45;Paare." alt="" coords="5,197,237,237"/>
 <area shape="rect" id="Node000005" href="$classLOCKnet_1_1Data_1_1Repositories_1_1SettingsRepository.html" title="SQLite&#45;Implementierung von ISettingsRepository." alt="" coords="285,181,488,221"/>
 <area shape="poly" id="edge9_Node000006_Node000005" title=" " alt="" coords="251,207,285,205,285,210,251,212"/>
-<area shape="rect" id="Node000002" href="$classLOCKnet_1_1Data_1_1Repositories_1_1RepositoryBase.html" title=" " alt="" coords="20,69,223,109"/>
+<area shape="rect" id="Node000002" href="$classLOCKnet_1_1Data_1_1Repositories_1_1RepositoryBase.html" title="Abstrakte Basisklasse für alle SQLite&#45;Repositories." alt="" coords="20,69,223,109"/>
 <area shape="poly" id="edge10_Node000002_Node000001" title=" " alt="" coords="236,66,285,57,286,62,237,71"/>
 <area shape="poly" id="edge11_Node000002_Node000003" title=" " alt="" coords="237,101,285,106,285,112,236,106"/>
 <area shape="poly" id="edge12_Node000002_Node000005" title=" " alt="" coords="220,111,239,119,263,134,287,151,341,179,339,184,284,156,260,139,236,124,218,116"/>
