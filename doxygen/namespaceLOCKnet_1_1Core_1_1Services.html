@@ -75,7 +75,8 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#nested-classes">Classes</a>  </div>
+<a href="#nested-classes">Classes</a> &#124;
+<a href="#func-members">Functions</a>  </div>
   <div class="headertitle"><div class="title">LOCKnet.Core.Services Namespace Reference</div></div>
 </div><!--header-->
 <div class="contents">
@@ -88,7 +89,70 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interfaceLOCKnet_1_1Core_1_1Services_1_1ICredentialService.html">ICredentialService</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Verwaltet Zugangsdaten: CRUD-Operationen mit transparenter Ver- und Entschlüsselung.  <a href="interfaceLOCKnet_1_1Core_1_1Services_1_1ICredentialService.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interfaceLOCKnet_1_1Core_1_1Services_1_1IPasswordGeneratorService.html">IPasswordGeneratorService</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Erzeugt kryptographisch sichere Passwoerter auf Basis konfigurierbarer Optionen.  <a href="interfaceLOCKnet_1_1Core_1_1Services_1_1IPasswordGeneratorService.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interfaceLOCKnet_1_1Core_1_1Services_1_1IPasswordStrengthService.html">IPasswordStrengthService</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bewertet die Staerke eines Passworts und liefert Score sowie Darstellungsmetadaten.  <a href="interfaceLOCKnet_1_1Core_1_1Services_1_1IPasswordStrengthService.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLOCKnet_1_1Core_1_1Services_1_1PasswordGeneratorService.html">PasswordGeneratorService</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Standardimplementierung fuer IPasswordGeneratorService.  <a href="classLOCKnet_1_1Core_1_1Services_1_1PasswordGeneratorService.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLOCKnet_1_1Core_1_1Services_1_1PasswordStrengthService.html">PasswordStrengthService</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Standardimplementierung fuer IPasswordStrengthService.  <a href="classLOCKnet_1_1Core_1_1Services_1_1PasswordStrengthService.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
+Functions</h2></td></tr>
+<tr class="memitem:af94924be2fc85f0b4cd6743ec56bda96" id="r_af94924be2fc85f0b4cd6743ec56bda96"><td class="memItemLeft" align="right" valign="top">record&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceLOCKnet_1_1Core_1_1Services.html#af94924be2fc85f0b4cd6743ec56bda96">PasswordStrength</a> (int Score, string Label, string Color)</td></tr>
+<tr class="memdesc:af94924be2fc85f0b4cd6743ec56bda96"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ergebnis einer Passwortstaerkeanalyse.  <br /></td></tr>
+<tr class="separator:af94924be2fc85f0b4cd6743ec56bda96"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<h2 class="groupheader">Function Documentation</h2>
+<a id="af94924be2fc85f0b4cd6743ec56bda96" name="af94924be2fc85f0b4cd6743ec56bda96"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af94924be2fc85f0b4cd6743ec56bda96">&#9670;&#160;</a></span>PasswordStrength()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">record LOCKnet.Core.Services.PasswordStrength </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>Score</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">string&#160;</td>
+          <td class="paramname"><em>Label</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">string&#160;</td>
+          <td class="paramname"><em>Color</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Ergebnis einer Passwortstaerkeanalyse. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">Score</td><td>Staerkescore im Bereich 0 bis 4.</td></tr>
+    <tr><td class="paramname">Label</td><td>Menschlich lesbares Staerke-Label.</td></tr>
+    <tr><td class="paramname">Color</td><td>Hex-Farbwert fuer die UI-Darstellung.</td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

@@ -1,3 +1,5 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="Node000000" href="$classLOCKnet_1_1Data_1_1Database.html" title="Verwaltet die SQLite&#45;Datenbankverbindung und initialisiert das Schema." alt="" coords="5,5,184,31"/>
+<area shape="rect" id="Node000000" href="$interfaceLOCKnet_1_1Core_1_1Services_1_1ICredentialService.html" title="Verwaltet Zugangsdaten: CRUD&#45;Operationen mit transparenter Ver&#45; und Entschlüsselung." alt="" coords="5,5,252,45"/>
+<area shape="rect" id="Node000001" href="$classLOCKnet_1_1Core_1_1Services_1_1CredentialService.html" title="Implementierung von ICredentialService." alt="" coords="300,5,543,45"/>
+<area shape="poly" id="edge17_Node000000_Node000001" title=" " alt="" coords="266,23,300,23,300,28,266,28"/>
 </map>

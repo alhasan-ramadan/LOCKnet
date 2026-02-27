@@ -1,38 +1,44 @@
 Summary
-  Generated on: 02/27/2026 - 06:36:49
-  Coverage date: 02/27/2026 - 06:36:42 - 02/27/2026 - 06:36:48
+  Generated on: 02/27/2026 - 07:04:37
+  Coverage date: 02/27/2026 - 07:04:31 - 02/27/2026 - 07:04:36
   Parser: MultiReport (2x Cobertura)
   Assemblies: 2
-  Classes: 14
-  Files: 14
-  Line coverage: 98.2%
-  Covered lines: 572
-  Uncovered lines: 10
-  Coverable lines: 582
-  Total lines: 1087
-  Branch coverage: 90.9% (80 of 88)
-  Covered branches: 80
-  Total branches: 88
-  Method coverage: 98.5% (70 of 71)
-  Full method coverage: 94.3% (67 of 71)
-  Covered methods: 70
-  Fully covered methods: 67
-  Total methods: 71
+  Classes: 20
+  Files: 19
+  Line coverage: 76.9%
+  Covered lines: 587
+  Uncovered lines: 176
+  Coverable lines: 763
+  Total lines: 1335
+  Branch coverage: 55.5% (85 of 153)
+  Covered branches: 85
+  Total branches: 153
+  Method coverage: 77.1% (71 of 92)
+  Full method coverage: 73.9% (68 of 92)
+  Covered methods: 71
+  Fully covered methods: 68
+  Total methods: 92
 
-LOCKnet.Core                                        98.3%
-  LOCKnet.Core.Crypto.AesGcmEncryptionService       96.8%
-  LOCKnet.Core.Crypto.Pbkdf2KeyDerivationService     100%
-  LOCKnet.Core.Crypto.SecureStringService           90.6%
-  LOCKnet.Core.DataAbstractions.CredentialRecord     100%
-  LOCKnet.Core.DataAbstractions.MasterKeyRecord      100%
-  LOCKnet.Core.Security.ActivityMonitor             97.9%
-  LOCKnet.Core.Security.MasterKeyManager             100%
-  LOCKnet.Core.Security.SessionManager               100%
-  LOCKnet.Core.Services.CredentialService            100%
+LOCKnet.Core                                                                                                                                                68%
+  LOCKnet.Core.Crypto.AesGcmEncryptionService                                                                                                             96.8%
+  LOCKnet.Core.Crypto.Pbkdf2KeyDerivationService                                                                                                           100%
+  LOCKnet.Core.Crypto.SecureStringService                                                                                                                 90.6%
+  LOCKnet.Core.DataAbstractions.CredentialRecord                                                                                                           100%
+  LOCKnet.Core.DataAbstractions.MasterKeyRecord                                                                                                            100%
+  LOCKnet.Core.Security.ActivityMonitor                                                                                                                   97.9%
+  LOCKnet.Core.Security.MasterKeyManager                                                                                                                   100%
+  LOCKnet.Core.Security.SessionManager                                                                                                                     100%
+  LOCKnet.Core.Services.CredentialService                                                                                                                  100%
+  LOCKnet.Core.Services.PasswordGeneratorOptions                                                                                                             0%
+  LOCKnet.Core.Services.PasswordGeneratorService                                                                                                             0%
+  LOCKnet.Core.Services.PasswordStrength                                                                                                                     0%
+  LOCKnet.Core.Services.PasswordStrengthService                                                                                                              0%
+  System.Text.RegularExpressions.Generated                                                                                                                   0%
+  System.Text.RegularExpressions.Generated.<RegexGenerator_g>F0BF6AB5C5DD8853393C459DB9A153EC324943034AB6F6FD67F4C1573633C776E__SpecialCharacterRegex_0      0%
 
-LOCKnet.Data                                        98.1%
-  LOCKnet.Data.Database                             92.3%
-  LOCKnet.Data.Repositories.CredentialsRepository    100%
-  LOCKnet.Data.Repositories.MasterKeyRepository      100%
-  LOCKnet.Data.Repositories.RepositoryBase           100%
-  LOCKnet.Data.Repositories.SettingsRepository       100%
+LOCKnet.Data                                                                                                                                              98.2%
+  LOCKnet.Data.Database                                                                                                                                   93.3%
+  LOCKnet.Data.Repositories.CredentialsRepository                                                                                                          100%
+  LOCKnet.Data.Repositories.MasterKeyRepository                                                                                                            100%
+  LOCKnet.Data.Repositories.RepositoryBase                                                                                                                 100%
+  LOCKnet.Data.Repositories.SettingsRepository                                                                                                             100%

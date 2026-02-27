@@ -865,15 +865,15 @@ code { font-family: Consolas, monospace; font-size: 0.9em; }
 </tr>
 <tr>
 <th>Classes:</th>
-<td class="limit-width right" title="14">14</td>
+<td class="limit-width right" title="20">20</td>
 </tr>
 <tr>
 <th>Files:</th>
-<td class="limit-width right" title="14">14</td>
+<td class="limit-width right" title="19">19</td>
 </tr>
 <tr>
 <th>Coverage date:</th>
-<td class="limit-width " title="02/27/2026 - 06:36:42 - 02/27/2026 - 06:36:48">02/27/2026 - 06:36:42 - 02/27/2026 - 06:36:48</td>
+<td class="limit-width " title="02/27/2026 - 07:04:31 - 02/27/2026 - 07:04:36">02/27/2026 - 07:04:31 - 02/27/2026 - 07:04:36</td>
 </tr>
 </table>
 </div>
@@ -882,28 +882,28 @@ code { font-family: Consolas, monospace; font-size: 0.9em; }
 <div class="card">
 <div class="card-header">Line coverage</div>
 <div class="card-body">
-<div class="large cardpercentagebar cardpercentagebar2">98%</div>
+<div class="large cardpercentagebar cardpercentagebar23">76%</div>
 <div class="table">
 <table>
 <tr>
 <th>Covered lines:</th>
-<td class="limit-width right" title="572">572</td>
+<td class="limit-width right" title="587">587</td>
 </tr>
 <tr>
 <th>Uncovered lines:</th>
-<td class="limit-width right" title="10">10</td>
+<td class="limit-width right" title="176">176</td>
 </tr>
 <tr>
 <th>Coverable lines:</th>
-<td class="limit-width right" title="582">582</td>
+<td class="limit-width right" title="763">763</td>
 </tr>
 <tr>
 <th>Total lines:</th>
-<td class="limit-width right" title="1087">1087</td>
+<td class="limit-width right" title="1335">1335</td>
 </tr>
 <tr>
 <th>Line coverage:</th>
-<td class="limit-width right" title="572 of 582">98.2%</td>
+<td class="limit-width right" title="587 of 763">76.9%</td>
 </tr>
 </table>
 </div>
@@ -912,20 +912,20 @@ code { font-family: Consolas, monospace; font-size: 0.9em; }
 <div class="card">
 <div class="card-header">Branch coverage</div>
 <div class="card-body">
-<div class="large cardpercentagebar cardpercentagebar9">90%</div>
+<div class="large cardpercentagebar cardpercentagebar44">55%</div>
 <div class="table">
 <table>
 <tr>
 <th>Covered branches:</th>
-<td class="limit-width right" title="80">80</td>
+<td class="limit-width right" title="85">85</td>
 </tr>
 <tr>
 <th>Total branches:</th>
-<td class="limit-width right" title="88">88</td>
+<td class="limit-width right" title="153">153</td>
 </tr>
 <tr>
 <th>Branch coverage:</th>
-<td class="limit-width right" title="80 of 88">90.9%</td>
+<td class="limit-width right" title="85 of 153">55.5%</td>
 </tr>
 </table>
 </div>
@@ -943,8 +943,38 @@ code { font-family: Consolas, monospace; font-size: 0.9em; }
 </div>
 <h1>Risk Hotspots</h1>
 <risk-hotspots>
+<div class="table-responsive">
+<table class="overview table-fixed stripped">
+<colgroup>
+<col class="column-min-200" />
+<col class="column-min-200" />
+<col class="column-min-200" />
+<col class="column105" />
+<col class="column105" />
+</colgroup>
+<thead><tr><th>Assembly</th>
+<th>Class</th>
+<th>Method</th>
+<th>Crap Score <a href="https://googletesting.blogspot.de/2011/02/this-code-is-crap.html" target="_blank"><i class="icon-info-circled"></i></a></th>
+<th>Cyclomatic complexity <a href="https://en.wikipedia.org/wiki/Cyclomatic_complexity" target="_blank"><i class="icon-info-circled"></i></a></th>
+</tr></thead>
+<tbody>
+<tr>
+<td>LOCKnet.Core</td>
+<td><a href="LOCKnet.Core_PasswordStrengthService.html">LOCKnet.Core.Services.PasswordStrengthService</a></td>
+<td title="Evaluate(System.String)"><a href="LOCKnet.Core_PasswordStrengthService.html#file1_line18">Evaluate(...)</a></td><td class="lightred right">992</td>
+<td class="lightred right">31</td>
+</tr>
+<tr>
+<td>LOCKnet.Core</td>
+<td><a href="LOCKnet.Core_PasswordGeneratorService.html">LOCKnet.Core.Services.PasswordGeneratorService</a></td>
+<td title="Generate(LOCKnet.Core.Services.PasswordGeneratorOptions)"><a href="LOCKnet.Core_PasswordGeneratorService.html#file0_line18">Generate(...)</a></td><td class="lightred right">210</td>
+<td class="lightgreen right">14</td>
+</tr>
+</tbody>
+</table>
+</div>
 </risk-hotspots>
-<p>No risk hotspots found.</p>
 <h1>Coverage</h1>
 <coverage-info>
 <div class="table-responsive">
@@ -966,19 +996,25 @@ code { font-family: Consolas, monospace; font-size: 0.9em; }
 <tr class="header"><th></th><th colspan="6" class="center">Line coverage</th><th colspan="4" class="center">Branch coverage</th></tr>
 <tr><th>Name</th><th class="right">Covered</th><th class="right">Uncovered</th><th class="right">Coverable</th><th class="right">Total</th><th class="center" colspan="2">Percentage</th><th class="right">Covered</th><th class="right">Total</th><th class="center" colspan="2">Percentage</th></tr></thead>
 <tbody>
-<tr><th>LOCKnet.Core</th><th class="right">363</th><th class="right">6</th><th class="right">369</th><th class="right">705</th><th title="363/369" class="right">98.3%</th><th><table class="coverage"><tr><td class="green covered98">&nbsp;</td><td class="red covered2">&nbsp;</td></tr></table></th><th class="right">57</th><th class="right">60</th><th class="right" title="57/60">95%</th><th><table class="coverage"><tr><td class="green covered95">&nbsp;</td><td class="red covered5">&nbsp;</td></tr></table></th></tr>
+<tr><th>LOCKnet.Core</th><th class="right">366</th><th class="right">172</th><th class="right">538</th><th class="right">1156</th><th title="366/538" class="right">68%</th><th><table class="coverage"><tr><td class="green covered68">&nbsp;</td><td class="red covered32">&nbsp;</td></tr></table></th><th class="right">57</th><th class="right">119</th><th class="right" title="57/119">47.8%</th><th><table class="coverage"><tr><td class="green covered48">&nbsp;</td><td class="red covered52">&nbsp;</td></tr></table></th></tr>
 <tr><td><a href="LOCKnet.Core_AesGcmEncryptionService.html">LOCKnet.Core.Crypto.AesGcmEncryptionService</a></td><td class="right">31</td><td class="right">1</td><td class="right">32</td><td class="right">67</td><td title="31/32" class="right">96.8%</td><td><table class="coverage"><tr><td class="green covered97">&nbsp;</td><td class="red covered3">&nbsp;</td></tr></table></td><td class="right">5</td><td class="right">6</td><td class="right" title="5/6">83.3%</td><td><table class="coverage"><tr><td class="green covered83">&nbsp;</td><td class="red covered17">&nbsp;</td></tr></table></td></tr>
 <tr><td><a href="LOCKnet.Core_Pbkdf2KeyDerivationService.html">LOCKnet.Core.Crypto.Pbkdf2KeyDerivationService</a></td><td class="right">34</td><td class="right">0</td><td class="right">34</td><td class="right">71</td><td title="34/34" class="right">100%</td><td><table class="coverage"><tr><td class="green covered100">&nbsp;</td></tr></table></td><td class="right">0</td><td class="right">0</td><td class="right" title="-"></td><td><table class="coverage"><tr><td class="gray covered100">&nbsp;</td></tr></table></td></tr>
 <tr><td><a href="LOCKnet.Core_SecureStringService.html">LOCKnet.Core.Crypto.SecureStringService</a></td><td class="right">39</td><td class="right">4</td><td class="right">43</td><td class="right">86</td><td title="39/43" class="right">90.6%</td><td><table class="coverage"><tr><td class="green covered91">&nbsp;</td><td class="red covered9">&nbsp;</td></tr></table></td><td class="right">10</td><td class="right">10</td><td class="right" title="10/10">100%</td><td><table class="coverage"><tr><td class="green covered100">&nbsp;</td></tr></table></td></tr>
-<tr><td><a href="LOCKnet.Core_CredentialRecord.html">LOCKnet.Core.DataAbstractions.CredentialRecord</a></td><td class="right">8</td><td class="right">0</td><td class="right">8</td><td class="right">25</td><td title="8/8" class="right">100%</td><td><table class="coverage"><tr><td class="green covered100">&nbsp;</td></tr></table></td><td class="right">0</td><td class="right">0</td><td class="right" title="-"></td><td><table class="coverage"><tr><td class="gray covered100">&nbsp;</td></tr></table></td></tr>
+<tr><td><a href="LOCKnet.Core_CredentialRecord.html">LOCKnet.Core.DataAbstractions.CredentialRecord</a></td><td class="right">9</td><td class="right">0</td><td class="right">9</td><td class="right">27</td><td title="9/9" class="right">100%</td><td><table class="coverage"><tr><td class="green covered100">&nbsp;</td></tr></table></td><td class="right">0</td><td class="right">0</td><td class="right" title="-"></td><td><table class="coverage"><tr><td class="gray covered100">&nbsp;</td></tr></table></td></tr>
 <tr><td><a href="LOCKnet.Core_MasterKeyRecord.html">LOCKnet.Core.DataAbstractions.MasterKeyRecord</a></td><td class="right">4</td><td class="right">0</td><td class="right">4</td><td class="right">17</td><td title="4/4" class="right">100%</td><td><table class="coverage"><tr><td class="green covered100">&nbsp;</td></tr></table></td><td class="right">0</td><td class="right">0</td><td class="right" title="-"></td><td><table class="coverage"><tr><td class="gray covered100">&nbsp;</td></tr></table></td></tr>
 <tr><td><a href="LOCKnet.Core_ActivityMonitor.html">LOCKnet.Core.Security.ActivityMonitor</a></td><td class="right">47</td><td class="right">1</td><td class="right">48</td><td class="right">94</td><td title="47/48" class="right">97.9%</td><td><table class="coverage"><tr><td class="green covered98">&nbsp;</td><td class="red covered2">&nbsp;</td></tr></table></td><td class="right">16</td><td class="right">18</td><td class="right" title="16/18">88.8%</td><td><table class="coverage"><tr><td class="green covered89">&nbsp;</td><td class="red covered11">&nbsp;</td></tr></table></td></tr>
 <tr><td><a href="LOCKnet.Core_MasterKeyManager.html">LOCKnet.Core.Security.MasterKeyManager</a></td><td class="right">77</td><td class="right">0</td><td class="right">77</td><td class="right">129</td><td title="77/77" class="right">100%</td><td><table class="coverage"><tr><td class="green covered100">&nbsp;</td></tr></table></td><td class="right">10</td><td class="right">10</td><td class="right" title="10/10">100%</td><td><table class="coverage"><tr><td class="green covered100">&nbsp;</td></tr></table></td></tr>
 <tr><td><a href="LOCKnet.Core_SessionManager.html">LOCKnet.Core.Security.SessionManager</a></td><td class="right">31</td><td class="right">0</td><td class="right">31</td><td class="right">65</td><td title="31/31" class="right">100%</td><td><table class="coverage"><tr><td class="green covered100">&nbsp;</td></tr></table></td><td class="right">8</td><td class="right">8</td><td class="right" title="8/8">100%</td><td><table class="coverage"><tr><td class="green covered100">&nbsp;</td></tr></table></td></tr>
-<tr><td><a href="LOCKnet.Core_CredentialService.html">LOCKnet.Core.Services.CredentialService</a></td><td class="right">92</td><td class="right">0</td><td class="right">92</td><td class="right">151</td><td title="92/92" class="right">100%</td><td><table class="coverage"><tr><td class="green covered100">&nbsp;</td></tr></table></td><td class="right">8</td><td class="right">8</td><td class="right" title="8/8">100%</td><td><table class="coverage"><tr><td class="green covered100">&nbsp;</td></tr></table></td></tr>
-<tr><th>LOCKnet.Data</th><th class="right">209</th><th class="right">4</th><th class="right">213</th><th class="right">382</th><th title="209/213" class="right">98.1%</th><th><table class="coverage"><tr><td class="green covered98">&nbsp;</td><td class="red covered2">&nbsp;</td></tr></table></th><th class="right">23</th><th class="right">28</th><th class="right" title="23/28">82.1%</th><th><table class="coverage"><tr><td class="green covered82">&nbsp;</td><td class="red covered18">&nbsp;</td></tr></table></th></tr>
-<tr><td><a href="LOCKnet.Data_Database.html">LOCKnet.Data.Database</a></td><td class="right">48</td><td class="right">4</td><td class="right">52</td><td class="right">90</td><td title="48/52" class="right">92.3%</td><td><table class="coverage"><tr><td class="green covered92">&nbsp;</td><td class="red covered8">&nbsp;</td></tr></table></td><td class="right">0</td><td class="right">0</td><td class="right" title="-"></td><td><table class="coverage"><tr><td class="gray covered100">&nbsp;</td></tr></table></td></tr>
-<tr><td><a href="LOCKnet.Data_CredentialsRepository.html">LOCKnet.Data.Repositories.CredentialsRepository</a></td><td class="right">70</td><td class="right">0</td><td class="right">70</td><td class="right">110</td><td title="70/70" class="right">100%</td><td><table class="coverage"><tr><td class="green covered100">&nbsp;</td></tr></table></td><td class="right">17</td><td class="right">22</td><td class="right" title="17/22">77.2%</td><td><table class="coverage"><tr><td class="green covered77">&nbsp;</td><td class="red covered23">&nbsp;</td></tr></table></td></tr>
+<tr><td><a href="LOCKnet.Core_CredentialService.html">LOCKnet.Core.Services.CredentialService</a></td><td class="right">94</td><td class="right">0</td><td class="right">94</td><td class="right">153</td><td title="94/94" class="right">100%</td><td><table class="coverage"><tr><td class="green covered100">&nbsp;</td></tr></table></td><td class="right">8</td><td class="right">8</td><td class="right" title="8/8">100%</td><td><table class="coverage"><tr><td class="green covered100">&nbsp;</td></tr></table></td></tr>
+<tr><td><a href="LOCKnet.Core_PasswordGeneratorOptions.html">LOCKnet.Core.Services.PasswordGeneratorOptions</a></td><td class="right">0</td><td class="right">5</td><td class="right">5</td><td class="right">35</td><td title="0/5" class="right">0%</td><td><table class="coverage"><tr><td class="red covered100">&nbsp;</td></tr></table></td><td class="right">0</td><td class="right">0</td><td class="right" title="-"></td><td><table class="coverage"><tr><td class="gray covered100">&nbsp;</td></tr></table></td></tr>
+<tr><td><a href="LOCKnet.Core_PasswordGeneratorService.html">LOCKnet.Core.Services.PasswordGeneratorService</a></td><td class="right">0</td><td class="right">33</td><td class="right">33</td><td class="right">60</td><td title="0/33" class="right">0%</td><td><table class="coverage"><tr><td class="red covered100">&nbsp;</td></tr></table></td><td class="right">0</td><td class="right">14</td><td class="right" title="0/14">0%</td><td><table class="coverage"><tr><td class="red covered100">&nbsp;</td></tr></table></td></tr>
+<tr><td><a href="LOCKnet.Core_PasswordStrength.html">LOCKnet.Core.Services.PasswordStrength</a></td><td class="right">0</td><td class="right">1</td><td class="right">1</td><td class="right">22</td><td title="0/1" class="right">0%</td><td><table class="coverage"><tr><td class="red covered100">&nbsp;</td></tr></table></td><td class="right">0</td><td class="right">0</td><td class="right" title="-"></td><td><table class="coverage"><tr><td class="gray covered100">&nbsp;</td></tr></table></td></tr>
+<tr><td><a href="LOCKnet.Core_PasswordStrengthService.html">LOCKnet.Core.Services.PasswordStrengthService</a></td><td class="right">0</td><td class="right">60</td><td class="right">60</td><td class="right">113</td><td title="0/60" class="right">0%</td><td><table class="coverage"><tr><td class="red covered100">&nbsp;</td></tr></table></td><td class="right">0</td><td class="right">31</td><td class="right" title="0/31">0%</td><td><table class="coverage"><tr><td class="red covered100">&nbsp;</td></tr></table></td></tr>
+<tr><td><a href="LOCKnet.Core_Generated.html">System.Text.RegularExpressions.Generated</a></td><td class="right">0</td><td class="right">35</td><td class="right">35</td><td class="right">117</td><td title="0/35" class="right">0%</td><td><table class="coverage"><tr><td class="red covered100">&nbsp;</td></tr></table></td><td class="right">0</td><td class="right">8</td><td class="right" title="0/8">0%</td><td><table class="coverage"><tr><td class="red covered100">&nbsp;</td></tr></table></td></tr>
+<tr><td><a href="LOCKnet.Core__RegexGenerator_g_F0BF6AB5C5DD8853393F4C1573633C776E__SpecialCharacterRegex_0.html">System.Text.RegularExpressions.Generated.&lt;RegexGenerator_g&gt;F0BF6AB5C5DD8853393C459DB9A153EC324943034AB6F6FD67F4C1573633C776E__SpecialCharacterRegex_0</a></td><td class="right">0</td><td class="right">32</td><td class="right">32</td><td class="right">100</td><td title="0/32" class="right">0%</td><td><table class="coverage"><tr><td class="red covered100">&nbsp;</td></tr></table></td><td class="right">0</td><td class="right">6</td><td class="right" title="0/6">0%</td><td><table class="coverage"><tr><td class="red covered100">&nbsp;</td></tr></table></td></tr>
+<tr><th>LOCKnet.Data</th><th class="right">221</th><th class="right">4</th><th class="right">225</th><th class="right">396</th><th title="221/225" class="right">98.2%</th><th><table class="coverage"><tr><td class="green covered98">&nbsp;</td><td class="red covered2">&nbsp;</td></tr></table></th><th class="right">28</th><th class="right">34</th><th class="right" title="28/34">82.3%</th><th><table class="coverage"><tr><td class="green covered82">&nbsp;</td><td class="red covered18">&nbsp;</td></tr></table></th></tr>
+<tr><td><a href="LOCKnet.Data_Database.html">LOCKnet.Data.Database</a></td><td class="right">56</td><td class="right">4</td><td class="right">60</td><td class="right">100</td><td title="56/60" class="right">93.3%</td><td><table class="coverage"><tr><td class="green covered93">&nbsp;</td><td class="red covered7">&nbsp;</td></tr></table></td><td class="right">0</td><td class="right">0</td><td class="right" title="-"></td><td><table class="coverage"><tr><td class="gray covered100">&nbsp;</td></tr></table></td></tr>
+<tr><td><a href="LOCKnet.Data_CredentialsRepository.html">LOCKnet.Data.Repositories.CredentialsRepository</a></td><td class="right">74</td><td class="right">0</td><td class="right">74</td><td class="right">114</td><td title="74/74" class="right">100%</td><td><table class="coverage"><tr><td class="green covered100">&nbsp;</td></tr></table></td><td class="right">22</td><td class="right">28</td><td class="right" title="22/28">78.5%</td><td><table class="coverage"><tr><td class="green covered78">&nbsp;</td><td class="red covered22">&nbsp;</td></tr></table></td></tr>
 <tr><td><a href="LOCKnet.Data_MasterKeyRepository.html">LOCKnet.Data.Repositories.MasterKeyRepository</a></td><td class="right">47</td><td class="right">0</td><td class="right">47</td><td class="right">81</td><td title="47/47" class="right">100%</td><td><table class="coverage"><tr><td class="green covered100">&nbsp;</td></tr></table></td><td class="right">4</td><td class="right">4</td><td class="right" title="4/4">100%</td><td><table class="coverage"><tr><td class="green covered100">&nbsp;</td></tr></table></td></tr>
 <tr><td><a href="LOCKnet.Data_RepositoryBase.html">LOCKnet.Data.Repositories.RepositoryBase</a></td><td class="right">9</td><td class="right">0</td><td class="right">9</td><td class="right">35</td><td title="9/9" class="right">100%</td><td><table class="coverage"><tr><td class="green covered100">&nbsp;</td></tr></table></td><td class="right">0</td><td class="right">0</td><td class="right" title="-"></td><td><table class="coverage"><tr><td class="gray covered100">&nbsp;</td></tr></table></td></tr>
 <tr><td><a href="LOCKnet.Data_SettingsRepository.html">LOCKnet.Data.Repositories.SettingsRepository</a></td><td class="right">35</td><td class="right">0</td><td class="right">35</td><td class="right">66</td><td title="35/35" class="right">100%</td><td><table class="coverage"><tr><td class="green covered100">&nbsp;</td></tr></table></td><td class="right">2</td><td class="right">2</td><td class="right" title="2/2">100%</td><td><table class="coverage"><tr><td class="green covered100">&nbsp;</td></tr></table></td></tr>
@@ -986,7 +1022,7 @@ code { font-family: Consolas, monospace; font-size: 0.9em; }
 </table>
 </div>
 </coverage-info>
-<div class="footer">Generated by: ReportGenerator 5.5.0.0<br />02/27/2026 - 06:36:49<br /><a href="https://github.com/danielpalme/ReportGenerator">GitHub</a> | <a href="https://reportgenerator.io">reportgenerator.io</a></div></div></div>
+<div class="footer">Generated by: ReportGenerator 5.5.0.0<br />02/27/2026 - 07:04:37<br /><a href="https://github.com/danielpalme/ReportGenerator">GitHub</a> | <a href="https://reportgenerator.io">reportgenerator.io</a></div></div></div>
 <script type="text/javascript">/* <![CDATA[ */ /* Chartist.js 0.11.4
  * Copyright © 2019 Gion Kunz
  * Free to use under either the WTFPL license or the MIT license.
@@ -1205,18 +1241,24 @@ var assemblies = [
       { "name": "LOCKnet.Core.Crypto.AesGcmEncryptionService", "rp": "LOCKnet.Core_AesGcmEncryptionService.html", "cl": 31, "ucl": 1, "cal": 32, "tl": 67, "cb": 5, "tb": 6, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "LOCKnet.Core.Crypto.Pbkdf2KeyDerivationService", "rp": "LOCKnet.Core_Pbkdf2KeyDerivationService.html", "cl": 34, "ucl": 0, "cal": 34, "tl": 71, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "LOCKnet.Core.Crypto.SecureStringService", "rp": "LOCKnet.Core_SecureStringService.html", "cl": 39, "ucl": 4, "cal": 43, "tl": 86, "cb": 10, "tb": 10, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "LOCKnet.Core.DataAbstractions.CredentialRecord", "rp": "LOCKnet.Core_CredentialRecord.html", "cl": 8, "ucl": 0, "cal": 8, "tl": 25, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "LOCKnet.Core.DataAbstractions.CredentialRecord", "rp": "LOCKnet.Core_CredentialRecord.html", "cl": 9, "ucl": 0, "cal": 9, "tl": 27, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "LOCKnet.Core.DataAbstractions.MasterKeyRecord", "rp": "LOCKnet.Core_MasterKeyRecord.html", "cl": 4, "ucl": 0, "cal": 4, "tl": 17, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "LOCKnet.Core.Security.ActivityMonitor", "rp": "LOCKnet.Core_ActivityMonitor.html", "cl": 47, "ucl": 1, "cal": 48, "tl": 94, "cb": 16, "tb": 18, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "LOCKnet.Core.Security.MasterKeyManager", "rp": "LOCKnet.Core_MasterKeyManager.html", "cl": 77, "ucl": 0, "cal": 77, "tl": 129, "cb": 10, "tb": 10, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "LOCKnet.Core.Security.SessionManager", "rp": "LOCKnet.Core_SessionManager.html", "cl": 31, "ucl": 0, "cal": 31, "tl": 65, "cb": 8, "tb": 8, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "LOCKnet.Core.Services.CredentialService", "rp": "LOCKnet.Core_CredentialService.html", "cl": 92, "ucl": 0, "cal": 92, "tl": 151, "cb": 8, "tb": 8, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "LOCKnet.Core.Services.CredentialService", "rp": "LOCKnet.Core_CredentialService.html", "cl": 94, "ucl": 0, "cal": 94, "tl": 153, "cb": 8, "tb": 8, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "LOCKnet.Core.Services.PasswordGeneratorOptions", "rp": "LOCKnet.Core_PasswordGeneratorOptions.html", "cl": 0, "ucl": 5, "cal": 5, "tl": 35, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "LOCKnet.Core.Services.PasswordGeneratorService", "rp": "LOCKnet.Core_PasswordGeneratorService.html", "cl": 0, "ucl": 33, "cal": 33, "tl": 60, "cb": 0, "tb": 14, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "LOCKnet.Core.Services.PasswordStrength", "rp": "LOCKnet.Core_PasswordStrength.html", "cl": 0, "ucl": 1, "cal": 1, "tl": 22, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "LOCKnet.Core.Services.PasswordStrengthService", "rp": "LOCKnet.Core_PasswordStrengthService.html", "cl": 0, "ucl": 60, "cal": 60, "tl": 113, "cb": 0, "tb": 31, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "System.Text.RegularExpressions.Generated", "rp": "LOCKnet.Core_Generated.html", "cl": 0, "ucl": 35, "cal": 35, "tl": 117, "cb": 0, "tb": 8, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "System.Text.RegularExpressions.Generated.<RegexGenerator_g>F0BF6AB5C5DD8853393C459DB9A153EC324943034AB6F6FD67F4C1573633C776E__SpecialCharacterRegex_0", "rp": "LOCKnet.Core__RegexGenerator_g_F0BF6AB5C5DD8853393F4C1573633C776E__SpecialCharacterRegex_0.html", "cl": 0, "ucl": 32, "cal": 32, "tl": 100, "cb": 0, "tb": 6, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
     ]},
   {
     "name": "LOCKnet.Data",
     "classes": [
-      { "name": "LOCKnet.Data.Database", "rp": "LOCKnet.Data_Database.html", "cl": 48, "ucl": 4, "cal": 52, "tl": 90, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "LOCKnet.Data.Repositories.CredentialsRepository", "rp": "LOCKnet.Data_CredentialsRepository.html", "cl": 70, "ucl": 0, "cal": 70, "tl": 110, "cb": 17, "tb": 22, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "LOCKnet.Data.Database", "rp": "LOCKnet.Data_Database.html", "cl": 56, "ucl": 4, "cal": 60, "tl": 100, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "LOCKnet.Data.Repositories.CredentialsRepository", "rp": "LOCKnet.Data_CredentialsRepository.html", "cl": 74, "ucl": 0, "cal": 74, "tl": 114, "cb": 22, "tb": 28, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "LOCKnet.Data.Repositories.MasterKeyRepository", "rp": "LOCKnet.Data_MasterKeyRepository.html", "cl": 47, "ucl": 0, "cal": 47, "tl": 81, "cb": 4, "tb": 4, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "LOCKnet.Data.Repositories.RepositoryBase", "rp": "LOCKnet.Data_RepositoryBase.html", "cl": 9, "ucl": 0, "cal": 9, "tl": 35, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "LOCKnet.Data.Repositories.SettingsRepository", "rp": "LOCKnet.Data_SettingsRepository.html", "cl": 35, "ucl": 0, "cal": 35, "tl": 66, "cb": 2, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
@@ -1228,9 +1270,23 @@ var metrics = [{ "name": "Crap Score", "abbreviation": "crp", "explanationUrl": 
 var historicCoverageExecutionTimes = [];
 
 var riskHotspotMetrics = [
+      { "name": "Crap Score", "explanationUrl": "https://googletesting.blogspot.de/2011/02/this-code-is-crap.html" },
+      { "name": "Cyclomatic complexity", "explanationUrl": "https://en.wikipedia.org/wiki/Cyclomatic_complexity" },
 ];
 
 var riskHotspots = [
+  {
+    "assembly": "LOCKnet.Core", "class": "LOCKnet.Core.Services.PasswordStrengthService", "reportPath": "LOCKnet.Core_PasswordStrengthService.html", "methodName": "Evaluate(System.String)", "methodShortName": "Evaluate(...)", "fileIndex": 1, "line": 18,
+    "metrics": [
+      { "value": 992, "exceeded": true },
+      { "value": 31, "exceeded": true },
+    ]},
+  {
+    "assembly": "LOCKnet.Core", "class": "LOCKnet.Core.Services.PasswordGeneratorService", "reportPath": "LOCKnet.Core_PasswordGeneratorService.html", "methodName": "Generate(LOCKnet.Core.Services.PasswordGeneratorOptions)", "methodShortName": "Generate(...)", "fileIndex": 0, "line": 18,
+    "metrics": [
+      { "value": 210, "exceeded": true },
+      { "value": 14, "exceeded": false },
+    ]},
 ];
 
 var branchCoverageAvailable = true;

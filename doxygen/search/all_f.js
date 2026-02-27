@@ -14,5 +14,7 @@ var searchData=
   ['start_11',['start',['../classLOCKnet_1_1Core_1_1Security_1_1ActivityMonitor.html#aabfedc192acdfaefa4fdf3f0a78bcd3c',1,'LOCKnet.Core.Security.ActivityMonitor.Start()'],['../interfaceLOCKnet_1_1Core_1_1Security_1_1IActivityMonitor.html#af49bdc0d73f591d1218d849250261f99',1,'LOCKnet.Core.Security.IActivityMonitor.Start()']]],
   ['statusmessage_12',['StatusMessage',['../classLOCKnet_1_1App_1_1ViewModels_1_1CredentialListDesignViewModel.html#abae1a4aeea3219bc836343cc22c44759',1,'LOCKnet::App::ViewModels::CredentialListDesignViewModel']]],
   ['steps_13',['Steps',['../classLOCKnet_1_1App_1_1ViewModels_1_1TutorialViewModel.html#a7ea47e5028fb9dcebb6b7d3d72778ed4',1,'LOCKnet::App::ViewModels::TutorialViewModel']]],
-  ['stop_14',['stop',['../classLOCKnet_1_1Core_1_1Security_1_1ActivityMonitor.html#a47cad91c01cf28005bb753f73ed762f6',1,'LOCKnet.Core.Security.ActivityMonitor.Stop()'],['../interfaceLOCKnet_1_1Core_1_1Security_1_1IActivityMonitor.html#a1feffddcd8805b13368675e4dc95e00e',1,'LOCKnet.Core.Security.IActivityMonitor.Stop()']]]
+  ['stop_14',['stop',['../classLOCKnet_1_1Core_1_1Security_1_1ActivityMonitor.html#a47cad91c01cf28005bb753f73ed762f6',1,'LOCKnet.Core.Security.ActivityMonitor.Stop()'],['../interfaceLOCKnet_1_1Core_1_1Security_1_1IActivityMonitor.html#a1feffddcd8805b13368675e4dc95e00e',1,'LOCKnet.Core.Security.IActivityMonitor.Stop()']]],
+  ['stringtomaterialiconkindconverter_15',['StringToMaterialIconKindConverter',['../classLOCKnet_1_1App_1_1Converters_1_1StringToMaterialIconKindConverter.html',1,'LOCKnet::App::Converters']]],
+  ['stringtomaterialiconkindconverter_2ecs_16',['StringToMaterialIconKindConverter.cs',['../StringToMaterialIconKindConverter_8cs.html',1,'']]]
 ];
