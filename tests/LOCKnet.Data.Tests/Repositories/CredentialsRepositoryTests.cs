@@ -267,4 +267,4 @@ public class CredentialsRepositoryTests : IDisposable
 		Assert.Equal(CredentialType.ApiKey, updated.CredentialType);
 	}
 
-	}
+}
