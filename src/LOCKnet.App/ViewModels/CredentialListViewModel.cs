@@ -36,11 +36,21 @@ public partial class CredentialListViewModel : ViewModelBase
 	private string _statusMessage = string.Empty;
 
 	[ObservableProperty]
+	private string _storageCleanupMessage = string.Empty;
+
+	[ObservableProperty]
+	private bool _isStorageCleanupPending;
+
+	[ObservableProperty]
+	private bool _isRetryingStorageCleanup;
+
+	[ObservableProperty]
 	private string _lockTimerText = string.Empty;
 
 	public CredentialListViewModel()
 	{
 		Refresh();
+		RefreshStorageCleanupState();
 		StartCountdownTimer();
 	}
 
@@ -83,6 +93,10 @@ public partial class CredentialListViewModel : ViewModelBase
 		catch (Exception ex)
 		{
 			StatusMessage = ex.Message;
+		}
+		finally
+		{
+			RefreshStorageCleanupState();
 		}
 	}
 
@@ -155,6 +169,30 @@ public partial class CredentialListViewModel : ViewModelBase
 	[RelayCommand]
 	private void ShowTutorial() => TutorialRequested?.Invoke(this, EventArgs.Empty);
 
+	[RelayCommand(CanExecute = nameof(CanRetryStorageCleanup))]
+	private async Task RetryStorageCleanupAsync()
+	{
+		if (!IsStorageCleanupPending || IsRetryingStorageCleanup)
+			return;
+
+		try
+		{
+			IsRetryingStorageCleanup = true;
+			var info = await Task.Run(() => AppServices.Current.MasterKeyManager.RetryPendingStorageCompaction());
+			RefreshStorageCleanupState();
+			StatusMessage = info.IsPending ? string.Empty : info.UserMessage;
+		}
+		catch (Exception ex)
+		{
+			StatusMessage = ex.Message;
+		}
+		finally
+		{
+			IsRetryingStorageCleanup = false;
+			RetryStorageCleanupCommand.NotifyCanExecuteChanged();
+		}
+	}
+
 	[RelayCommand]
 	private void Lock()
 	{
@@ -165,7 +203,17 @@ public partial class CredentialListViewModel : ViewModelBase
 
 	private bool HasSelection() => SelectedCredential is not null;
 
+	private bool CanRetryStorageCleanup() => IsStorageCleanupPending && !IsRetryingStorageCleanup;
+
 	// ── Helpers ───────────────────────────────────────────────────────────────
+
+	private void RefreshStorageCleanupState()
+	{
+		var info = AppServices.Current.MasterKeyManager.GetStorageCompactionInfo();
+		IsStorageCleanupPending = info.IsPending;
+		StorageCleanupMessage = info.UserMessage;
+		RetryStorageCleanupCommand.NotifyCanExecuteChanged();
+	}
 
 	private static string SecureStringToString(SecureString s)
 	{

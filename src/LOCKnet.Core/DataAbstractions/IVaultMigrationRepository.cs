@@ -18,7 +18,7 @@ public interface IVaultMigrationRepository
 	void ApplyMigration(VaultHeader header, IReadOnlyList<CredentialRecord> credentials);
 
 	/// <summary>
-	/// Fuehrt eine SQLite-Kompaktierung auf dem Vault durch, um bereinigte Freelist-Seiten zu reduzieren.
+	/// Fuehrt eine SQLite-Kompaktierung auf dem Vault durch und liefert ein strukturiertes Ergebnis.
 	/// </summary>
-	void CompactStorage();
+	StorageCompactionInfo CompactStorage();
 }

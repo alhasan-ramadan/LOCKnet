@@ -25,8 +25,8 @@ public class MasterKeyRepository : RepositoryBase, IMasterKeyRepository
 		using var conn = GetConnection();
 		using var cmd = conn.CreateCommand();
 		cmd.CommandText = @"
-            INSERT INTO MasterKey (Id, PasswordHash, FormatVersion, KdfIdentifier, KdfParameters, Salt, WrappedVaultKey, UsesLegacyKeyMaterial, RequiresStorageCompaction)
-            VALUES (1, $hash, $formatVersion, $kdfIdentifier, $kdfParameters, $salt, $wrappedVaultKey, $usesLegacyKeyMaterial, $requiresStorageCompaction);";
+            INSERT INTO MasterKey (Id, PasswordHash, FormatVersion, KdfIdentifier, KdfParameters, Salt, WrappedVaultKey, UsesLegacyKeyMaterial, RequiresStorageCompaction, LastStorageCompactionAttemptUtc, LastStorageCompactionFailureKind, LastStorageCompactionError)
+            VALUES (1, $hash, $formatVersion, $kdfIdentifier, $kdfParameters, $salt, $wrappedVaultKey, $usesLegacyKeyMaterial, $requiresStorageCompaction, $lastStorageCompactionAttemptUtc, $lastStorageCompactionFailureKind, $lastStorageCompactionError);";
 		cmd.Parameters.AddWithValue("$hash", header.LegacyPasswordHash);
 		cmd.Parameters.AddWithValue("$formatVersion", header.FormatVersion);
 		cmd.Parameters.AddWithValue("$kdfIdentifier", header.KdfIdentifier);
@@ -35,6 +35,9 @@ public class MasterKeyRepository : RepositoryBase, IMasterKeyRepository
 		cmd.Parameters.AddWithValue("$wrappedVaultKey", (object?)header.WrappedVaultKey ?? DBNull.Value);
 		cmd.Parameters.AddWithValue("$usesLegacyKeyMaterial", header.UsesLegacyKeyMaterial ? 1 : 0);
 		cmd.Parameters.AddWithValue("$requiresStorageCompaction", header.RequiresStorageCompaction ? 1 : 0);
+		cmd.Parameters.AddWithValue("$lastStorageCompactionAttemptUtc", (object?)header.LastStorageCompactionAttemptUtc?.ToString("O") ?? DBNull.Value);
+		cmd.Parameters.AddWithValue("$lastStorageCompactionFailureKind", (int)header.LastStorageCompactionFailureKind);
+		cmd.Parameters.AddWithValue("$lastStorageCompactionError", (object?)header.LastStorageCompactionError ?? DBNull.Value);
 		cmd.ExecuteNonQuery();
 	}
 
@@ -43,7 +46,7 @@ public class MasterKeyRepository : RepositoryBase, IMasterKeyRepository
 	{
 		using var conn = GetConnection();
 		using var cmd = conn.CreateCommand();
-		cmd.CommandText = "SELECT PasswordHash, FormatVersion, KdfIdentifier, KdfParameters, Salt, WrappedVaultKey, UsesLegacyKeyMaterial, RequiresStorageCompaction, CreatedAt, UpdatedAt FROM MasterKey WHERE Id = 1 LIMIT 1;";
+		cmd.CommandText = "SELECT PasswordHash, FormatVersion, KdfIdentifier, KdfParameters, Salt, WrappedVaultKey, UsesLegacyKeyMaterial, RequiresStorageCompaction, LastStorageCompactionAttemptUtc, LastStorageCompactionFailureKind, LastStorageCompactionError, CreatedAt, UpdatedAt FROM MasterKey WHERE Id = 1 LIMIT 1;";
 
 		using var reader = cmd.ExecuteReader();
 		if (!reader.Read())
@@ -61,8 +64,11 @@ public class MasterKeyRepository : RepositoryBase, IMasterKeyRepository
 			WrappedVaultKey = reader.IsDBNull(5) ? [] : (byte[])reader[5],
 			UsesLegacyKeyMaterial = !reader.IsDBNull(6) && reader.GetInt32(6) != 0,
 			RequiresStorageCompaction = !reader.IsDBNull(7) && reader.GetInt32(7) != 0,
-			CreatedAt = reader.GetDateTime(8),
-			UpdatedAt = reader.GetDateTime(9),
+			LastStorageCompactionAttemptUtc = reader.IsDBNull(8) ? null : DateTime.Parse(reader.GetString(8), null, System.Globalization.DateTimeStyles.RoundtripKind),
+			LastStorageCompactionFailureKind = reader.IsDBNull(9) ? StorageCompactionFailureKind.None : (StorageCompactionFailureKind)reader.GetInt32(9),
+			LastStorageCompactionError = reader.IsDBNull(10) ? null : reader.GetString(10),
+			CreatedAt = reader.GetDateTime(11),
+			UpdatedAt = reader.GetDateTime(12),
 		};
 	}
 
@@ -81,6 +87,9 @@ public class MasterKeyRepository : RepositoryBase, IMasterKeyRepository
                 WrappedVaultKey = $wrappedVaultKey,
                 UsesLegacyKeyMaterial = $usesLegacyKeyMaterial,
                 RequiresStorageCompaction = $requiresStorageCompaction,
+                LastStorageCompactionAttemptUtc = $lastStorageCompactionAttemptUtc,
+                LastStorageCompactionFailureKind = $lastStorageCompactionFailureKind,
+                LastStorageCompactionError = $lastStorageCompactionError,
                 UpdatedAt = CURRENT_TIMESTAMP
             WHERE Id = 1;";
 		cmd.Parameters.AddWithValue("$hash", header.LegacyPasswordHash);
@@ -91,6 +100,9 @@ public class MasterKeyRepository : RepositoryBase, IMasterKeyRepository
 		cmd.Parameters.AddWithValue("$wrappedVaultKey", (object?)header.WrappedVaultKey ?? DBNull.Value);
 		cmd.Parameters.AddWithValue("$usesLegacyKeyMaterial", header.UsesLegacyKeyMaterial ? 1 : 0);
 		cmd.Parameters.AddWithValue("$requiresStorageCompaction", header.RequiresStorageCompaction ? 1 : 0);
+		cmd.Parameters.AddWithValue("$lastStorageCompactionAttemptUtc", (object?)header.LastStorageCompactionAttemptUtc?.ToString("O") ?? DBNull.Value);
+		cmd.Parameters.AddWithValue("$lastStorageCompactionFailureKind", (int)header.LastStorageCompactionFailureKind);
+		cmd.Parameters.AddWithValue("$lastStorageCompactionError", (object?)header.LastStorageCompactionError ?? DBNull.Value);
 		cmd.ExecuteNonQuery();
 	}
 

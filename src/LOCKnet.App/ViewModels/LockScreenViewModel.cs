@@ -19,14 +19,14 @@ public partial class LockScreenViewModel : ViewModelBase
 		ErrorMessage = string.Empty;
 		try
 		{
-			var key = AppServices.Current.MasterKeyManager.Unlock(password);
-			if (key is null)
+			var unlock = AppServices.Current.MasterKeyManager.Unlock(password);
+			if (unlock is null)
 			{
 				ErrorMessage = "Falsches Passwort.";
 				return;
 			}
 
-			AppServices.Current.SessionManager.Open(key);
+			AppServices.Current.SessionManager.Open(unlock.VaultKey);
 			AppServices.Current.ActivityMonitor.Start();
 			UnlockSucceeded?.Invoke(this, EventArgs.Empty);
 		}

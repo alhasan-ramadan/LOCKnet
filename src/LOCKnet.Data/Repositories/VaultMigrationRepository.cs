@@ -96,6 +96,10 @@ public sealed class VaultMigrationRepository : RepositoryBase, IVaultMigrationRe
                         Salt = $salt,
                         WrappedVaultKey = $wrappedVaultKey,
                         UsesLegacyKeyMaterial = $usesLegacyKeyMaterial,
+                        RequiresStorageCompaction = $requiresStorageCompaction,
+                        LastStorageCompactionAttemptUtc = $lastStorageCompactionAttemptUtc,
+                        LastStorageCompactionFailureKind = $lastStorageCompactionFailureKind,
+                        LastStorageCompactionError = $lastStorageCompactionError,
                         UpdatedAt = CURRENT_TIMESTAMP
                     WHERE Id = 1;";
 				updateHeader.Parameters.AddWithValue("$hash", header.LegacyPasswordHash);
@@ -105,6 +109,10 @@ public sealed class VaultMigrationRepository : RepositoryBase, IVaultMigrationRe
 				updateHeader.Parameters.AddWithValue("$salt", header.Salt);
 				updateHeader.Parameters.AddWithValue("$wrappedVaultKey", header.WrappedVaultKey);
 				updateHeader.Parameters.AddWithValue("$usesLegacyKeyMaterial", header.UsesLegacyKeyMaterial ? 1 : 0);
+				updateHeader.Parameters.AddWithValue("$requiresStorageCompaction", header.RequiresStorageCompaction ? 1 : 0);
+				updateHeader.Parameters.AddWithValue("$lastStorageCompactionAttemptUtc", (object?)header.LastStorageCompactionAttemptUtc?.ToString("O") ?? DBNull.Value);
+				updateHeader.Parameters.AddWithValue("$lastStorageCompactionFailureKind", (int)header.LastStorageCompactionFailureKind);
+				updateHeader.Parameters.AddWithValue("$lastStorageCompactionError", (object?)header.LastStorageCompactionError ?? DBNull.Value);
 				updateHeader.ExecuteNonQuery();
 			}
 
@@ -132,19 +140,49 @@ public sealed class VaultMigrationRepository : RepositoryBase, IVaultMigrationRe
 		}
 	}
 
-	public void CompactStorage()
+	public StorageCompactionInfo CompactStorage()
 	{
 		using var conn = GetConnection();
-		ConfigureMigrationConnection(conn);
-		using (var checkpoint = conn.CreateCommand())
+		try
 		{
-			checkpoint.CommandText = "PRAGMA wal_checkpoint(TRUNCATE);";
-			checkpoint.ExecuteNonQuery();
+			ConfigureMigrationConnection(conn);
+			using (var checkpoint = conn.CreateCommand())
+			{
+				checkpoint.CommandText = "PRAGMA wal_checkpoint(TRUNCATE);";
+				checkpoint.ExecuteNonQuery();
+			}
+			using var cmd = conn.CreateCommand();
+			cmd.CommandText = "VACUUM;";
+			cmd.ExecuteNonQuery();
+			return new StorageCompactionInfo
+			{
+				IsPending = false,
+				FailureKind = StorageCompactionFailureKind.None,
+				UserMessage = "Speicherbereinigung abgeschlossen.",
+			};
 		}
-		using var cmd = conn.CreateCommand();
-		cmd.CommandText = "VACUUM;";
-		cmd.ExecuteNonQuery();
+		catch (SqliteException ex)
+		{
+			var (failureKind, userMessage) = MapCompactionFailure(ex);
+			return new StorageCompactionInfo
+			{
+				IsPending = true,
+				FailureKind = failureKind,
+				UserMessage = userMessage,
+				LastError = ex.Message,
+			};
+		}
 	}
+
+	private static (StorageCompactionFailureKind failureKind, string userMessage) MapCompactionFailure(SqliteException ex)
+		=> ex.SqliteErrorCode switch
+		{
+			5 or 6 => (StorageCompactionFailureKind.BusyOrLocked, "Speicherbereinigung noch offen: Die Vault-Datei ist gerade gesperrt. Andere Apps schliessen und erneut versuchen."),
+			10 => (StorageCompactionFailureKind.Io, "Speicherbereinigung noch offen: Beim USB-Speicher ist ein I/O-Fehler aufgetreten."),
+			11 or 26 => (StorageCompactionFailureKind.Corruption, "Speicherbereinigung noch offen: Die Datenbank meldet Integritaetsprobleme. Backup pruefen."),
+			13 => (StorageCompactionFailureKind.InsufficientSpace, "Speicherbereinigung noch offen: Auf dem USB-Laufwerk ist nicht genug freier Speicherplatz fuer VACUUM vorhanden."),
+			_ => (StorageCompactionFailureKind.Unknown, "Speicherbereinigung noch offen: SQLite konnte die Kompaktierung nicht abschliessen."),
+		};
 
 	private static void ConfigureMigrationConnection(SqliteConnection conn)
 	{

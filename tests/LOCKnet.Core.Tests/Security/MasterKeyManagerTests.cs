@@ -14,6 +14,7 @@ sealed class InMemoryVaultStore : IMasterKeyRepository, IVaultMigrationRepositor
 
 	public bool ThrowOnApplyMigration { get; set; }
 	public bool ThrowOnCompactStorage { get; set; }
+	public StorageCompactionFailureKind CompactStorageFailureKind { get; set; } = StorageCompactionFailureKind.BusyOrLocked;
 	public int CompactStorageCallCount { get; private set; }
 
 	public void Create(VaultHeader header)
@@ -47,11 +48,26 @@ sealed class InMemoryVaultStore : IMasterKeyRepository, IVaultMigrationRepositor
 		}
 	}
 
-	public void CompactStorage()
+	public StorageCompactionInfo CompactStorage()
 	{
 		CompactStorageCallCount++;
 		if (ThrowOnCompactStorage)
-			throw new InvalidOperationException("Simulierter Kompaktierungsfehler.");
+		{
+			return new StorageCompactionInfo
+			{
+				IsPending = true,
+				FailureKind = CompactStorageFailureKind,
+				UserMessage = "Simulierter Kompaktierungsfehler.",
+				LastError = "Simulierter Kompaktierungsfehler."
+			};
+		}
+
+		return new StorageCompactionInfo
+		{
+			IsPending = false,
+			FailureKind = StorageCompactionFailureKind.None,
+			UserMessage = "Speicherbereinigung abgeschlossen."
+		};
 	}
 
 	public CredentialRecord AddCredential(CredentialRecord credential)
@@ -81,6 +97,9 @@ sealed class InMemoryVaultStore : IMasterKeyRepository, IVaultMigrationRepositor
 		LegacyPasswordHash = header.LegacyPasswordHash.ToArray(),
 		UsesLegacyKeyMaterial = header.UsesLegacyKeyMaterial,
 		RequiresStorageCompaction = header.RequiresStorageCompaction,
+		LastStorageCompactionAttemptUtc = header.LastStorageCompactionAttemptUtc,
+		LastStorageCompactionFailureKind = header.LastStorageCompactionFailureKind,
+		LastStorageCompactionError = header.LastStorageCompactionError,
 		CreatedAt = header.CreatedAt,
 		UpdatedAt = header.UpdatedAt,
 	};
@@ -257,10 +276,11 @@ public class MasterKeyManagerTests
 		const string password = "correct horse battery staple";
 		sut.Initialize(MakeSecure(password));
 
-		var key = sut.Unlock(MakeSecure(password));
+		var unlock = sut.Unlock(MakeSecure(password));
 
-		Assert.NotNull(key);
-		Assert.Equal(32, key.Length);
+		Assert.NotNull(unlock);
+		Assert.Equal(32, unlock.VaultKey.Length);
+		Assert.False(unlock.StorageCompaction.IsPending);
 	}
 
 	[Fact]
@@ -278,7 +298,8 @@ public class MasterKeyManagerTests
 		var sut = BuildSut(out var store);
 		SeedLegacyVault(store, "legacy-password", withWrappedLegacyKey: false);
 
-		var key = sut.Unlock(MakeSecure("legacy-password"))!;
+		var unlock = sut.Unlock(MakeSecure("legacy-password"))!;
+		var key = unlock.VaultKey;
 		var header = store.Get()!;
 		var credential = store.GetAllCredentials().Single();
 		var envelope = new CredentialEnvelopeService(new AesGcmEncryptionService());
@@ -298,6 +319,7 @@ public class MasterKeyManagerTests
 		Assert.Equal("Legacy One", metadata.Title);
 		Assert.Equal("legacy-user", metadata.Username);
 		Assert.Equal(CredentialType.ApiKey, metadata.CredentialType);
+		Assert.False(unlock.StorageCompaction.IsPending);
 	}
 
 	[Fact]
@@ -305,12 +327,14 @@ public class MasterKeyManagerTests
 	{
 		var sut = BuildSut(out var store);
 		sut.Initialize(MakeSecure("vault-password"));
-		var currentVaultKey = sut.Unlock(MakeSecure("vault-password"))!;
+		var currentUnlock = sut.Unlock(MakeSecure("vault-password"))!;
+		var currentVaultKey = currentUnlock.VaultKey;
 		var legacyRecord = AddLegacyCredential(store, currentVaultKey, "legacy-secret", "Legacy");
 		var currentRecord = AddCurrentCredential(store, currentVaultKey, "current-secret", "Current");
 		CryptographicOperations.ZeroMemory(currentVaultKey);
 
-		var reopenedKey = sut.Unlock(MakeSecure("vault-password"))!;
+		var reopenedUnlock = sut.Unlock(MakeSecure("vault-password"))!;
+		var reopenedKey = reopenedUnlock.VaultKey;
 		var header = store.Get()!;
 		var records = store.GetAllCredentials();
 		var migratedLegacy = records.Single(r => r.Id == legacyRecord.Id);
@@ -327,6 +351,7 @@ public class MasterKeyManagerTests
 		Assert.Equal("Legacy", envelope.DecryptMetadata(migratedLegacy, reopenedKey, header.FormatVersion).Title);
 		Assert.Equal(1, store.CompactStorageCallCount);
 		Assert.False(store.Get()!.RequiresStorageCompaction);
+		Assert.False(reopenedUnlock.StorageCompaction.IsPending);
 	}
 
 	[Fact]
@@ -343,26 +368,70 @@ public class MasterKeyManagerTests
 		Assert.Equal(beforeCredential.EncryptedPassword, store.GetAllCredentials().Single().EncryptedPassword);
 
 		store.ThrowOnApplyMigration = false;
-		var key = sut.Unlock(MakeSecure("legacy-password"));
-		Assert.NotNull(key);
+		var unlock = sut.Unlock(MakeSecure("legacy-password"));
+		Assert.NotNull(unlock);
+		Assert.False(unlock.StorageCompaction.IsPending);
 		Assert.Equal(VaultHeaderFormatVersion.Current, store.Get()!.FormatVersion);
 	}
 
 	[Fact]
-	public void Unlock_WhenCompactionFails_KeepsPendingFlagForRetry()
+	public void Unlock_WhenCompactionFails_AllowsControlledDegradedModeAndKeepsPendingFlagForRetry()
 	{
 		var sut = BuildSut(out var store);
 		SeedLegacyVault(store, "legacy-password", withWrappedLegacyKey: false);
 		store.ThrowOnCompactStorage = true;
 
-		Assert.Throws<InvalidOperationException>(() => sut.Unlock(MakeSecure("legacy-password")));
+		var unlock = sut.Unlock(MakeSecure("legacy-password"));
+		Assert.NotNull(unlock);
+		Assert.True(unlock.StorageCompaction.IsPending);
+		Assert.Equal(StorageCompactionFailureKind.BusyOrLocked, unlock.StorageCompaction.FailureKind);
 		Assert.True(store.Get()!.RequiresStorageCompaction);
+		Assert.NotNull(store.Get()!.LastStorageCompactionAttemptUtc);
+		Assert.Equal(StorageCompactionFailureKind.BusyOrLocked, store.Get()!.LastStorageCompactionFailureKind);
+		Assert.Equal("Simulierter Kompaktierungsfehler.", store.Get()!.LastStorageCompactionError);
 		Assert.Equal(1, store.CompactStorageCallCount);
 
 		store.ThrowOnCompactStorage = false;
-		var key = sut.Unlock(MakeSecure("legacy-password"));
-		Assert.NotNull(key);
+		var retryUnlock = sut.Unlock(MakeSecure("legacy-password"));
+		Assert.NotNull(retryUnlock);
+		Assert.True(retryUnlock.StorageCompaction.IsPending);
+		Assert.True(retryUnlock.StorageCompaction.AutoRetryDeferred);
+		Assert.Equal(1, store.CompactStorageCallCount);
+
+		var manualRetry = sut.RetryPendingStorageCompaction();
+		Assert.False(manualRetry.IsPending);
 		Assert.False(store.Get()!.RequiresStorageCompaction);
+		Assert.Equal(2, store.CompactStorageCallCount);
+		Assert.Null(store.Get()!.LastStorageCompactionAttemptUtc);
+		Assert.Equal(StorageCompactionFailureKind.None, store.Get()!.LastStorageCompactionFailureKind);
+		Assert.Null(store.Get()!.LastStorageCompactionError);
+	}
+
+	[Fact]
+	public void RetryPendingStorageCompaction_WhenFailureRepeats_KeepsPendingStateAndUpdatesFailureMetadata()
+	{
+		var sut = BuildSut(out var store);
+		sut.Initialize(MakeSecure("vault-password"));
+		var header = store.Get()!;
+		header.RequiresStorageCompaction = true;
+		store.Update(header);
+		store.ThrowOnCompactStorage = true;
+		store.CompactStorageFailureKind = StorageCompactionFailureKind.Io;
+
+		var firstRetry = sut.RetryPendingStorageCompaction();
+
+		Assert.True(firstRetry.IsPending);
+		Assert.Equal(StorageCompactionFailureKind.Io, firstRetry.FailureKind);
+		Assert.True(store.Get()!.RequiresStorageCompaction);
+		Assert.NotNull(store.Get()!.LastStorageCompactionAttemptUtc);
+		Assert.Equal(StorageCompactionFailureKind.Io, store.Get()!.LastStorageCompactionFailureKind);
+		Assert.Equal("Simulierter Kompaktierungsfehler.", store.Get()!.LastStorageCompactionError);
+		Assert.Equal(1, store.CompactStorageCallCount);
+
+		var secondRetry = sut.RetryPendingStorageCompaction();
+
+		Assert.True(secondRetry.IsPending);
+		Assert.Equal(StorageCompactionFailureKind.Io, secondRetry.FailureKind);
 		Assert.Equal(2, store.CompactStorageCallCount);
 	}
 
@@ -375,8 +444,9 @@ public class MasterKeyManagerTests
 		sut.ChangePassword(MakeSecure("old-password"), MakeSecure("new-password"));
 
 		Assert.Null(sut.Unlock(MakeSecure("old-password")));
-		var newKey = sut.Unlock(MakeSecure("new-password"));
-		Assert.NotNull(newKey);
+		var newUnlock = sut.Unlock(MakeSecure("new-password"));
+		Assert.NotNull(newUnlock);
+		Assert.False(newUnlock.StorageCompaction.IsPending);
 		Assert.Equal(VaultHeaderFormatVersion.Current, store.Get()!.FormatVersion);
 		Assert.False(store.Get()!.UsesLegacyKeyMaterial);
 	}
@@ -386,15 +456,79 @@ public class MasterKeyManagerTests
 	{
 		var sut = BuildSut(out var store);
 		sut.Initialize(MakeSecure("initial"));
-		var migratedKey = sut.Unlock(MakeSecure("initial"))!;
+		var migratedUnlock = sut.Unlock(MakeSecure("initial"))!;
+		var migratedKey = migratedUnlock.VaultKey;
 		AddCurrentCredential(store, migratedKey, "current-secret", "Current");
 		CryptographicOperations.ZeroMemory(migratedKey);
 
 		sut.ChangePassword(MakeSecure("initial"), MakeSecure("updated"));
 
 		Assert.Null(sut.Unlock(MakeSecure("initial")));
-		Assert.NotNull(sut.Unlock(MakeSecure("updated")));
+		var updatedUnlock = sut.Unlock(MakeSecure("updated"));
+		Assert.NotNull(updatedUnlock);
+		Assert.False(updatedUnlock.StorageCompaction.IsPending);
 		Assert.False(store.Get()!.UsesLegacyKeyMaterial);
+	}
+
+	[Fact]
+	public void ChangePassword_WithPendingCompaction_PreservesPendingStateMetadataAndLaterCleanupCanClearIt()
+	{
+		var sut = BuildSut(out var store);
+		sut.Initialize(MakeSecure("initial"));
+		var header = store.Get()!;
+		var lastAttemptUtc = DateTime.UtcNow;
+		header.RequiresStorageCompaction = true;
+		header.LastStorageCompactionAttemptUtc = lastAttemptUtc;
+		header.LastStorageCompactionFailureKind = StorageCompactionFailureKind.BusyOrLocked;
+		header.LastStorageCompactionError = "locked";
+		store.Update(header);
+
+		sut.ChangePassword(MakeSecure("initial"), MakeSecure("updated"));
+
+		Assert.Null(sut.Unlock(MakeSecure("initial")));
+		var rotatedHeader = store.Get()!;
+		Assert.True(rotatedHeader.RequiresStorageCompaction);
+		Assert.Equal(lastAttemptUtc, rotatedHeader.LastStorageCompactionAttemptUtc);
+		Assert.Equal(StorageCompactionFailureKind.BusyOrLocked, rotatedHeader.LastStorageCompactionFailureKind);
+		Assert.Equal("locked", rotatedHeader.LastStorageCompactionError);
+
+		var degradedUnlock = sut.Unlock(MakeSecure("updated"));
+		Assert.NotNull(degradedUnlock);
+		Assert.True(degradedUnlock.StorageCompaction.IsPending);
+		Assert.True(degradedUnlock.StorageCompaction.AutoRetryDeferred);
+		Assert.Equal(StorageCompactionFailureKind.BusyOrLocked, degradedUnlock.StorageCompaction.FailureKind);
+		Assert.Equal("locked", degradedUnlock.StorageCompaction.LastError);
+		Assert.Equal(lastAttemptUtc, degradedUnlock.StorageCompaction.LastAttemptUtc);
+		Assert.Equal(0, store.CompactStorageCallCount);
+
+		var cleanup = sut.RetryPendingStorageCompaction();
+		Assert.False(cleanup.IsPending);
+		Assert.False(store.Get()!.RequiresStorageCompaction);
+		Assert.Null(store.Get()!.LastStorageCompactionAttemptUtc);
+		Assert.Equal(StorageCompactionFailureKind.None, store.Get()!.LastStorageCompactionFailureKind);
+		Assert.Null(store.Get()!.LastStorageCompactionError);
+		Assert.Equal(1, store.CompactStorageCallCount);
+	}
+
+	[Fact]
+	public void GetStorageCompactionInfo_WithPendingStateWithoutAttempt_DoesNotThrow()
+	{
+		var sut = BuildSut(out var store);
+		sut.Initialize(MakeSecure("vault-password"));
+		var header = store.Get()!;
+		header.RequiresStorageCompaction = true;
+		header.LastStorageCompactionAttemptUtc = null;
+		header.LastStorageCompactionFailureKind = StorageCompactionFailureKind.None;
+		header.LastStorageCompactionError = null;
+		store.Update(header);
+
+		var info = sut.GetStorageCompactionInfo();
+
+		Assert.True(info.IsPending);
+		Assert.False(info.AutoRetryDeferred);
+		Assert.Null(info.LastAttemptUtc);
+		Assert.Null(info.NextAutomaticRetryUtc);
+		Assert.Equal(StorageCompactionFailureKind.None, info.FailureKind);
 	}
 
 	[Fact]

@@ -1,3 +1,4 @@
+using LOCKnet.Core.DataAbstractions;
 using System.Security;
 
 namespace LOCKnet.Core.Security;
@@ -27,10 +28,20 @@ public interface IMasterKeyManager
 	/// </summary>
 	/// <param name="password">Das eingegebene Passwort.</param>
 	/// <returns>
-	/// Der 32-Byte-VaultKey bei korrektem Passwort, oder <c>null</c> wenn das Passwort falsch ist.
+	/// Das Ergebnis des Unlocks inklusive VaultKey und Compaction-Status, oder <c>null</c> wenn das Passwort falsch ist.
 	/// Der Aufrufer ist verantwortlich, den Schluessel nach Benutzung zu nullen.
 	/// </returns>
-	byte[]? Unlock(SecureString password);
+	UnlockResult? Unlock(SecureString password);
+
+	/// <summary>
+	/// Liefert den aktuell persistierten Status der Storage-Kompaktierung fuer UI und Diagnostik.
+	/// </summary>
+	StorageCompactionInfo GetStorageCompactionInfo();
+
+	/// <summary>
+	/// Startet einen manuellen Kompaktierungsversuch fuer einen bereits entschluesselten Vault-Zustand.
+	/// </summary>
+	StorageCompactionInfo RetryPendingStorageCompaction();
 
 	/// <summary>
 	/// Aendert das Master-Passwort.

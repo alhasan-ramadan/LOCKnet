@@ -99,6 +99,9 @@ public class Database
                     Salt BLOB NOT NULL,
                     WrappedVaultKey BLOB,
                     RequiresStorageCompaction INTEGER NOT NULL DEFAULT 0,
+                    LastStorageCompactionAttemptUtc TEXT,
+                    LastStorageCompactionFailureKind INTEGER NOT NULL DEFAULT 0,
+                    LastStorageCompactionError TEXT,
                     CreatedAt TEXT DEFAULT CURRENT_TIMESTAMP,
                     UpdatedAt TEXT DEFAULT CURRENT_TIMESTAMP
                 );";
@@ -111,6 +114,9 @@ public class Database
 		TryAddColumn(connection, "MasterKey", "WrappedVaultKey", "BLOB");
 		TryAddColumn(connection, "MasterKey", "UsesLegacyKeyMaterial", "INTEGER NOT NULL DEFAULT 0");
 		TryAddColumn(connection, "MasterKey", "RequiresStorageCompaction", "INTEGER NOT NULL DEFAULT 0");
+		TryAddColumn(connection, "MasterKey", "LastStorageCompactionAttemptUtc", "TEXT");
+		TryAddColumn(connection, "MasterKey", "LastStorageCompactionFailureKind", "INTEGER NOT NULL DEFAULT 0");
+		TryAddColumn(connection, "MasterKey", "LastStorageCompactionError", "TEXT");
 
 		TryAddColumn(connection, "Credentials", "CredentialUuid", "TEXT NOT NULL DEFAULT ''");
 		TryAddColumn(connection, "Credentials", "SecretFormatVersion", "INTEGER NOT NULL DEFAULT 0");
@@ -133,6 +139,7 @@ public class Database
                 BEFORE INSERT ON Credentials
                 WHEN NEW.MetadataFormatVersion = 1 AND (
                     NEW.EncryptedMetadata IS NULL OR length(NEW.EncryptedMetadata) = 0 OR
+                    length(NEW.CredentialUuid) <> 32 OR NEW.CredentialUuid GLOB '*[^0-9A-Fa-f]*' OR
                     NEW.Title <> '' OR ifnull(NEW.Username, '') <> '' OR ifnull(NEW.URL, '') <> '' OR
                     ifnull(NEW.Notes, '') <> '' OR ifnull(NEW.IconKey, '') <> '' OR ifnull(NEW.CredentialType, 0) <> 0
                 )
@@ -149,6 +156,7 @@ public class Database
                 BEFORE UPDATE ON Credentials
                 WHEN NEW.MetadataFormatVersion = 1 AND (
                     NEW.EncryptedMetadata IS NULL OR length(NEW.EncryptedMetadata) = 0 OR
+                    length(NEW.CredentialUuid) <> 32 OR NEW.CredentialUuid GLOB '*[^0-9A-Fa-f]*' OR
                     NEW.Title <> '' OR ifnull(NEW.Username, '') <> '' OR ifnull(NEW.URL, '') <> '' OR
                     ifnull(NEW.Notes, '') <> '' OR ifnull(NEW.IconKey, '') <> '' OR ifnull(NEW.CredentialType, 0) <> 0
                 )

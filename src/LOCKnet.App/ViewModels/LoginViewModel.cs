@@ -29,14 +29,14 @@ public partial class LoginViewModel : ViewModelBase
 		ErrorMessage = string.Empty;
 		try
 		{
-			var key = AppServices.Current.MasterKeyManager.Unlock(password);
-			if (key is null)
+			var unlock = AppServices.Current.MasterKeyManager.Unlock(password);
+			if (unlock is null)
 			{
 				ErrorMessage = "Falsches Passwort.";
 				return;
 			}
 
-			AppServices.Current.SessionManager.Open(key);
+			AppServices.Current.SessionManager.Open(unlock.VaultKey);
 			AppServices.Current.ActivityMonitor.Start();
 			UnlockSucceeded?.Invoke(this, EventArgs.Empty);
 		}
@@ -68,8 +68,9 @@ public partial class LoginViewModel : ViewModelBase
 			AppServices.Current.MasterKeyManager.Initialize(password);
 			IsSetupMode = false;
 
-			var key = AppServices.Current.MasterKeyManager.Unlock(password);
-			AppServices.Current.SessionManager.Open(key!);
+			var unlock = AppServices.Current.MasterKeyManager.Unlock(password)
+				?? throw new InvalidOperationException("Neu angelegte Vault konnte nicht entsperrt werden.");
+			AppServices.Current.SessionManager.Open(unlock.VaultKey);
 			AppServices.Current.ActivityMonitor.Start();
 			UnlockSucceeded?.Invoke(this, EventArgs.Empty);
 		}

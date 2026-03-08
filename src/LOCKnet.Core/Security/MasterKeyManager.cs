@@ -13,6 +13,7 @@ namespace LOCKnet.Core.Security;
 public sealed class MasterKeyManager : IMasterKeyManager
 {
 	private const int WrappedVaultKeyPacketBytes = 60;
+	private static readonly TimeSpan AutomaticStorageCompactionRetryDelay = TimeSpan.FromMinutes(10);
 	private readonly IKeyDerivationService _kdf;
 	private readonly IMasterKeyRepository _repo;
 	private readonly IVaultMigrationRepository _vaultMigrationRepo;
@@ -91,7 +92,7 @@ public sealed class MasterKeyManager : IMasterKeyManager
 	}
 
 	/// <inheritdoc/>
-	public byte[]? Unlock(SecureString password)
+	public UnlockResult? Unlock(SecureString password)
 	{
 		ArgumentNullException.ThrowIfNull(password);
 
@@ -129,18 +130,18 @@ public sealed class MasterKeyManager : IMasterKeyManager
 				if (migration is not null)
 				{
 					_vaultMigrationRepo.ApplyMigration(migration.Header, migration.Credentials);
-					CompleteStorageCompactionIfRequired(migration.Header);
+					var storageInfo = CompleteStorageCompactionIfRequired(migration.Header, automaticRetry: true);
 					targetVaultKey = migration.ActiveVaultKey;
 					resultKey = targetVaultKey;
 					targetVaultKey = null;
-					return resultKey;
+					return new UnlockResult { VaultKey = resultKey, StorageCompaction = storageInfo };
 				}
 
-				CompleteStorageCompactionIfRequired(record);
+				var currentStorageInfo = CompleteStorageCompactionIfRequired(record, automaticRetry: true);
 
 				resultKey = currentVaultKey;
 				currentVaultKey = null;
-				return resultKey;
+				return new UnlockResult { VaultKey = resultKey, StorageCompaction = currentStorageInfo };
 			}
 
 			if (record.LegacyPasswordHash.Length == 0 ||
@@ -154,11 +155,11 @@ public sealed class MasterKeyManager : IMasterKeyManager
 				?? throw new InvalidOperationException("Legacy-Vault konnte nicht in das aktuelle Format migriert werden.");
 
 			_vaultMigrationRepo.ApplyMigration(legacyMigration.Header, legacyMigration.Credentials);
-			CompleteStorageCompactionIfRequired(legacyMigration.Header);
+			var legacyStorageInfo = CompleteStorageCompactionIfRequired(legacyMigration.Header, automaticRetry: true);
 			targetVaultKey = legacyMigration.ActiveVaultKey;
 			resultKey = targetVaultKey;
 			targetVaultKey = null;
-			return resultKey;
+			return new UnlockResult { VaultKey = resultKey, StorageCompaction = legacyStorageInfo };
 		}
 		finally
 		{
@@ -178,9 +179,10 @@ public sealed class MasterKeyManager : IMasterKeyManager
 		ArgumentNullException.ThrowIfNull(currentPassword);
 		ArgumentNullException.ThrowIfNull(newPassword);
 
-		var vaultKey = Unlock(currentPassword);
-		if (vaultKey is null)
+		var unlock = Unlock(currentPassword);
+		if (unlock is null)
 			throw new UnauthorizedAccessException("Das aktuelle Passwort ist falsch.");
+		var vaultKey = unlock.VaultKey;
 
 		var record = _repo.Get();
 		if (record is null)
@@ -204,7 +206,10 @@ public sealed class MasterKeyManager : IMasterKeyManager
 				WrappedVaultKey = wrappedVaultKey,
 				LegacyPasswordHash = [],
 				UsesLegacyKeyMaterial = false,
-				RequiresStorageCompaction = false,
+				RequiresStorageCompaction = record.RequiresStorageCompaction,
+				LastStorageCompactionAttemptUtc = record.LastStorageCompactionAttemptUtc,
+				LastStorageCompactionFailureKind = record.LastStorageCompactionFailureKind,
+				LastStorageCompactionError = record.LastStorageCompactionError,
 				CreatedAt = record.CreatedAt,
 				UpdatedAt = DateTime.UtcNow
 			});
@@ -218,6 +223,21 @@ public sealed class MasterKeyManager : IMasterKeyManager
 		}
 	}
 
+	public StorageCompactionInfo GetStorageCompactionInfo()
+	{
+		var header = _repo.Get();
+		return header is null ? BuildNoPendingStorageInfo() : BuildStorageCompactionInfo(header, autoRetryDeferred: false, overrideMessage: null);
+	}
+
+	public StorageCompactionInfo RetryPendingStorageCompaction()
+	{
+		var header = _repo.Get()
+			?? throw new InvalidOperationException("Kein Master-Key vorhanden.");
+
+		ValidateHeader(header);
+		return CompleteStorageCompactionIfRequired(header, automaticRetry: false);
+	}
+
 	private CredentialMigrationPlan? BuildMigrationPlan(VaultHeader header, byte[] currentVaultKey, byte[] kek, bool usesLegacyKey)
 	{
 		var credentials = _vaultMigrationRepo.GetAllCredentials();
@@ -226,7 +246,6 @@ public sealed class MasterKeyManager : IMasterKeyManager
 		var requiresStorageCompaction = header.RequiresStorageCompaction;
 		var headerNeedsUpgrade = header.FormatVersion != VaultHeaderFormatVersion.Current ||
 			header.UsesLegacyKeyMaterial != usesLegacyKey ||
-			header.RequiresStorageCompaction ||
 			header.LegacyPasswordHash.Length > 0 ||
 			header.WrappedVaultKey.Length != WrappedVaultKeyPacketBytes;
 
@@ -294,6 +313,9 @@ public sealed class MasterKeyManager : IMasterKeyManager
 			migratedHeader.WrappedVaultKey = _encryption.Encrypt(targetVaultKey, kek);
 			migratedHeader.UsesLegacyKeyMaterial = false;
 			migratedHeader.RequiresStorageCompaction = requiresStorageCompaction;
+			migratedHeader.LastStorageCompactionAttemptUtc = null;
+			migratedHeader.LastStorageCompactionFailureKind = StorageCompactionFailureKind.None;
+			migratedHeader.LastStorageCompactionError = null;
 			migratedHeader.UpdatedAt = DateTime.UtcNow;
 
 			return new CredentialMigrationPlan(migratedHeader, migratedCredentials, targetVaultKey);
@@ -358,24 +380,40 @@ public sealed class MasterKeyManager : IMasterKeyManager
 			throw new InvalidOperationException("VaultHeader enthaelt einen ungueltigen WrappedVaultKey.");
 	}
 
-	private void CompleteStorageCompactionIfRequired(VaultHeader header)
+	private StorageCompactionInfo CompleteStorageCompactionIfRequired(VaultHeader header, bool automaticRetry)
 	{
 		if (!header.RequiresStorageCompaction)
-			return;
+			return BuildNoPendingStorageInfo();
 
-		try
+		var now = DateTime.UtcNow;
+		if (automaticRetry && header.LastStorageCompactionAttemptUtc is DateTime lastAttemptUtc)
 		{
-			_vaultMigrationRepo.CompactStorage();
-		}
-		catch (Exception ex)
-		{
-			throw new InvalidOperationException("SQLite-Kompaktierung fehlgeschlagen. Freien Speicherplatz, Dateisperren und I/O-Fehler pruefen.", ex);
+			var nextRetryUtc = lastAttemptUtc + AutomaticStorageCompactionRetryDelay;
+			if (nextRetryUtc > now)
+				return BuildStorageCompactionInfo(header, autoRetryDeferred: true, overrideMessage: $"Speicherbereinigung noch offen. Naechster automatischer Versuch nach {nextRetryUtc.ToLocalTime():HH:mm}. Du kannst die Bereinigung jederzeit manuell erneut starten.");
 		}
 
-		var compacted = CloneHeader(header);
-		compacted.RequiresStorageCompaction = false;
-		compacted.UpdatedAt = DateTime.UtcNow;
-		_repo.Update(compacted);
+		var result = _vaultMigrationRepo.CompactStorage();
+		var updated = CloneHeader(header);
+		updated.LastStorageCompactionAttemptUtc = now;
+		updated.LastStorageCompactionFailureKind = result.FailureKind;
+		updated.LastStorageCompactionError = result.LastError;
+
+		if (!result.IsPending)
+		{
+			updated.RequiresStorageCompaction = false;
+			updated.LastStorageCompactionAttemptUtc = null;
+			updated.LastStorageCompactionFailureKind = StorageCompactionFailureKind.None;
+			updated.LastStorageCompactionError = null;
+			updated.UpdatedAt = DateTime.UtcNow;
+			_repo.Update(updated);
+			return result;
+		}
+
+		updated.RequiresStorageCompaction = true;
+		updated.UpdatedAt = DateTime.UtcNow;
+		_repo.Update(updated);
+		return BuildStorageCompactionInfo(updated, autoRetryDeferred: false, overrideMessage: result.UserMessage);
 	}
 
 	private static bool NeedsCredentialMigration(CredentialRecord credential, bool usesLegacyKey)
@@ -447,9 +485,49 @@ public sealed class MasterKeyManager : IMasterKeyManager
 		LegacyPasswordHash = header.LegacyPasswordHash.ToArray(),
 		UsesLegacyKeyMaterial = header.UsesLegacyKeyMaterial,
 		RequiresStorageCompaction = header.RequiresStorageCompaction,
+		LastStorageCompactionAttemptUtc = header.LastStorageCompactionAttemptUtc,
+		LastStorageCompactionFailureKind = header.LastStorageCompactionFailureKind,
+		LastStorageCompactionError = header.LastStorageCompactionError,
 		CreatedAt = header.CreatedAt,
 		UpdatedAt = header.UpdatedAt,
 	};
+
+	private static StorageCompactionInfo BuildNoPendingStorageInfo() => new()
+	{
+		IsPending = false,
+		FailureKind = StorageCompactionFailureKind.None,
+		UserMessage = string.Empty,
+	};
+
+	private static StorageCompactionInfo BuildStorageCompactionInfo(VaultHeader header, bool autoRetryDeferred, string? overrideMessage)
+	{
+		if (!header.RequiresStorageCompaction)
+			return BuildNoPendingStorageInfo();
+
+		DateTime? nextRetryUtc = header.LastStorageCompactionAttemptUtc is DateTime lastAttemptUtc
+			? lastAttemptUtc + AutomaticStorageCompactionRetryDelay
+			: null;
+		var message = overrideMessage;
+		if (string.IsNullOrWhiteSpace(message))
+		{
+			message = header.LastStorageCompactionFailureKind switch
+			{
+				StorageCompactionFailureKind.None => "Speicherbereinigung steht noch aus. Die Vault ist entsperrt, aber alte Speicherreste koennen bis zur erfolgreichen Bereinigung verbleiben.",
+				_ => "Speicherbereinigung noch offen. Die Vault ist nutzbar, aber alte Speicherreste koennen bis zur erfolgreichen Bereinigung verbleiben.",
+			};
+		}
+
+		return new StorageCompactionInfo
+		{
+			IsPending = true,
+			AutoRetryDeferred = autoRetryDeferred,
+			LastAttemptUtc = header.LastStorageCompactionAttemptUtc,
+			NextAutomaticRetryUtc = nextRetryUtc,
+			FailureKind = header.LastStorageCompactionFailureKind,
+			LastError = header.LastStorageCompactionError,
+			UserMessage = message,
+		};
+	}
 
 	private sealed record CredentialMigrationPlan(VaultHeader Header, IReadOnlyList<CredentialRecord> Credentials, byte[] ActiveVaultKey);
 }

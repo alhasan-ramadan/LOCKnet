@@ -46,6 +46,9 @@ public class MasterKeyRepositoryTests : IDisposable
 			Salt = Enumerable.Repeat((byte)(seed + 1), 32).ToArray(),
 			WrappedVaultKey = Enumerable.Repeat((byte)(seed + 2), 48).ToArray(),
 			RequiresStorageCompaction = seed % 2 == 0,
+			LastStorageCompactionAttemptUtc = DateTime.UtcNow.AddMinutes(-5),
+			LastStorageCompactionFailureKind = StorageCompactionFailureKind.BusyOrLocked,
+			LastStorageCompactionError = $"compaction-{seed:X2}",
 			CreatedAt = DateTime.UtcNow,
 			UpdatedAt = DateTime.UtcNow,
 		};
@@ -77,6 +80,9 @@ public class MasterKeyRepositoryTests : IDisposable
 		Assert.Equal(key.Salt, retrieved.Salt);
 		Assert.Equal(key.WrappedVaultKey, retrieved.WrappedVaultKey);
 		Assert.Equal(key.RequiresStorageCompaction, retrieved.RequiresStorageCompaction);
+		Assert.Equal(key.LastStorageCompactionFailureKind, retrieved.LastStorageCompactionFailureKind);
+		Assert.Equal(key.LastStorageCompactionError, retrieved.LastStorageCompactionError);
+		Assert.Equal(key.LastStorageCompactionAttemptUtc, retrieved.LastStorageCompactionAttemptUtc);
 	}
 
 	[Fact]
@@ -120,6 +126,9 @@ public class MasterKeyRepositoryTests : IDisposable
 			Salt = Enumerable.Repeat((byte)0xF1, 32).ToArray(),
 			WrappedVaultKey = Enumerable.Repeat((byte)0xF2, 48).ToArray(),
 			RequiresStorageCompaction = true,
+			LastStorageCompactionAttemptUtc = DateTime.UtcNow.AddMinutes(-2),
+			LastStorageCompactionFailureKind = StorageCompactionFailureKind.InsufficientSpace,
+			LastStorageCompactionError = "disk-full",
 			CreatedAt = DateTime.UtcNow,
 			UpdatedAt = DateTime.UtcNow,
 		};
@@ -133,6 +142,9 @@ public class MasterKeyRepositoryTests : IDisposable
 		Assert.Equal(updatedKey.Salt, retrieved.Salt);
 		Assert.Equal(updatedKey.WrappedVaultKey, retrieved.WrappedVaultKey);
 		Assert.Equal(updatedKey.RequiresStorageCompaction, retrieved.RequiresStorageCompaction);
+		Assert.Equal(updatedKey.LastStorageCompactionAttemptUtc, retrieved.LastStorageCompactionAttemptUtc);
+		Assert.Equal(updatedKey.LastStorageCompactionFailureKind, retrieved.LastStorageCompactionFailureKind);
+		Assert.Equal(updatedKey.LastStorageCompactionError, retrieved.LastStorageCompactionError);
 	}
 
 	[Fact]
@@ -157,6 +169,9 @@ public class MasterKeyRepositoryTests : IDisposable
 			Salt = Enumerable.Repeat((byte)0xEE, 32).ToArray(),
 			WrappedVaultKey = Enumerable.Repeat((byte)0xDD, 48).ToArray(),
 			RequiresStorageCompaction = true,
+			LastStorageCompactionAttemptUtc = DateTime.UtcNow.AddMinutes(-1),
+			LastStorageCompactionFailureKind = StorageCompactionFailureKind.Unknown,
+			LastStorageCompactionError = "unknown",
 			CreatedAt = originalCreated,
 			UpdatedAt = DateTime.UtcNow,
 		});

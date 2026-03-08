@@ -44,6 +44,15 @@ public sealed class VaultHeader
 	/// </summary>
 	public bool RequiresStorageCompaction { get; set; }
 
+	/// <summary>UTC-Zeitstempel des letzten Kompaktierungsversuchs.</summary>
+	public DateTime? LastStorageCompactionAttemptUtc { get; set; }
+
+	/// <summary>Klassifizierter Fehler des letzten Kompaktierungsversuchs.</summary>
+	public StorageCompactionFailureKind LastStorageCompactionFailureKind { get; set; }
+
+	/// <summary>Technische Kurzinfo des letzten Kompaktierungsversuchs.</summary>
+	public string? LastStorageCompactionError { get; set; }
+
 	/// <summary>UTC-Zeitstempel der Erstellung.</summary>
 	public DateTime CreatedAt { get; set; }
 
