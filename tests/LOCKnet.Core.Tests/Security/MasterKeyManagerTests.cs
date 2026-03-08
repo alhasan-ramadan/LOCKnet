@@ -70,6 +70,8 @@ sealed class InMemoryVaultStore : IMasterKeyRepository, IVaultMigrationRepositor
 		};
 	}
 
+	public bool HasPendingStorageArtifacts() => false;
+
 	public CredentialRecord AddCredential(CredentialRecord credential)
 	{
 		var stored = CloneCredential(credential);
@@ -134,15 +136,20 @@ public class MasterKeyManagerTests
 	}
 
 	private static MasterKeyManager BuildSut(out InMemoryVaultStore store)
+		=> BuildSut(out store, out _);
+
+	private static MasterKeyManager BuildSut(out InMemoryVaultStore store, out SessionManager sessionManager)
 	{
 		store = new InMemoryVaultStore();
 		var encryption = new AesGcmEncryptionService();
+		sessionManager = new SessionManager();
 		return new MasterKeyManager(
 			new Pbkdf2KeyDerivationService(),
 			store,
 			store,
 			encryption,
 			new CredentialEnvelopeService(encryption),
+			sessionManager,
 			new SecureStringService());
 	}
 
@@ -377,7 +384,7 @@ public class MasterKeyManagerTests
 	[Fact]
 	public void Unlock_WhenCompactionFails_AllowsControlledDegradedModeAndKeepsPendingFlagForRetry()
 	{
-		var sut = BuildSut(out var store);
+		var sut = BuildSut(out var store, out var sessionManager);
 		SeedLegacyVault(store, "legacy-password", withWrappedLegacyKey: false);
 		store.ThrowOnCompactStorage = true;
 
@@ -397,6 +404,7 @@ public class MasterKeyManagerTests
 		Assert.True(retryUnlock.StorageCompaction.IsPending);
 		Assert.True(retryUnlock.StorageCompaction.AutoRetryDeferred);
 		Assert.Equal(1, store.CompactStorageCallCount);
+		sessionManager.Open(retryUnlock.VaultKey.ToArray());
 
 		var manualRetry = sut.RetryPendingStorageCompaction();
 		Assert.False(manualRetry.IsPending);
@@ -410,8 +418,10 @@ public class MasterKeyManagerTests
 	[Fact]
 	public void RetryPendingStorageCompaction_WhenFailureRepeats_KeepsPendingStateAndUpdatesFailureMetadata()
 	{
-		var sut = BuildSut(out var store);
+		var sut = BuildSut(out var store, out var sessionManager);
 		sut.Initialize(MakeSecure("vault-password"));
+		var unlock = sut.Unlock(MakeSecure("vault-password"))!;
+		sessionManager.Open(unlock.VaultKey.ToArray());
 		var header = store.Get()!;
 		header.RequiresStorageCompaction = true;
 		store.Update(header);
@@ -473,8 +483,10 @@ public class MasterKeyManagerTests
 	[Fact]
 	public void ChangePassword_WithPendingCompaction_PreservesPendingStateMetadataAndLaterCleanupCanClearIt()
 	{
-		var sut = BuildSut(out var store);
+		var sut = BuildSut(out var store, out var sessionManager);
 		sut.Initialize(MakeSecure("initial"));
+		var initialUnlock = sut.Unlock(MakeSecure("initial"))!;
+		sessionManager.Open(initialUnlock.VaultKey.ToArray());
 		var header = store.Get()!;
 		var lastAttemptUtc = DateTime.UtcNow;
 		header.RequiresStorageCompaction = true;
@@ -500,6 +512,7 @@ public class MasterKeyManagerTests
 		Assert.Equal("locked", degradedUnlock.StorageCompaction.LastError);
 		Assert.Equal(lastAttemptUtc, degradedUnlock.StorageCompaction.LastAttemptUtc);
 		Assert.Equal(0, store.CompactStorageCallCount);
+		sessionManager.Open(degradedUnlock.VaultKey.ToArray());
 
 		var cleanup = sut.RetryPendingStorageCompaction();
 		Assert.False(cleanup.IsPending);

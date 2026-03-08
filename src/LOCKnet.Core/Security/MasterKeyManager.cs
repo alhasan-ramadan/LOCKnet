@@ -2,6 +2,7 @@ using LOCKnet.Core.Crypto;
 using LOCKnet.Core.DataAbstractions;
 using System.Security;
 using System.Security.Cryptography;
+using System.Text.Json;
 
 namespace LOCKnet.Core.Security;
 
@@ -19,6 +20,7 @@ public sealed class MasterKeyManager : IMasterKeyManager
 	private readonly IVaultMigrationRepository _vaultMigrationRepo;
 	private readonly IEncryptionService _encryption;
 	private readonly ICredentialEnvelopeService _credentialEnvelope;
+	private readonly ISessionManager _session;
 	private readonly ISecureStringService _secureStr;
 
 	/// <summary>
@@ -30,6 +32,7 @@ public sealed class MasterKeyManager : IMasterKeyManager
 		IVaultMigrationRepository vaultMigrationRepo,
 		IEncryptionService encryption,
 		ICredentialEnvelopeService credentialEnvelope,
+		ISessionManager session,
 		ISecureStringService secureStr)
 	{
 		ArgumentNullException.ThrowIfNull(kdf);
@@ -37,12 +40,14 @@ public sealed class MasterKeyManager : IMasterKeyManager
 		ArgumentNullException.ThrowIfNull(vaultMigrationRepo);
 		ArgumentNullException.ThrowIfNull(encryption);
 		ArgumentNullException.ThrowIfNull(credentialEnvelope);
+		ArgumentNullException.ThrowIfNull(session);
 		ArgumentNullException.ThrowIfNull(secureStr);
 		_kdf = kdf;
 		_repo = repo;
 		_vaultMigrationRepo = vaultMigrationRepo;
 		_encryption = encryption;
 		_credentialEnvelope = credentialEnvelope;
+		_session = session;
 		_secureStr = secureStr;
 	}
 
@@ -130,14 +135,14 @@ public sealed class MasterKeyManager : IMasterKeyManager
 				if (migration is not null)
 				{
 					_vaultMigrationRepo.ApplyMigration(migration.Header, migration.Credentials);
-					var storageInfo = CompleteStorageCompactionIfRequired(migration.Header, automaticRetry: true);
+					var storageInfo = CompleteStorageCompactionIfRequired(migration.Header, migration.ActiveVaultKey, automaticRetry: true);
 					targetVaultKey = migration.ActiveVaultKey;
 					resultKey = targetVaultKey;
 					targetVaultKey = null;
 					return new UnlockResult { VaultKey = resultKey, StorageCompaction = storageInfo };
 				}
 
-				var currentStorageInfo = CompleteStorageCompactionIfRequired(record, automaticRetry: true);
+				var currentStorageInfo = CompleteStorageCompactionIfRequired(record, currentVaultKey, automaticRetry: true);
 
 				resultKey = currentVaultKey;
 				currentVaultKey = null;
@@ -155,7 +160,7 @@ public sealed class MasterKeyManager : IMasterKeyManager
 				?? throw new InvalidOperationException("Legacy-Vault konnte nicht in das aktuelle Format migriert werden.");
 
 			_vaultMigrationRepo.ApplyMigration(legacyMigration.Header, legacyMigration.Credentials);
-			var legacyStorageInfo = CompleteStorageCompactionIfRequired(legacyMigration.Header, automaticRetry: true);
+			var legacyStorageInfo = CompleteStorageCompactionIfRequired(legacyMigration.Header, legacyMigration.ActiveVaultKey, automaticRetry: true);
 			targetVaultKey = legacyMigration.ActiveVaultKey;
 			resultKey = targetVaultKey;
 			targetVaultKey = null;
@@ -235,7 +240,31 @@ public sealed class MasterKeyManager : IMasterKeyManager
 			?? throw new InvalidOperationException("Kein Master-Key vorhanden.");
 
 		ValidateHeader(header);
-		return CompleteStorageCompactionIfRequired(header, automaticRetry: false);
+
+		var sessionKey = _session.GetSessionKey();
+		if (sessionKey is null)
+		{
+			var info = BuildStorageCompactionInfo(header, autoRetryDeferred: false, overrideMessage: "Speicherbereinigung noch offen: Die Vault ist aktuell gesperrt. Bitte zuerst entsperren.");
+			return new StorageCompactionInfo
+			{
+				IsPending = info.IsPending,
+				AutoRetryDeferred = info.AutoRetryDeferred,
+				LastAttemptUtc = info.LastAttemptUtc,
+				NextAutomaticRetryUtc = info.NextAutomaticRetryUtc,
+				FailureKind = StorageCompactionFailureKind.BusyOrLocked,
+				UserMessage = info.UserMessage,
+				LastError = info.LastError,
+			};
+		}
+
+		try
+		{
+			return CompleteStorageCompactionIfRequired(header, sessionKey, automaticRetry: false);
+		}
+		finally
+		{
+			CryptographicOperations.ZeroMemory(sessionKey);
+		}
 	}
 
 	private CredentialMigrationPlan? BuildMigrationPlan(VaultHeader header, byte[] currentVaultKey, byte[] kek, bool usesLegacyKey)
@@ -380,7 +409,7 @@ public sealed class MasterKeyManager : IMasterKeyManager
 			throw new InvalidOperationException("VaultHeader enthaelt einen ungueltigen WrappedVaultKey.");
 	}
 
-	private StorageCompactionInfo CompleteStorageCompactionIfRequired(VaultHeader header, bool automaticRetry)
+	private StorageCompactionInfo CompleteStorageCompactionIfRequired(VaultHeader header, byte[] activeVaultKey, bool automaticRetry)
 	{
 		if (!header.RequiresStorageCompaction)
 			return BuildNoPendingStorageInfo();
@@ -391,6 +420,13 @@ public sealed class MasterKeyManager : IMasterKeyManager
 			var nextRetryUtc = lastAttemptUtc + AutomaticStorageCompactionRetryDelay;
 			if (nextRetryUtc > now)
 				return BuildStorageCompactionInfo(header, autoRetryDeferred: true, overrideMessage: $"Speicherbereinigung noch offen. Naechster automatischer Versuch nach {nextRetryUtc.ToLocalTime():HH:mm}. Du kannst die Bereinigung jederzeit manuell erneut starten.");
+		}
+
+		if (!_vaultMigrationRepo.HasPendingStorageArtifacts())
+		{
+			var validationFailure = ValidateStorageRewriteReadiness(header, activeVaultKey);
+			if (validationFailure is not null)
+				return PersistStorageCompactionFailure(header, validationFailure.Value.failureKind, validationFailure.Value.userMessage, validationFailure.Value.lastError);
 		}
 
 		var result = _vaultMigrationRepo.CompactStorage();
@@ -414,6 +450,86 @@ public sealed class MasterKeyManager : IMasterKeyManager
 		updated.UpdatedAt = DateTime.UtcNow;
 		_repo.Update(updated);
 		return BuildStorageCompactionInfo(updated, autoRetryDeferred: false, overrideMessage: result.UserMessage);
+	}
+
+	private (StorageCompactionFailureKind failureKind, string userMessage, string lastError)? ValidateStorageRewriteReadiness(VaultHeader header, byte[] activeVaultKey)
+	{
+		try
+		{
+			ValidateHeaderForStorageRewrite(header);
+			foreach (var credential in _vaultMigrationRepo.GetAllCredentials())
+				ValidateCredentialForStorageRewrite(credential, activeVaultKey, header.FormatVersion);
+
+			return null;
+		}
+		catch (CryptographicException ex)
+		{
+			return (StorageCompactionFailureKind.Corruption, "Speicherbereinigung noch offen: Aktuelle Vault-Daten konnten nicht mehr authentifiziert werden. Backup pruefen.", ex.Message);
+		}
+		catch (InvalidOperationException ex)
+		{
+			return (StorageCompactionFailureKind.Corruption, "Speicherbereinigung noch offen: Aktuelle Vault-Daten sind inkonsistent. Backup pruefen.", ex.Message);
+		}
+		catch (JsonException ex)
+		{
+			return (StorageCompactionFailureKind.Corruption, "Speicherbereinigung noch offen: Aktuelle Vault-Metadaten sind inkonsistent. Backup pruefen.", ex.Message);
+		}
+	}
+
+	private StorageCompactionInfo PersistStorageCompactionFailure(VaultHeader header, StorageCompactionFailureKind failureKind, string userMessage, string lastError)
+	{
+		var updated = CloneHeader(header);
+		updated.RequiresStorageCompaction = true;
+		updated.LastStorageCompactionAttemptUtc = DateTime.UtcNow;
+		updated.LastStorageCompactionFailureKind = failureKind;
+		updated.LastStorageCompactionError = lastError;
+		updated.UpdatedAt = DateTime.UtcNow;
+		_repo.Update(updated);
+		return BuildStorageCompactionInfo(updated, autoRetryDeferred: false, overrideMessage: userMessage);
+	}
+
+	private void ValidateHeaderForStorageRewrite(VaultHeader header)
+	{
+		if (header.FormatVersion != VaultHeaderFormatVersion.Current)
+			throw new InvalidOperationException("Storage-Rewrite erwartet einen aktuellen VaultHeader.");
+
+		if (header.UsesLegacyKeyMaterial)
+			throw new InvalidOperationException("Storage-Rewrite darf nicht mit Legacy-Keymaterial ausgefuehrt werden.");
+
+		if (header.LegacyPasswordHash.Length > 0)
+			throw new InvalidOperationException("Storage-Rewrite erwartet keinen Legacy-Passwort-Hash mehr im Header.");
+	}
+
+	private void ValidateCredentialForStorageRewrite(CredentialRecord credential, byte[] activeVaultKey, int vaultFormatVersion)
+	{
+		if (credential.SecretFormatVersion != CredentialSecretFormatVersion.Current)
+			throw new InvalidOperationException($"Credential {credential.Id} verwendet noch ein Legacy-Secret-Format.");
+
+		if (credential.MetadataFormatVersion != CredentialMetadataFormatVersion.Current)
+			throw new InvalidOperationException($"Credential {credential.Id} verwendet noch ein Legacy-Metadaten-Format.");
+
+		if (!Guid.TryParseExact(credential.CredentialUuid, "N", out _))
+			throw new InvalidOperationException($"Credential {credential.Id} enthaelt eine ungueltige CredentialUuid.");
+
+		if (credential.EncryptedPassword.Length == 0)
+			throw new InvalidOperationException($"Credential {credential.Id} enthaelt keine verschluesselten Secret-Daten.");
+
+		if (credential.EncryptedMetadata.Length == 0)
+			throw new InvalidOperationException($"Credential {credential.Id} enthaelt keine verschluesselten Metadaten.");
+
+		if (HasPlaintextMetadataResidue(credential))
+			throw new InvalidOperationException($"Credential {credential.Id} enthaelt unerwartete Klartext-Metadaten.");
+
+		var secret = _credentialEnvelope.Decrypt(credential, activeVaultKey, vaultFormatVersion);
+		try
+		{
+		}
+		finally
+		{
+			CryptographicOperations.ZeroMemory(secret);
+		}
+
+		_ = _credentialEnvelope.DecryptMetadata(credential, activeVaultKey, vaultFormatVersion);
 	}
 
 	private static bool NeedsCredentialMigration(CredentialRecord credential, bool usesLegacyKey)
@@ -513,7 +629,11 @@ public sealed class MasterKeyManager : IMasterKeyManager
 			message = header.LastStorageCompactionFailureKind switch
 			{
 				StorageCompactionFailureKind.None => "Speicherbereinigung steht noch aus. Die Vault ist entsperrt, aber alte Speicherreste koennen bis zur erfolgreichen Bereinigung verbleiben.",
-				_ => "Speicherbereinigung noch offen. Die Vault ist nutzbar, aber alte Speicherreste koennen bis zur erfolgreichen Bereinigung verbleiben.",
+				StorageCompactionFailureKind.BusyOrLocked => "Speicherbereinigung noch offen: Die Vault-Datei oder ein Rewrite-Artefakt ist noch gesperrt. Andere Apps schliessen und erneut versuchen.",
+				StorageCompactionFailureKind.InsufficientSpace => "Speicherbereinigung noch offen: Fuer den Vault-Rewrite ist nicht genug freier Speicherplatz vorhanden.",
+				StorageCompactionFailureKind.Io => "Speicherbereinigung noch offen: Beim Rewrite der Vault-Datei ist ein I/O-Fehler aufgetreten.",
+				StorageCompactionFailureKind.Corruption => "Speicherbereinigung noch offen: Aktuelle Vault-Daten sind inkonsistent oder beschaedigt. Backup pruefen.",
+				_ => "Speicherbereinigung noch offen: Der Vault-Rewrite konnte nicht abgeschlossen werden.",
 			};
 		}
 

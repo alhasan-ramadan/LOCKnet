@@ -1,5 +1,6 @@
 using LOCKnet.Core.DataAbstractions;
 using Microsoft.Data.Sqlite;
+using System.Runtime.InteropServices;
 
 namespace LOCKnet.Data.Repositories;
 
@@ -8,11 +9,18 @@ namespace LOCKnet.Data.Repositories;
 /// </summary>
 public sealed class VaultMigrationRepository : RepositoryBase, IVaultMigrationRepository
 {
+	private readonly StorageRewriteHooks? _rewriteHooks;
+
 	/// <summary>
 	/// Initialisiert eine neue Instanz von <see cref="VaultMigrationRepository"/>.
 	/// </summary>
-	public VaultMigrationRepository(string connectionString) : base(connectionString)
+	public VaultMigrationRepository(string connectionString) : this(connectionString, null)
 	{
+	}
+
+	internal VaultMigrationRepository(string connectionString, StorageRewriteHooks? rewriteHooks) : base(connectionString)
+	{
+		_rewriteHooks = rewriteHooks;
 	}
 
 	/// <inheritdoc/>
@@ -140,25 +148,90 @@ public sealed class VaultMigrationRepository : RepositoryBase, IVaultMigrationRe
 		}
 	}
 
+	/// <inheritdoc/>
+	public bool HasPendingStorageArtifacts() => StorageRewriteArtifacts.HasPendingArtifacts(_databasePath);
+
+	/// <inheritdoc/>
 	public StorageCompactionInfo CompactStorage()
 	{
-		using var conn = GetConnection();
 		try
 		{
-			ConfigureMigrationConnection(conn);
-			using (var checkpoint = conn.CreateCommand())
+			if (_databasePath is null)
 			{
-				checkpoint.CommandText = "PRAGMA wal_checkpoint(TRUNCATE);";
-				checkpoint.ExecuteNonQuery();
+				return new StorageCompactionInfo
+				{
+					IsPending = true,
+					FailureKind = StorageCompactionFailureKind.Unknown,
+					UserMessage = "Speicherbereinigung noch offen: Fuer diese SQLite-Verbindung steht kein dateibasierter Rewrite zur Verfuegung.",
+					LastError = "Dateibasierter Rewrite ist fuer nicht-dateibasierte SQLite-Verbindungen nicht verfuegbar."
+				};
 			}
-			using var cmd = conn.CreateCommand();
-			cmd.CommandText = "VACUUM;";
-			cmd.ExecuteNonQuery();
+
+			var primaryPath = _databasePath;
+			var tempPath = StorageRewriteArtifacts.GetTempPath(primaryPath);
+			var backupPath = StorageRewriteArtifacts.GetBackupPath(primaryPath);
+
+			var artifactFinalization = TryFinalizeExistingArtifacts(primaryPath, tempPath, backupPath);
+			if (artifactFinalization is not null)
+				return artifactFinalization;
+
+			if (File.Exists(tempPath) && !StorageRewriteArtifacts.TryDeleteFile(tempPath))
+			{
+				return new StorageCompactionInfo
+				{
+					IsPending = true,
+					FailureKind = StorageCompactionFailureKind.BusyOrLocked,
+					UserMessage = "Speicherbereinigung noch offen: Ein altes Rewrite-Artefakt konnte nicht entfernt werden.",
+					LastError = $"Rewrite-Tempdatei konnte nicht entfernt werden: {tempPath}"
+				};
+			}
+
+			if (File.Exists(backupPath) && !StorageRewriteArtifacts.TryDeleteFile(backupPath))
+			{
+				return new StorageCompactionInfo
+				{
+					IsPending = true,
+					FailureKind = StorageCompactionFailureKind.BusyOrLocked,
+					UserMessage = "Speicherbereinigung noch offen: Eine alte Rewrite-Sicherung blockiert einen neuen Bereinigungsversuch.",
+					LastError = $"Rewrite-Sicherung konnte nicht entfernt werden: {backupPath}"
+				};
+			}
+
+			_rewriteHooks?.BeforeVacuumInto?.Invoke(tempPath);
+			BuildRewriteCandidate(tempPath);
+			VerifyRewriteCandidate(tempPath);
+			_rewriteHooks?.AfterVacuumInto?.Invoke(tempPath);
+
+			StorageRewriteArtifacts.ReplacePrimaryDatabase(tempPath, primaryPath, backupPath);
+			_rewriteHooks?.AfterReplace?.Invoke(primaryPath, RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? backupPath : null);
+
+			if (File.Exists(backupPath) && !StorageRewriteArtifacts.TryDeleteFile(backupPath))
+			{
+				return new StorageCompactionInfo
+				{
+					IsPending = true,
+					FailureKind = StorageCompactionFailureKind.BusyOrLocked,
+					UserMessage = "Speicherbereinigung noch offen: Die alte Vault-Datei konnte nach dem Rewrite noch nicht entfernt werden.",
+					LastError = $"Rewrite-Sicherung konnte nach dem Austausch nicht entfernt werden: {backupPath}"
+				};
+			}
+
+			if (File.Exists(tempPath) && !StorageRewriteArtifacts.TryDeleteFile(tempPath))
+			{
+				return new StorageCompactionInfo
+				{
+					IsPending = true,
+					FailureKind = StorageCompactionFailureKind.BusyOrLocked,
+					UserMessage = "Speicherbereinigung noch offen: Das temporare Rewrite-Artefakt konnte nach dem Austausch nicht entfernt werden.",
+					LastError = $"Rewrite-Tempdatei konnte nach dem Austausch nicht entfernt werden: {tempPath}"
+				};
+			}
+
 			return new StorageCompactionInfo
 			{
 				IsPending = false,
 				FailureKind = StorageCompactionFailureKind.None,
-				UserMessage = "Speicherbereinigung abgeschlossen.",
+				UserMessage = "Speicherbereinigung durch Rewrite abgeschlossen.",
 			};
 		}
 		catch (SqliteException ex)
@@ -172,17 +245,139 @@ public sealed class VaultMigrationRepository : RepositoryBase, IVaultMigrationRe
 				LastError = ex.Message,
 			};
 		}
+		catch (InvalidOperationException ex)
+		{
+			return new StorageCompactionInfo
+			{
+				IsPending = true,
+				FailureKind = StorageCompactionFailureKind.Corruption,
+				UserMessage = "Speicherbereinigung noch offen: Die neu geschriebene Vault-Datei ist inkonsistent. Backup pruefen.",
+				LastError = ex.Message,
+			};
+		}
+		catch (IOException ex)
+		{
+			return new StorageCompactionInfo
+			{
+				IsPending = true,
+				FailureKind = StorageCompactionFailureKind.Io,
+				UserMessage = "Speicherbereinigung noch offen: Die Vault-Datei konnte nicht sicher neu geschrieben oder ersetzt werden.",
+				LastError = ex.Message,
+			};
+		}
+		catch (UnauthorizedAccessException ex)
+		{
+			return new StorageCompactionInfo
+			{
+				IsPending = true,
+				FailureKind = StorageCompactionFailureKind.BusyOrLocked,
+				UserMessage = "Speicherbereinigung noch offen: Die Vault-Datei ist noch gesperrt oder nicht schreibbar.",
+				LastError = ex.Message,
+			};
+		}
 	}
 
 	private static (StorageCompactionFailureKind failureKind, string userMessage) MapCompactionFailure(SqliteException ex)
 		=> ex.SqliteErrorCode switch
 		{
 			5 or 6 => (StorageCompactionFailureKind.BusyOrLocked, "Speicherbereinigung noch offen: Die Vault-Datei ist gerade gesperrt. Andere Apps schliessen und erneut versuchen."),
-			10 => (StorageCompactionFailureKind.Io, "Speicherbereinigung noch offen: Beim USB-Speicher ist ein I/O-Fehler aufgetreten."),
+			10 => (StorageCompactionFailureKind.Io, "Speicherbereinigung noch offen: Beim Rewrite der Vault-Datei ist ein I/O-Fehler aufgetreten."),
 			11 or 26 => (StorageCompactionFailureKind.Corruption, "Speicherbereinigung noch offen: Die Datenbank meldet Integritaetsprobleme. Backup pruefen."),
-			13 => (StorageCompactionFailureKind.InsufficientSpace, "Speicherbereinigung noch offen: Auf dem USB-Laufwerk ist nicht genug freier Speicherplatz fuer VACUUM vorhanden."),
-			_ => (StorageCompactionFailureKind.Unknown, "Speicherbereinigung noch offen: SQLite konnte die Kompaktierung nicht abschliessen."),
+			13 => (StorageCompactionFailureKind.InsufficientSpace, "Speicherbereinigung noch offen: Fuer den Rewrite ist nicht genug freier Speicherplatz verfuegbar."),
+			_ => (StorageCompactionFailureKind.Unknown, "Speicherbereinigung noch offen: SQLite konnte den Rewrite nicht abschliessen."),
 		};
+
+	private StorageCompactionInfo? TryFinalizeExistingArtifacts(string primaryPath, string tempPath, string backupPath)
+	{
+		var mainValid = StorageRewriteArtifacts.IsUsableSqliteDatabase(primaryPath);
+
+		if (File.Exists(backupPath))
+		{
+			if (!mainValid)
+			{
+				return new StorageCompactionInfo
+				{
+					IsPending = true,
+					FailureKind = StorageCompactionFailureKind.Corruption,
+					UserMessage = "Speicherbereinigung noch offen: Vorhandene Rewrite-Artefakte muessen beim Neustart wiederhergestellt werden.",
+					LastError = "Rewrite-Sicherung vorhanden, aber die Hauptdatenbank ist momentan nicht gueltig."
+				};
+			}
+
+			if (!StorageRewriteArtifacts.TryDeleteFile(backupPath))
+			{
+				return new StorageCompactionInfo
+				{
+					IsPending = true,
+					FailureKind = StorageCompactionFailureKind.BusyOrLocked,
+					UserMessage = "Speicherbereinigung noch offen: Die alte Rewrite-Sicherung konnte noch nicht entfernt werden.",
+					LastError = $"Rewrite-Sicherung konnte nicht entfernt werden: {backupPath}"
+				};
+			}
+
+			if (File.Exists(tempPath))
+				StorageRewriteArtifacts.TryDeleteFile(tempPath);
+
+			return new StorageCompactionInfo
+			{
+				IsPending = false,
+				FailureKind = StorageCompactionFailureKind.None,
+				UserMessage = "Speicherbereinigung abgeschlossen.",
+			};
+		}
+
+		if (File.Exists(tempPath) && mainValid)
+		{
+			if (!StorageRewriteArtifacts.TryDeleteFile(tempPath))
+			{
+				return new StorageCompactionInfo
+				{
+					IsPending = true,
+					FailureKind = StorageCompactionFailureKind.BusyOrLocked,
+					UserMessage = "Speicherbereinigung noch offen: Ein unvollstaendiges Rewrite-Artefakt konnte noch nicht entfernt werden.",
+					LastError = $"Rewrite-Tempdatei konnte nicht entfernt werden: {tempPath}"
+				};
+			}
+		}
+
+		return null;
+	}
+
+	private void BuildRewriteCandidate(string tempPath)
+	{
+		using var conn = GetConnection();
+		ConfigureMigrationConnection(conn);
+
+		using (var checkpoint = conn.CreateCommand())
+		{
+			checkpoint.CommandText = "PRAGMA wal_checkpoint(TRUNCATE);";
+			checkpoint.ExecuteNonQuery();
+		}
+
+		using var cmd = conn.CreateCommand();
+		cmd.CommandText = $"VACUUM INTO {ToSqliteStringLiteral(tempPath)};";
+		cmd.ExecuteNonQuery();
+	}
+
+	private static void VerifyRewriteCandidate(string tempPath)
+	{
+		if (!StorageRewriteArtifacts.IsUsableSqliteDatabase(tempPath))
+			throw new InvalidOperationException("Rewrite-Zieldatei ist keine verwendbare SQLite-Datenbank.");
+
+		var builder = new SqliteConnectionStringBuilder
+		{
+			DataSource = tempPath,
+			Mode = SqliteOpenMode.ReadOnly,
+		};
+
+		using var connection = new SqliteConnection(builder.ToString());
+		connection.Open();
+
+		using var masterKeyCount = connection.CreateCommand();
+		masterKeyCount.CommandText = "SELECT COUNT(*) FROM MasterKey;";
+		if (Convert.ToInt64(masterKeyCount.ExecuteScalar() ?? 0L) != 1)
+			throw new InvalidOperationException("Rewrite-Zieldatei enthaelt keinen konsistenten MasterKey-Header.");
+	}
 
 	private static void ConfigureMigrationConnection(SqliteConnection conn)
 	{
@@ -194,6 +389,8 @@ public sealed class VaultMigrationRepository : RepositoryBase, IVaultMigrationRe
                 PRAGMA busy_timeout = 5000;";
 		cmd.ExecuteNonQuery();
 	}
+
+	private static string ToSqliteStringLiteral(string value) => $"'{value.Replace("'", "''")}'";
 
 	private static CredentialRecord MapCredential(SqliteDataReader reader) => new()
 	{
@@ -212,4 +409,11 @@ public sealed class VaultMigrationRepository : RepositoryBase, IVaultMigrationRe
 		IconKey = reader.IsDBNull(12) ? null : reader.GetString(12),
 		CredentialType = reader.IsDBNull(13) ? CredentialType.Password : (CredentialType)reader.GetInt32(13),
 	};
+}
+
+internal sealed class StorageRewriteHooks
+{
+	public Action<string>? BeforeVacuumInto { get; init; }
+	public Action<string>? AfterVacuumInto { get; init; }
+	public Action<string, string?>? AfterReplace { get; init; }
 }

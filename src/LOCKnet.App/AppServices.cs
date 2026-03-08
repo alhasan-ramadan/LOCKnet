@@ -49,7 +49,7 @@ public sealed class AppServices
 		// Security layer
 		var sessionManager = new SessionManager();
 		SessionManager = sessionManager;
-		MasterKeyManager = new MasterKeyManager(kdf, masterKeyRepo, vaultMigrationRepo, encryption, credentialEnvelope, secureStr);
+		MasterKeyManager = new MasterKeyManager(kdf, masterKeyRepo, vaultMigrationRepo, encryption, credentialEnvelope, sessionManager, secureStr);
 		ActivityMonitor = new ActivityMonitor(sessionManager)
 		{
 			Timeout = TimeSpan.FromSeconds(60)

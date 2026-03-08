@@ -18,6 +18,11 @@ public interface IVaultMigrationRepository
 	void ApplyMigration(VaultHeader header, IReadOnlyList<CredentialRecord> credentials);
 
 	/// <summary>
+	/// Prueft, ob fuer die aktuelle Vault-Datei noch Rewrite-Artefakte einer vorherigen Bereinigung existieren.
+	/// </summary>
+	bool HasPendingStorageArtifacts();
+
+	/// <summary>
 	/// Fuehrt eine SQLite-Kompaktierung auf dem Vault durch und liefert ein strukturiertes Ergebnis.
 	/// </summary>
 	StorageCompactionInfo CompactStorage();

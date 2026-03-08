@@ -11,6 +11,7 @@ public abstract class RepositoryBase
 {
 	/// <summary>SQLite-Connection-String für diese Repository-Instanz.</summary>
 	protected readonly string _connectionString;
+	protected readonly string? _databasePath;
 
 	/// <summary>
 	/// Initialisiert eine neue Instanz von <see cref="RepositoryBase"/>.
@@ -19,6 +20,7 @@ public abstract class RepositoryBase
 	protected RepositoryBase(string connectionString)
 	{
 		_connectionString = connectionString;
+		_databasePath = StorageRewriteArtifacts.TryResolveDatabasePath(connectionString);
 	}
 
 	/// <summary>

@@ -11,6 +11,7 @@ namespace LOCKnet.Data;
 public class Database
 {
 	private readonly string _connectionString;
+	private readonly string? _databasePath;
 
 	/// <summary>
 	/// Initialisiert eine neue Instanz von <see cref="Database"/> mit einem Datei-Pfad.
@@ -20,7 +21,8 @@ public class Database
 	/// </param>
 	public Database(string databasePath = "credentials.db")
 	{
-		_connectionString = $"Data Source={databasePath}";
+		_databasePath = Path.GetFullPath(databasePath);
+		_connectionString = $"Data Source={_databasePath}";
 	}
 
 	/// <summary>
@@ -31,6 +33,7 @@ public class Database
 	{
 		_ = useConnectionStringDirectly; // discriminator — not stored
 		_connectionString = connectionString;
+		_databasePath = StorageRewriteArtifacts.TryResolveDatabasePath(connectionString);
 	}
 
 	/// <summary>
@@ -40,6 +43,7 @@ public class Database
 	public void Initialize()
 	{
 		const string kdfParametersDefault = "TEXT NOT NULL DEFAULT '{\"HashAlgorithm\":\"SHA256\",\"Iterations\":600000,\"KeyLengthBytes\":32,\"SaltLengthBytes\":32}'";
+		var recovery = StorageRewriteArtifacts.Recover(_databasePath);
 
 		using var connection = new SqliteConnection(_connectionString);
 		connection.Open();
@@ -179,6 +183,9 @@ public class Database
                 );";
 			cmd.ExecuteNonQuery();
 		}
+
+		if (recovery.ShouldClearPendingState)
+			StorageRewriteArtifacts.ClearPendingState(connection);
 	}
 
 	private static void TryAddColumn(SqliteConnection connection, string table, string column, string definition)

@@ -326,4 +326,14 @@ public class VaultMigrationRepositoryTests : IDisposable
 		Assert.Equal(credentialUuid, stored.CredentialUuid);
 		Assert.Equal(CredentialMetadataFormatVersion.Current, stored.MetadataFormatVersion);
 	}
+
+	[Fact]
+	public void CompactStorage_WithInMemoryConnection_ReturnsExplicitPendingFailure()
+	{
+		var info = _sut.CompactStorage();
+
+		Assert.True(info.IsPending);
+		Assert.Equal(StorageCompactionFailureKind.Unknown, info.FailureKind);
+		Assert.Contains("dateibasierter Rewrite", info.UserMessage);
+	}
 }
