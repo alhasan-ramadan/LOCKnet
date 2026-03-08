@@ -1,4 +1,5 @@
 using LOCKnet.Core.DataAbstractions;
+using LOCKnet.Data.Repositories;
 using Microsoft.Data.Sqlite;
 
 namespace LOCKnet.Data;
@@ -6,11 +7,83 @@ namespace LOCKnet.Data;
 internal sealed class PlainToEncryptedVaultMigrationCoordinator
 {
 	private readonly ISqliteConnectionFactory _sourceConnectionFactory;
+	private readonly MasterKeyRepository _headerRepository;
 
 	internal PlainToEncryptedVaultMigrationCoordinator(ISqliteConnectionFactory sourceConnectionFactory)
 	{
 		ArgumentNullException.ThrowIfNull(sourceConnectionFactory);
 		_sourceConnectionFactory = sourceConnectionFactory;
+		_headerRepository = new MasterKeyRepository(sourceConnectionFactory);
+	}
+
+	internal PlainToEncryptedVaultMigrationExecutionResult Execute(PlainToEncryptedVaultMigrationRequest request, IEncryptedVaultMigrationExporter exporter)
+	{
+		ArgumentNullException.ThrowIfNull(exporter);
+
+		var utcNow = DateTime.UtcNow;
+		var plan = Prepare(request);
+		var inProgressHeader = MarkInProgress(request.Header, request.TargetMode, utcNow);
+		_headerRepository.Update(inProgressHeader);
+
+		try
+		{
+			exporter.ExportPlaintextVault(_sourceConnectionFactory.Storage.ConnectionString, plan.EncryptedTempPath);
+
+			if (!File.Exists(plan.EncryptedTempPath))
+				throw new InvalidOperationException("Exporter hat kein Zielartefakt erstellt.");
+
+			exporter.ValidateExportedVault(plan.EncryptedTempPath);
+			StorageRewriteArtifacts.ReplacePrimaryDatabase(plan.EncryptedTempPath, plan.SourcePath, plan.PlainBackupPath);
+
+			var finalizationPendingHeader = MarkFinalizationPending(_headerRepository.Get() ?? inProgressHeader, request.TargetMode, DateTime.UtcNow);
+			_headerRepository.Update(finalizationPendingHeader);
+
+			return new PlainToEncryptedVaultMigrationExecutionResult(
+				finalizationPendingHeader.StorageMigrationState,
+				finalizationPendingHeader.StorageMigrationTargetMode,
+				finalizationPendingHeader.LastStorageMigrationAttemptUtc,
+				finalizationPendingHeader.LastStorageMigrationError,
+				plan.EncryptedTempPath,
+				plan.PlainBackupPath);
+		}
+		catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidOperationException or SqliteException)
+		{
+			var failedHeader = MarkFailed(_headerRepository.Get() ?? inProgressHeader, request.TargetMode, DateTime.UtcNow, ex.Message);
+			_headerRepository.Update(failedHeader);
+
+			return new PlainToEncryptedVaultMigrationExecutionResult(
+				failedHeader.StorageMigrationState,
+				failedHeader.StorageMigrationTargetMode,
+				failedHeader.LastStorageMigrationAttemptUtc,
+				failedHeader.LastStorageMigrationError,
+				plan.EncryptedTempPath,
+				plan.PlainBackupPath);
+		}
+	}
+
+	internal PlainToEncryptedVaultMigrationExecutionResult FinalizeSuccessfulMigration(VaultHeader header)
+	{
+		ArgumentNullException.ThrowIfNull(header);
+
+		var sourcePath = _sourceConnectionFactory.Storage.DatabasePath
+			?? throw new InvalidOperationException("Finalisierung der Plain-zu-encrypted-Migration benoetigt eine dateibasierte Vault.");
+		var backupPath = PlainToEncryptedVaultMigrationArtifacts.GetPlainBackupPath(sourcePath);
+		if (header.StorageMigrationState != VaultStorageMigrationState.FinalizationPending)
+			throw new InvalidOperationException("Finalisierung erwartet einen Storage-Migrationszustand FinalizationPending.");
+
+		if (File.Exists(backupPath) && !StorageRewriteArtifacts.TryDeleteFile(backupPath))
+			throw new IOException("Alte Plain-Sicherung konnte nicht entfernt werden.");
+
+		var cleared = ClearMigrationState(_headerRepository.Get() ?? header, DateTime.UtcNow);
+		_headerRepository.Update(cleared);
+
+		return new PlainToEncryptedVaultMigrationExecutionResult(
+			cleared.StorageMigrationState,
+			cleared.StorageMigrationTargetMode,
+			cleared.LastStorageMigrationAttemptUtc,
+			cleared.LastStorageMigrationError,
+			PlainToEncryptedVaultMigrationArtifacts.GetEncryptedTempPath(sourcePath),
+			backupPath);
 	}
 
 	internal PlainToEncryptedVaultMigrationPlan Prepare(PlainToEncryptedVaultMigrationRequest request)
@@ -198,3 +271,11 @@ internal sealed record PlainToEncryptedVaultMigrationPlan(
 	string EncryptedTempPath,
 	string PlainBackupPath,
 	VaultStorageMigrationTargetMode TargetMode);
+
+internal sealed record PlainToEncryptedVaultMigrationExecutionResult(
+	VaultStorageMigrationState StorageMigrationState,
+	VaultStorageMigrationTargetMode StorageMigrationTargetMode,
+	DateTime? LastStorageMigrationAttemptUtc,
+	string? LastStorageMigrationError,
+	string EncryptedTempPath,
+	string PlainBackupPath);

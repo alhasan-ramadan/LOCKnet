@@ -41,6 +41,101 @@ public sealed class PlainToEncryptedVaultMigrationCoordinatorTests : IDisposable
 	}
 
 	[Fact]
+	public void Execute_SuccessfulFakeExport_ReplacesPrimaryAndTransitionsToFinalizationPending()
+	{
+		SeedValidCurrentVault();
+		var coordinator = new PlainToEncryptedVaultMigrationCoordinator(_factory);
+		var exporter = new FakeEncryptedVaultMigrationExporter();
+
+		var result = coordinator.Execute(MakeRequest(), exporter);
+		var storedHeader = _masterKeyRepository.Get()!;
+
+		Assert.Equal(VaultStorageMigrationState.FinalizationPending, result.StorageMigrationState);
+		Assert.Equal(VaultStorageMigrationState.FinalizationPending, storedHeader.StorageMigrationState);
+		Assert.Equal(VaultStorageMigrationTargetMode.EncryptedSqlite, storedHeader.StorageMigrationTargetMode);
+		Assert.NotNull(storedHeader.LastStorageMigrationAttemptUtc);
+		Assert.Null(storedHeader.LastStorageMigrationError);
+		Assert.False(File.Exists(result.EncryptedTempPath));
+		Assert.True(File.Exists(result.PlainBackupPath));
+		Assert.True(exporter.ExportCalled);
+		Assert.True(exporter.ValidateCalled);
+
+		using var connection = _factory.OpenConnection();
+		using var command = connection.CreateCommand();
+		command.CommandText = "SELECT Value FROM Settings WHERE Key = $key;";
+		command.Parameters.AddWithValue("$key", FakeEncryptedVaultMigrationExporter.ExportMarkerKey);
+		Assert.Equal(FakeEncryptedVaultMigrationExporter.ExportMarkerValue, command.ExecuteScalar() as string);
+	}
+
+	[Fact]
+	public void FinalizeSuccessfulMigration_RemovesBackupAndClearsMigrationState()
+	{
+		SeedValidCurrentVault();
+		var coordinator = new PlainToEncryptedVaultMigrationCoordinator(_factory);
+		var exporter = new FakeEncryptedVaultMigrationExporter();
+		coordinator.Execute(MakeRequest(), exporter);
+
+		var result = coordinator.FinalizeSuccessfulMigration(_masterKeyRepository.Get()!);
+		var storedHeader = _masterKeyRepository.Get()!;
+
+		Assert.Equal(VaultStorageMigrationState.None, result.StorageMigrationState);
+		Assert.Equal(VaultStorageMigrationState.None, storedHeader.StorageMigrationState);
+		Assert.Equal(VaultStorageMigrationTargetMode.None, storedHeader.StorageMigrationTargetMode);
+		Assert.Null(storedHeader.LastStorageMigrationAttemptUtc);
+		Assert.Null(storedHeader.LastStorageMigrationError);
+		Assert.False(File.Exists(result.PlainBackupPath));
+	}
+
+	[Fact]
+	public void Execute_WhenExporterFails_PreservesPlainVaultAndMarksFailure()
+	{
+		SeedValidCurrentVault();
+		var coordinator = new PlainToEncryptedVaultMigrationCoordinator(_factory);
+		var exporter = new FakeEncryptedVaultMigrationExporter { ThrowOnExport = true };
+
+		var result = coordinator.Execute(MakeRequest(), exporter);
+		var storedHeader = _masterKeyRepository.Get()!;
+
+		Assert.Equal(VaultStorageMigrationState.Failed, result.StorageMigrationState);
+		Assert.Equal(VaultStorageMigrationState.Failed, storedHeader.StorageMigrationState);
+		Assert.Equal(VaultStorageMigrationTargetMode.EncryptedSqlite, storedHeader.StorageMigrationTargetMode);
+		Assert.NotNull(storedHeader.LastStorageMigrationAttemptUtc);
+		Assert.Contains("Simulierter Exportfehler", storedHeader.LastStorageMigrationError);
+		Assert.True(File.Exists(_databasePath));
+		Assert.False(File.Exists(result.PlainBackupPath));
+	}
+
+	[Fact]
+	public void Execute_WhenValidationFails_PreservesPlainVaultAndLeavesTempArtifactForDiagnosis()
+	{
+		SeedValidCurrentVault();
+		var coordinator = new PlainToEncryptedVaultMigrationCoordinator(_factory);
+		var exporter = new FakeEncryptedVaultMigrationExporter { WriteInvalidTarget = true };
+
+		var result = coordinator.Execute(MakeRequest(), exporter);
+		var storedHeader = _masterKeyRepository.Get()!;
+
+		Assert.Equal(VaultStorageMigrationState.Failed, storedHeader.StorageMigrationState);
+		Assert.Contains("ungueltiges Zielartefakt", storedHeader.LastStorageMigrationError);
+		Assert.True(File.Exists(_databasePath));
+		Assert.True(File.Exists(result.EncryptedTempPath));
+		Assert.False(File.Exists(result.PlainBackupPath));
+	}
+
+	[Fact]
+	public void RecoveryDecision_AfterSuccessfulExecute_RequestsFinalizationUntilBackupRemoved()
+	{
+		SeedValidCurrentVault();
+		var coordinator = new PlainToEncryptedVaultMigrationCoordinator(_factory);
+		coordinator.Execute(MakeRequest(), new FakeEncryptedVaultMigrationExporter());
+
+		var decision = coordinator.GetRecoveryDecision(_masterKeyRepository.Get()!);
+
+		Assert.Equal(PlainToEncryptedVaultMigrationRecoveryAction.FinalizeBackupCleanup, decision.Action);
+		Assert.True(File.Exists(decision.PlainBackupPath!));
+	}
+
+	[Fact]
 	public void Prepare_ValidPlainVault_ReturnsMigrationPlan()
 	{
 		SeedValidCurrentVault();
@@ -210,6 +305,13 @@ public sealed class PlainToEncryptedVaultMigrationCoordinatorTests : IDisposable
 		}
 	}
 
+	private PlainToEncryptedVaultMigrationRequest MakeRequest()
+		=> new(
+			_masterKeyRepository.Get()!,
+			_credentialsRepository.GetAll(),
+			VaultStorageMigrationTargetMode.EncryptedSqlite,
+			SourceValidatedWithActiveVaultKey: true);
+
 	private static void TryDelete(string path)
 	{
 		if (File.Exists(path))
@@ -221,6 +323,65 @@ public sealed class PlainToEncryptedVaultMigrationCoordinatorTests : IDisposable
 			catch (IOException)
 			{
 			}
+		}
+	}
+
+	private sealed class FakeEncryptedVaultMigrationExporter : IEncryptedVaultMigrationExporter
+	{
+		internal const string ExportMarkerKey = "FakeEncryptedExportMarker";
+		internal const string ExportMarkerValue = "not-real-encryption";
+
+		public VaultStorageMigrationTargetMode TargetMode => VaultStorageMigrationTargetMode.EncryptedSqlite;
+
+		public bool ThrowOnExport { get; init; }
+
+		public bool WriteInvalidTarget { get; init; }
+
+		public bool ExportCalled { get; private set; }
+
+		public bool ValidateCalled { get; private set; }
+
+		public void ExportPlaintextVault(string sourceConnectionString, string destinationPath)
+		{
+			ExportCalled = true;
+			if (ThrowOnExport)
+				throw new IOException("Simulierter Exportfehler.");
+
+			var sourcePath = StorageRewriteArtifacts.TryResolveDatabasePath(sourceConnectionString)
+				?? throw new InvalidOperationException("Fake-Exporter erwartet eine dateibasierte Quell-Vault.");
+			File.Copy(sourcePath, destinationPath, overwrite: true);
+
+			if (WriteInvalidTarget)
+			{
+				File.WriteAllBytes(destinationPath, [0x01, 0x02, 0x03]);
+				return;
+			}
+
+			using var connection = new SqliteConnection($"Data Source={destinationPath}");
+			connection.Open();
+			using var command = connection.CreateCommand();
+			command.CommandText = @"
+				INSERT INTO Settings (Key, Value) VALUES ($key, $value)
+				ON CONFLICT(Key) DO UPDATE SET Value = $value, UpdatedAt = CURRENT_TIMESTAMP;";
+			command.Parameters.AddWithValue("$key", ExportMarkerKey);
+			command.Parameters.AddWithValue("$value", ExportMarkerValue);
+			command.ExecuteNonQuery();
+		}
+
+		public void ValidateExportedVault(string destinationPath)
+		{
+			ValidateCalled = true;
+			if (!StorageRewriteArtifacts.IsUsableSqliteDatabase(destinationPath))
+				throw new InvalidOperationException("Fake-Exporter hat ein ungueltiges Zielartefakt erzeugt.");
+
+			using var connection = new SqliteConnection($"Data Source={destinationPath}");
+			connection.Open();
+			using var command = connection.CreateCommand();
+			command.CommandText = "SELECT Value FROM Settings WHERE Key = $key;";
+			command.Parameters.AddWithValue("$key", ExportMarkerKey);
+			var marker = command.ExecuteScalar() as string;
+			if (!string.Equals(marker, ExportMarkerValue, StringComparison.Ordinal))
+				throw new InvalidOperationException("Fake-Exporter konnte das Export-Marker-Setting nicht verifizieren.");
 		}
 	}
 }
