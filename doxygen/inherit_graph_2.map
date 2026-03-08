@@ -1,7 +1,9 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="Node000000" title=" " alt="" coords="5,45,132,70"/>
-<area shape="rect" id="Node000001" href="$classLOCKnet_1_1App_1_1Converters_1_1IconSelectedBrushConverter.html" title=" " alt="" coords="185,5,399,45"/>
-<area shape="poly" id="edge4_Node000000_Node000001" title=" " alt="" coords="145,44,185,38,186,43,146,49"/>
-<area shape="rect" id="Node000002" href="$classLOCKnet_1_1App_1_1Converters_1_1StringToMaterialIconKindConverter.html" title=" " alt="" coords="180,69,404,109"/>
-<area shape="poly" id="edge5_Node000000_Node000002" title=" " alt="" coords="146,66,180,71,179,76,145,71"/>
+<area shape="rect" id="Node000000" title=" " alt="" coords="5,77,132,102"/>
+<area shape="rect" id="Node000001" href="$classLOCKnet_1_1App_1_1Converters_1_1CredentialTypeIsApiKeyConverter.html" title="Konvertiert einen CredentialType&#45;Wert in true, wenn er CredentialType.ApiKey ist." alt="" coords="180,5,433,45"/>
+<area shape="poly" id="edge4_Node000000_Node000001" title=" " alt="" coords="125,70,179,55,225,43,226,48,181,60,126,75"/>
+<area shape="rect" id="Node000002" href="$classLOCKnet_1_1App_1_1Converters_1_1IconSelectedBrushConverter.html" title=" " alt="" coords="200,69,413,109"/>
+<area shape="poly" id="edge5_Node000000_Node000002" title=" " alt="" coords="146,87,200,87,200,92,146,92"/>
+<area shape="rect" id="Node000003" href="$classLOCKnet_1_1App_1_1Converters_1_1StringToMaterialIconKindConverter.html" title=" " alt="" coords="195,133,419,173"/>
+<area shape="poly" id="edge6_Node000000_Node000003" title=" " alt="" coords="126,103,181,119,226,131,225,136,179,124,125,108"/>
 </map>

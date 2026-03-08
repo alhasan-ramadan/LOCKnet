@@ -5,5 +5,6 @@ var searchData=
   ['credentiallistviewmodel_2',['CredentialListViewModel',['../classLOCKnet_1_1App_1_1ViewModels_1_1CredentialListViewModel.html',1,'LOCKnet::App::ViewModels']]],
   ['credentialrecord_3',['CredentialRecord',['../classLOCKnet_1_1Core_1_1DataAbstractions_1_1CredentialRecord.html',1,'LOCKnet::Core::DataAbstractions']]],
   ['credentialservice_4',['CredentialService',['../classLOCKnet_1_1Core_1_1Services_1_1CredentialService.html',1,'LOCKnet::Core::Services']]],
-  ['credentialsrepository_5',['CredentialsRepository',['../classLOCKnet_1_1Data_1_1Repositories_1_1CredentialsRepository.html',1,'LOCKnet::Data::Repositories']]]
+  ['credentialsrepository_5',['CredentialsRepository',['../classLOCKnet_1_1Data_1_1Repositories_1_1CredentialsRepository.html',1,'LOCKnet::Data::Repositories']]],
+  ['credentialtypeisapikeyconverter_6',['CredentialTypeIsApiKeyConverter',['../classLOCKnet_1_1App_1_1Converters_1_1CredentialTypeIsApiKeyConverter.html',1,'LOCKnet::App::Converters']]]
 ];

@@ -6,6 +6,7 @@ var searchData=
   ['credentiallist_3',['CredentialList',['../classLOCKnet_1_1App_1_1ViewModels_1_1DesignData.html#a8828c4f5b1b8464a907ea4bce2be7aaf',1,'LOCKnet::App::ViewModels::DesignData']]],
   ['credentials_4',['Credentials',['../classLOCKnet_1_1App_1_1ViewModels_1_1CredentialListDesignViewModel.html#ac641db5f3afd6ce21e0d92cfbca2c1fa',1,'LOCKnet::App::ViewModels::CredentialListDesignViewModel']]],
   ['credentialservice_5',['CredentialService',['../classLOCKnet_1_1App_1_1AppServices.html#a98884804167c93365ece6d44345d0959',1,'LOCKnet::App::AppServices']]],
-  ['current_6',['Current',['../classLOCKnet_1_1App_1_1AppServices.html#a458ecae0fd25a3f3ecf0bb8c20121768',1,'LOCKnet::App::AppServices']]],
-  ['currentstepdata_7',['CurrentStepData',['../classLOCKnet_1_1App_1_1ViewModels_1_1TutorialViewModel.html#aa7a7aa2739a67d4d668e858ec872392e',1,'LOCKnet::App::ViewModels::TutorialViewModel']]]
+  ['credentialtype_6',['CredentialType',['../classLOCKnet_1_1Core_1_1DataAbstractions_1_1CredentialRecord.html#a228d6024908f9a96c1f040e85931c689',1,'LOCKnet::Core::DataAbstractions::CredentialRecord']]],
+  ['current_7',['Current',['../classLOCKnet_1_1App_1_1AppServices.html#a458ecae0fd25a3f3ecf0bb8c20121768',1,'LOCKnet::App::AppServices']]],
+  ['currentstepdata_8',['CurrentStepData',['../classLOCKnet_1_1App_1_1ViewModels_1_1TutorialViewModel.html#aa7a7aa2739a67d4d668e858ec872392e',1,'LOCKnet::App::ViewModels::TutorialViewModel']]]
 ];

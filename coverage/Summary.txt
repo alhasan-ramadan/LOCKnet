@@ -1,25 +1,25 @@
 Summary
-  Generated on: 02/27/2026 - 07:04:37
-  Coverage date: 02/27/2026 - 07:04:31 - 02/27/2026 - 07:04:36
+  Generated on: 03/08/2026 - 13:43:28
+  Coverage date: 03/08/2026 - 13:43:21 - 03/08/2026 - 13:43:27
   Parser: MultiReport (2x Cobertura)
   Assemblies: 2
   Classes: 20
   Files: 19
-  Line coverage: 76.9%
-  Covered lines: 587
+  Line coverage: 77.3%
+  Covered lines: 602
   Uncovered lines: 176
-  Coverable lines: 763
-  Total lines: 1335
-  Branch coverage: 55.5% (85 of 153)
-  Covered branches: 85
-  Total branches: 153
-  Method coverage: 77.1% (71 of 92)
-  Full method coverage: 73.9% (68 of 92)
-  Covered methods: 71
-  Fully covered methods: 68
-  Total methods: 92
+  Coverable lines: 778
+  Total lines: 1353
+  Branch coverage: 55.4% (86 of 155)
+  Covered branches: 86
+  Total branches: 155
+  Method coverage: 77.4% (72 of 93)
+  Full method coverage: 74.1% (69 of 93)
+  Covered methods: 72
+  Fully covered methods: 69
+  Total methods: 93
 
-LOCKnet.Core                                                                                                                                                68%
+LOCKnet.Core                                                                                                                                              68.2%
   LOCKnet.Core.Crypto.AesGcmEncryptionService                                                                                                             96.8%
   LOCKnet.Core.Crypto.Pbkdf2KeyDerivationService                                                                                                           100%
   LOCKnet.Core.Crypto.SecureStringService                                                                                                                 90.6%
@@ -36,8 +36,8 @@ LOCKnet.Core                                                                    
   System.Text.RegularExpressions.Generated                                                                                                                   0%
   System.Text.RegularExpressions.Generated.<RegexGenerator_g>F0BF6AB5C5DD8853393C459DB9A153EC324943034AB6F6FD67F4C1573633C776E__SpecialCharacterRegex_0      0%
 
-LOCKnet.Data                                                                                                                                              98.2%
-  LOCKnet.Data.Database                                                                                                                                   93.3%
+LOCKnet.Data                                                                                                                                              98.3%
+  LOCKnet.Data.Database                                                                                                                                   94.1%
   LOCKnet.Data.Repositories.CredentialsRepository                                                                                                          100%
   LOCKnet.Data.Repositories.MasterKeyRepository                                                                                                            100%
   LOCKnet.Data.Repositories.RepositoryBase                                                                                                                 100%
