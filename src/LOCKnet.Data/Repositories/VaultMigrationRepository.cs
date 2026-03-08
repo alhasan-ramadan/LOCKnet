@@ -18,7 +18,20 @@ public sealed class VaultMigrationRepository : RepositoryBase, IVaultMigrationRe
 	{
 	}
 
+	/// <summary>
+	/// Initialisiert eine neue Instanz von <see cref="VaultMigrationRepository"/>.
+	/// </summary>
+	/// <param name="connectionFactory">Factory fuer Storage-spezifische SQLite-Verbindungen.</param>
+	public VaultMigrationRepository(ISqliteConnectionFactory connectionFactory) : this(connectionFactory, null)
+	{
+	}
+
 	internal VaultMigrationRepository(string connectionString, StorageRewriteHooks? rewriteHooks) : base(connectionString)
+	{
+		_rewriteHooks = rewriteHooks;
+	}
+
+	internal VaultMigrationRepository(ISqliteConnectionFactory connectionFactory, StorageRewriteHooks? rewriteHooks) : base(connectionFactory)
 	{
 		_rewriteHooks = rewriteHooks;
 	}

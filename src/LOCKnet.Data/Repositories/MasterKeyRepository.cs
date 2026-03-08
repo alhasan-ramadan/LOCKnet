@@ -13,6 +13,10 @@ public class MasterKeyRepository : RepositoryBase, IMasterKeyRepository
 	/// <param name="connectionString">Der vollständige SQLite-Connection-String.</param>
 	public MasterKeyRepository(string connectionString) : base(connectionString) { }
 
+	/// <summary>Initialisiert eine neue Instanz von <see cref="MasterKeyRepository"/>.</summary>
+	/// <param name="connectionFactory">Factory fuer Storage-spezifische SQLite-Verbindungen.</param>
+	public MasterKeyRepository(ISqliteConnectionFactory connectionFactory) : base(connectionFactory) { }
+
 	#region IMasterKeyRepository
 
 	/// <inheritdoc/>

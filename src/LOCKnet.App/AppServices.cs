@@ -25,20 +25,21 @@ public sealed class AppServices
 	public ISessionManager SessionManager { get; }
 	public IActivityMonitor ActivityMonitor { get; }
 	public ICredentialService CredentialService { get; }
+	public VaultStorageDescriptor StorageDescriptor { get; }
 
 	// ── Constructor ───────────────────────────────────────────────────────────
 
 	private AppServices(string dbPath)
 	{
-		var connectionString = $"Data Source={dbPath}";
+		var storage = new VaultStorageBootstrap(dbPath);
+		StorageDescriptor = storage.Storage;
 
 		// Data layer
-		var db = new Database(dbPath);
-		db.Initialize();
+		storage.InitializeAccessibleStorage();
 
-		ICredentialRepository credRepo = new CredentialsRepository(connectionString);
-		IMasterKeyRepository masterKeyRepo = new MasterKeyRepository(connectionString);
-		IVaultMigrationRepository vaultMigrationRepo = new VaultMigrationRepository(connectionString);
+		ICredentialRepository credRepo = storage.CreateCredentialRepository();
+		IMasterKeyRepository masterKeyRepo = storage.CreateMasterKeyRepository();
+		IVaultMigrationRepository vaultMigrationRepo = storage.CreateVaultMigrationRepository();
 
 		// Crypto layer
 		IKeyDerivationService kdf = new Pbkdf2KeyDerivationService();

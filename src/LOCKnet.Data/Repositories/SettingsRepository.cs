@@ -12,6 +12,10 @@ public class SettingsRepository : RepositoryBase, ISettingsRepository
 	/// <param name="connectionString">Der vollständige SQLite-Connection-String.</param>
 	public SettingsRepository(string connectionString) : base(connectionString) { }
 
+	/// <summary>Initialisiert eine neue Instanz von <see cref="SettingsRepository"/>.</summary>
+	/// <param name="connectionFactory">Factory fuer Storage-spezifische SQLite-Verbindungen.</param>
+	public SettingsRepository(ISqliteConnectionFactory connectionFactory) : base(connectionFactory) { }
+
 	#region ISettingsRepository
 
 	/// <inheritdoc/>

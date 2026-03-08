@@ -10,8 +10,8 @@ namespace LOCKnet.Data;
 /// </summary>
 public class Database
 {
-	private readonly string _connectionString;
-	private readonly string? _databasePath;
+	private readonly ISqliteConnectionFactory _connectionFactory;
+	private readonly VaultStorageDescriptor _storage;
 
 	/// <summary>
 	/// Initialisiert eine neue Instanz von <see cref="Database"/> mit einem Datei-Pfad.
@@ -20,9 +20,8 @@ public class Database
 	/// Pfad zur SQLite-Datenbankdatei (Standard: <c>credentials.db</c> im Arbeitsverzeichnis).
 	/// </param>
 	public Database(string databasePath = "credentials.db")
+		: this(new PlainSqliteConnectionFactory(databasePath))
 	{
-		_databasePath = Path.GetFullPath(databasePath);
-		_connectionString = $"Data Source={_databasePath}";
 	}
 
 	/// <summary>
@@ -30,10 +29,17 @@ public class Database
 	/// Use this overload in tests when an in-memory connection string is needed.
 	/// </summary>
 	internal Database(string connectionString, bool useConnectionStringDirectly)
+		: this(PlainSqliteConnectionFactory.FromConnectionString(connectionString))
 	{
-		_ = useConnectionStringDirectly; // discriminator — not stored
-		_connectionString = connectionString;
-		_databasePath = StorageRewriteArtifacts.TryResolveDatabasePath(connectionString);
+		_ = useConnectionStringDirectly;
+	}
+
+	internal Database(ISqliteConnectionFactory connectionFactory)
+	{
+		ArgumentNullException.ThrowIfNull(connectionFactory);
+
+		_connectionFactory = connectionFactory;
+		_storage = connectionFactory.Storage;
 	}
 
 	/// <summary>
@@ -43,11 +49,9 @@ public class Database
 	public void Initialize()
 	{
 		const string kdfParametersDefault = "TEXT NOT NULL DEFAULT '{\"HashAlgorithm\":\"SHA256\",\"Iterations\":600000,\"KeyLengthBytes\":32,\"SaltLengthBytes\":32}'";
-		var recovery = StorageRewriteArtifacts.Recover(_databasePath);
+		var recovery = StorageRewriteArtifacts.Recover(_storage.DatabasePath);
 
-		using var connection = new SqliteConnection(_connectionString);
-		connection.Open();
-		Repositories.RepositoryBase.ConfigureConnection(connection);
+		using var connection = _connectionFactory.OpenConnection();
 
 		// Credentials table
 		using (var cmd = connection.CreateCommand())

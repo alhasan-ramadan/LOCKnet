@@ -12,6 +12,10 @@ public class CredentialsRepository : RepositoryBase, ICredentialRepository
 	/// <param name="connectionString">Der vollständige SQLite-Connection-String.</param>
 	public CredentialsRepository(string connectionString) : base(connectionString) { }
 
+	/// <summary>Initialisiert eine neue Instanz von <see cref="CredentialsRepository"/>.</summary>
+	/// <param name="connectionFactory">Factory fuer Storage-spezifische SQLite-Verbindungen.</param>
+	public CredentialsRepository(ISqliteConnectionFactory connectionFactory) : base(connectionFactory) { }
+
 	#region ICredentialRepository
 
 	/// <inheritdoc/>

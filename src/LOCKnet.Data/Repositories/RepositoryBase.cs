@@ -9,7 +9,9 @@ namespace LOCKnet.Data.Repositories;
 /// </summary>
 public abstract class RepositoryBase
 {
-	/// <summary>SQLite-Connection-String für diese Repository-Instanz.</summary>
+	private readonly ISqliteConnectionFactory _connectionFactory;
+
+	/// <summary>SQLite-Connection-String fuer diese Repository-Instanz.</summary>
 	protected readonly string _connectionString;
 	protected readonly string? _databasePath;
 
@@ -18,9 +20,21 @@ public abstract class RepositoryBase
 	/// </summary>
 	/// <param name="connectionString">Der vollständige SQLite-Connection-String.</param>
 	protected RepositoryBase(string connectionString)
+		: this(PlainSqliteConnectionFactory.FromConnectionString(connectionString))
 	{
-		_connectionString = connectionString;
-		_databasePath = StorageRewriteArtifacts.TryResolveDatabasePath(connectionString);
+	}
+
+	/// <summary>
+	/// Initialisiert eine neue Instanz von <see cref="RepositoryBase"/> mit einer zentralen Connection-Factory.
+	/// </summary>
+	/// <param name="connectionFactory">Factory fuer Storage-spezifische SQLite-Verbindungen.</param>
+	protected RepositoryBase(ISqliteConnectionFactory connectionFactory)
+	{
+		ArgumentNullException.ThrowIfNull(connectionFactory);
+
+		_connectionFactory = connectionFactory;
+		_connectionString = connectionFactory.Storage.ConnectionString;
+		_databasePath = connectionFactory.Storage.DatabasePath;
 	}
 
 	/// <summary>
@@ -29,12 +43,7 @@ public abstract class RepositoryBase
 	/// </summary>
 	/// <returns>Eine geöffnete <see cref="Microsoft.Data.Sqlite.SqliteConnection"/>.</returns>
 	protected SqliteConnection GetConnection()
-	{
-		var conn = new SqliteConnection(_connectionString);
-		conn.Open();
-		ConfigureConnection(conn);
-		return conn;
-	}
+		=> _connectionFactory.OpenConnection();
 
 	internal static void ConfigureConnection(SqliteConnection conn)
 	{

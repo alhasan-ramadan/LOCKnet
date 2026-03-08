@@ -19,6 +19,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\src\LOCKnet.App\LOCKnet.App.csproj" />
       <ProjectReference Include="..\..\src\LOCKnet.Data\LOCKnet.Data.csproj" />
     </ItemGroup>
 
