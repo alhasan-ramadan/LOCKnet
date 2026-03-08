@@ -53,6 +53,18 @@ public sealed class VaultHeader
 	/// <summary>Technische Kurzinfo des letzten Kompaktierungsversuchs.</summary>
 	public string? LastStorageCompactionError { get; set; }
 
+	/// <summary>Persistierter Zustand einer spaeteren Plain-zu-encrypted-Storage-Migration.</summary>
+	public VaultStorageMigrationState StorageMigrationState { get; set; }
+
+	/// <summary>Aktuelles Ziel der persistierten Storage-Migration.</summary>
+	public VaultStorageMigrationTargetMode StorageMigrationTargetMode { get; set; }
+
+	/// <summary>UTC-Zeitstempel des letzten Storage-Migrationsversuchs.</summary>
+	public DateTime? LastStorageMigrationAttemptUtc { get; set; }
+
+	/// <summary>Technische Kurzinfo des letzten Storage-Migrationsfehlers.</summary>
+	public string? LastStorageMigrationError { get; set; }
+
 	/// <summary>UTC-Zeitstempel der Erstellung.</summary>
 	public DateTime CreatedAt { get; set; }
 

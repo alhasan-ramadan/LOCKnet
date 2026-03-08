@@ -49,6 +49,10 @@ public class MasterKeyRepositoryTests : IDisposable
 			LastStorageCompactionAttemptUtc = DateTime.UtcNow.AddMinutes(-5),
 			LastStorageCompactionFailureKind = StorageCompactionFailureKind.BusyOrLocked,
 			LastStorageCompactionError = $"compaction-{seed:X2}",
+			StorageMigrationState = seed % 3 == 0 ? VaultStorageMigrationState.InProgress : VaultStorageMigrationState.None,
+			StorageMigrationTargetMode = seed % 3 == 0 ? VaultStorageMigrationTargetMode.EncryptedSqlite : VaultStorageMigrationTargetMode.None,
+			LastStorageMigrationAttemptUtc = DateTime.UtcNow.AddMinutes(-7),
+			LastStorageMigrationError = $"migration-{seed:X2}",
 			CreatedAt = DateTime.UtcNow,
 			UpdatedAt = DateTime.UtcNow,
 		};
@@ -83,6 +87,10 @@ public class MasterKeyRepositoryTests : IDisposable
 		Assert.Equal(key.LastStorageCompactionFailureKind, retrieved.LastStorageCompactionFailureKind);
 		Assert.Equal(key.LastStorageCompactionError, retrieved.LastStorageCompactionError);
 		Assert.Equal(key.LastStorageCompactionAttemptUtc, retrieved.LastStorageCompactionAttemptUtc);
+		Assert.Equal(key.StorageMigrationState, retrieved.StorageMigrationState);
+		Assert.Equal(key.StorageMigrationTargetMode, retrieved.StorageMigrationTargetMode);
+		Assert.Equal(key.LastStorageMigrationAttemptUtc, retrieved.LastStorageMigrationAttemptUtc);
+		Assert.Equal(key.LastStorageMigrationError, retrieved.LastStorageMigrationError);
 	}
 
 	[Fact]
@@ -129,6 +137,10 @@ public class MasterKeyRepositoryTests : IDisposable
 			LastStorageCompactionAttemptUtc = DateTime.UtcNow.AddMinutes(-2),
 			LastStorageCompactionFailureKind = StorageCompactionFailureKind.InsufficientSpace,
 			LastStorageCompactionError = "disk-full",
+			StorageMigrationState = VaultStorageMigrationState.FinalizationPending,
+			StorageMigrationTargetMode = VaultStorageMigrationTargetMode.EncryptedSqlite,
+			LastStorageMigrationAttemptUtc = DateTime.UtcNow.AddMinutes(-4),
+			LastStorageMigrationError = "waiting-cleanup",
 			CreatedAt = DateTime.UtcNow,
 			UpdatedAt = DateTime.UtcNow,
 		};
@@ -145,6 +157,10 @@ public class MasterKeyRepositoryTests : IDisposable
 		Assert.Equal(updatedKey.LastStorageCompactionAttemptUtc, retrieved.LastStorageCompactionAttemptUtc);
 		Assert.Equal(updatedKey.LastStorageCompactionFailureKind, retrieved.LastStorageCompactionFailureKind);
 		Assert.Equal(updatedKey.LastStorageCompactionError, retrieved.LastStorageCompactionError);
+		Assert.Equal(updatedKey.StorageMigrationState, retrieved.StorageMigrationState);
+		Assert.Equal(updatedKey.StorageMigrationTargetMode, retrieved.StorageMigrationTargetMode);
+		Assert.Equal(updatedKey.LastStorageMigrationAttemptUtc, retrieved.LastStorageMigrationAttemptUtc);
+		Assert.Equal(updatedKey.LastStorageMigrationError, retrieved.LastStorageMigrationError);
 	}
 
 	[Fact]
@@ -172,6 +188,10 @@ public class MasterKeyRepositoryTests : IDisposable
 			LastStorageCompactionAttemptUtc = DateTime.UtcNow.AddMinutes(-1),
 			LastStorageCompactionFailureKind = StorageCompactionFailureKind.Unknown,
 			LastStorageCompactionError = "unknown",
+			StorageMigrationState = VaultStorageMigrationState.Failed,
+			StorageMigrationTargetMode = VaultStorageMigrationTargetMode.EncryptedSqlite,
+			LastStorageMigrationAttemptUtc = DateTime.UtcNow.AddMinutes(-3),
+			LastStorageMigrationError = "provider-missing",
 			CreatedAt = originalCreated,
 			UpdatedAt = DateTime.UtcNow,
 		});

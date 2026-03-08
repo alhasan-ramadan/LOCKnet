@@ -125,6 +125,10 @@ public class Database
 		TryAddColumn(connection, "MasterKey", "LastStorageCompactionAttemptUtc", "TEXT");
 		TryAddColumn(connection, "MasterKey", "LastStorageCompactionFailureKind", "INTEGER NOT NULL DEFAULT 0");
 		TryAddColumn(connection, "MasterKey", "LastStorageCompactionError", "TEXT");
+		TryAddColumn(connection, "MasterKey", "StorageMigrationState", "INTEGER NOT NULL DEFAULT 0");
+		TryAddColumn(connection, "MasterKey", "StorageMigrationTargetMode", "INTEGER NOT NULL DEFAULT 0");
+		TryAddColumn(connection, "MasterKey", "LastStorageMigrationAttemptUtc", "TEXT");
+		TryAddColumn(connection, "MasterKey", "LastStorageMigrationError", "TEXT");
 
 		TryAddColumn(connection, "Credentials", "CredentialUuid", "TEXT NOT NULL DEFAULT ''");
 		TryAddColumn(connection, "Credentials", "SecretFormatVersion", "INTEGER NOT NULL DEFAULT 0");
