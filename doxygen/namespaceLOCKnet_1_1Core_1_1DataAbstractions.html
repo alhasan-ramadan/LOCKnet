@@ -83,20 +83,38 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLOCKnet_1_1Core_1_1DataAbstractions_1_1CredentialMetadataFormatVersion.html">CredentialMetadataFormatVersion</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Versionskennungen fuer das Metadaten-Envelope-Format eines Credentials.  <a href="classLOCKnet_1_1Core_1_1DataAbstractions_1_1CredentialMetadataFormatVersion.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLOCKnet_1_1Core_1_1DataAbstractions_1_1CredentialRecord.html">CredentialRecord</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Credential-Datensatz wie er aus der Datenbank kommt.  <a href="classLOCKnet_1_1Core_1_1DataAbstractions_1_1CredentialRecord.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLOCKnet_1_1Core_1_1DataAbstractions_1_1CredentialSecretFormatVersion.html">CredentialSecretFormatVersion</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Versionskennungen fuer das Secret-Envelope-Format eines Credentials.  <a href="classLOCKnet_1_1Core_1_1DataAbstractions_1_1CredentialSecretFormatVersion.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interfaceLOCKnet_1_1Core_1_1DataAbstractions_1_1ICredentialRepository.html">ICredentialRepository</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Verwaltet verschlüsselte Zugangsdaten in der Datenbank.  <a href="interfaceLOCKnet_1_1Core_1_1DataAbstractions_1_1ICredentialRepository.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interfaceLOCKnet_1_1Core_1_1DataAbstractions_1_1IMasterKeyRepository.html">IMasterKeyRepository</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Verwaltet den einzigen Master-Key der Anwendung.  <a href="interfaceLOCKnet_1_1Core_1_1DataAbstractions_1_1IMasterKeyRepository.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Verwaltet den einzigen Vault-Header der Anwendung.  <a href="interfaceLOCKnet_1_1Core_1_1DataAbstractions_1_1IMasterKeyRepository.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interfaceLOCKnet_1_1Core_1_1DataAbstractions_1_1ISettingsRepository.html">ISettingsRepository</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Verwaltet Konfigurationseinstellungen als Key-Value-Paare.  <a href="interfaceLOCKnet_1_1Core_1_1DataAbstractions_1_1ISettingsRepository.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLOCKnet_1_1Core_1_1DataAbstractions_1_1MasterKeyRecord.html">MasterKeyRecord</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Master-Key-Eintrag wie er in der Datenbank gespeichert ist.  <a href="classLOCKnet_1_1Core_1_1DataAbstractions_1_1MasterKeyRecord.html#details">More...</a><br /></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interfaceLOCKnet_1_1Core_1_1DataAbstractions_1_1IVaultMigrationRepository.html">IVaultMigrationRepository</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fuehrt Header- und Credential-Migrationsupdates atomar in einer Transaktion aus.  <a href="interfaceLOCKnet_1_1Core_1_1DataAbstractions_1_1IVaultMigrationRepository.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLOCKnet_1_1Core_1_1DataAbstractions_1_1StorageCompactionInfo.html">StorageCompactionInfo</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Beschreibt den aktuellen Zustand der Storage-Kompaktierung fuer den Vault.  <a href="classLOCKnet_1_1Core_1_1DataAbstractions_1_1StorageCompactionInfo.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLOCKnet_1_1Core_1_1DataAbstractions_1_1VaultHeader.html">VaultHeader</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Persistierter Vault-Header.  <a href="classLOCKnet_1_1Core_1_1DataAbstractions_1_1VaultHeader.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLOCKnet_1_1Core_1_1DataAbstractions_1_1VaultHeaderFormatVersion.html">VaultHeaderFormatVersion</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Versionskennungen fuer das VaultHeader-Format.  <a href="classLOCKnet_1_1Core_1_1DataAbstractions_1_1VaultHeaderFormatVersion.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLOCKnet_1_1Core_1_1DataAbstractions_1_1VaultKdfParameters.html">VaultKdfParameters</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Beschreibt die KDF-Konfiguration fuer einen Vault-Header.  <a href="classLOCKnet_1_1Core_1_1DataAbstractions_1_1VaultKdfParameters.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
@@ -106,6 +124,30 @@ Enumerations</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:a5475bd7ea4fd65a5e6b3603418fd3ea8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Legt den Typ eines Credential-Eintrags fest.  <a href="namespaceLOCKnet_1_1Core_1_1DataAbstractions.html#a5475bd7ea4fd65a5e6b3603418fd3ea8">More...</a><br /></td></tr>
 <tr class="separator:a5475bd7ea4fd65a5e6b3603418fd3ea8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aab36a114bd2db91226fac5b7e06e8d34" id="r_aab36a114bd2db91226fac5b7e06e8d34"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceLOCKnet_1_1Core_1_1DataAbstractions.html#aab36a114bd2db91226fac5b7e06e8d34">StorageCompactionFailureKind</a> { <br />
+&#160;&#160;<a class="el" href="namespaceLOCKnet_1_1Core_1_1DataAbstractions.html#aab36a114bd2db91226fac5b7e06e8d34a6adf97f83acf6453d4a6a4b1070f3754">None</a> = 0
+, <a class="el" href="namespaceLOCKnet_1_1Core_1_1DataAbstractions.html#aab36a114bd2db91226fac5b7e06e8d34a8f13282e6112fd2de0e4494cc6d3e8d7">BusyOrLocked</a> = 1
+, <a class="el" href="namespaceLOCKnet_1_1Core_1_1DataAbstractions.html#aab36a114bd2db91226fac5b7e06e8d34ae722aed28c2f6002a1991338b4fe6029">InsufficientSpace</a> = 2
+, <a class="el" href="namespaceLOCKnet_1_1Core_1_1DataAbstractions.html#aab36a114bd2db91226fac5b7e06e8d34a42a02b42ec22cfcbd78aaf7a66a5ee09">Io</a> = 3
+, <br />
+&#160;&#160;<a class="el" href="namespaceLOCKnet_1_1Core_1_1DataAbstractions.html#aab36a114bd2db91226fac5b7e06e8d34a658a15d633ea9338b06e40a410629dd8">Corruption</a> = 4
+, <a class="el" href="namespaceLOCKnet_1_1Core_1_1DataAbstractions.html#aab36a114bd2db91226fac5b7e06e8d34a88183b946cc5f0e8c96b2e66e1c74a7e">Unknown</a> = 5
+<br />
+ }</td></tr>
+<tr class="memdesc:aab36a114bd2db91226fac5b7e06e8d34"><td class="mdescLeft">&#160;</td><td class="mdescRight">Kategorisiert fehlgeschlagene SQLite-Kompaktierungen fuer Recovery- und UX-Entscheidungen.  <a href="namespaceLOCKnet_1_1Core_1_1DataAbstractions.html#aab36a114bd2db91226fac5b7e06e8d34">More...</a><br /></td></tr>
+<tr class="separator:aab36a114bd2db91226fac5b7e06e8d34"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7cb3d82b2c17b6b2d88b624002377117" id="r_a7cb3d82b2c17b6b2d88b624002377117"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceLOCKnet_1_1Core_1_1DataAbstractions.html#a7cb3d82b2c17b6b2d88b624002377117">VaultStorageMigrationState</a> { <a class="el" href="namespaceLOCKnet_1_1Core_1_1DataAbstractions.html#a7cb3d82b2c17b6b2d88b624002377117a6adf97f83acf6453d4a6a4b1070f3754">None</a> = 0
+, <a class="el" href="namespaceLOCKnet_1_1Core_1_1DataAbstractions.html#a7cb3d82b2c17b6b2d88b624002377117a12d868c18cb29bf58f02b504be9033fd">InProgress</a> = 1
+, <a class="el" href="namespaceLOCKnet_1_1Core_1_1DataAbstractions.html#a7cb3d82b2c17b6b2d88b624002377117afb5a47dc1e976a49660dd7ebc155026b">FinalizationPending</a> = 2
+, <a class="el" href="namespaceLOCKnet_1_1Core_1_1DataAbstractions.html#a7cb3d82b2c17b6b2d88b624002377117ad7c8c85bf79bbe1b7188497c32c3b0ca">Failed</a> = 3
+ }</td></tr>
+<tr class="memdesc:a7cb3d82b2c17b6b2d88b624002377117"><td class="mdescLeft">&#160;</td><td class="mdescRight">Beschreibt den persistierten Zustand einer Plain-zu-encrypted-Storage-Migration.  <a href="namespaceLOCKnet_1_1Core_1_1DataAbstractions.html#a7cb3d82b2c17b6b2d88b624002377117">More...</a><br /></td></tr>
+<tr class="separator:a7cb3d82b2c17b6b2d88b624002377117"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a261aedd67306cdce832c77714feaa8dd" id="r_a261aedd67306cdce832c77714feaa8dd"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceLOCKnet_1_1Core_1_1DataAbstractions.html#a261aedd67306cdce832c77714feaa8dd">VaultStorageMigrationTargetMode</a> { <a class="el" href="namespaceLOCKnet_1_1Core_1_1DataAbstractions.html#a261aedd67306cdce832c77714feaa8dda6adf97f83acf6453d4a6a4b1070f3754">None</a> = 0
+, <a class="el" href="namespaceLOCKnet_1_1Core_1_1DataAbstractions.html#a261aedd67306cdce832c77714feaa8dda761eaace01818ef6e9aba73d79ae85f1">EncryptedSqlite</a> = 1
+ }</td></tr>
+<tr class="memdesc:a261aedd67306cdce832c77714feaa8dd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Beschreibt das Ziel einer spaeteren Storage-Migration.  <a href="namespaceLOCKnet_1_1Core_1_1DataAbstractions.html#a261aedd67306cdce832c77714feaa8dd">More...</a><br /></td></tr>
+<tr class="separator:a261aedd67306cdce832c77714feaa8dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Enumeration Type Documentation</h2>
 <a id="a5475bd7ea4fd65a5e6b3603418fd3ea8" name="a5475bd7ea4fd65a5e6b3603418fd3ea8"></a>
@@ -125,6 +167,84 @@ Enumerations</h2></td></tr>
 <tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a5475bd7ea4fd65a5e6b3603418fd3ea8adc647eb65e6711e155375218212b3964" name="a5475bd7ea4fd65a5e6b3603418fd3ea8adc647eb65e6711e155375218212b3964"></a>Password&#160;</td><td class="fielddoc"><p>Klassisches Benutzername/Passwort-Credential. Standard-Wert für Abwärtskompatibilität. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="a5475bd7ea4fd65a5e6b3603418fd3ea8a806737984ab19be2fd08ba36030549ac" name="a5475bd7ea4fd65a5e6b3603418fd3ea8a806737984ab19be2fd08ba36030549ac"></a>ApiKey&#160;</td><td class="fielddoc"><p>API-Schlüssel, Token oder Secret — kein Benutzername erforderlich. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
+<a id="aab36a114bd2db91226fac5b7e06e8d34" name="aab36a114bd2db91226fac5b7e06e8d34"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aab36a114bd2db91226fac5b7e06e8d34">&#9670;&#160;</a></span>StorageCompactionFailureKind</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="namespaceLOCKnet_1_1Core_1_1DataAbstractions.html#aab36a114bd2db91226fac5b7e06e8d34">LOCKnet.Core.DataAbstractions.StorageCompactionFailureKind</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Kategorisiert fehlgeschlagene SQLite-Kompaktierungen fuer Recovery- und UX-Entscheidungen. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="aab36a114bd2db91226fac5b7e06e8d34a6adf97f83acf6453d4a6a4b1070f3754" name="aab36a114bd2db91226fac5b7e06e8d34a6adf97f83acf6453d4a6a4b1070f3754"></a>None&#160;</td><td class="fielddoc"><p>Kein Fehler. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="aab36a114bd2db91226fac5b7e06e8d34a8f13282e6112fd2de0e4494cc6d3e8d7" name="aab36a114bd2db91226fac5b7e06e8d34a8f13282e6112fd2de0e4494cc6d3e8d7"></a>BusyOrLocked&#160;</td><td class="fielddoc"><p>Die Datenbank oder Datei ist momentan gesperrt bzw. belegt. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="aab36a114bd2db91226fac5b7e06e8d34ae722aed28c2f6002a1991338b4fe6029" name="aab36a114bd2db91226fac5b7e06e8d34ae722aed28c2f6002a1991338b4fe6029"></a>InsufficientSpace&#160;</td><td class="fielddoc"><p>Der Datentraeger hat zu wenig freien Platz fuer die Kompaktierung. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="aab36a114bd2db91226fac5b7e06e8d34a42a02b42ec22cfcbd78aaf7a66a5ee09" name="aab36a114bd2db91226fac5b7e06e8d34a42a02b42ec22cfcbd78aaf7a66a5ee09"></a>Io&#160;</td><td class="fielddoc"><p>Allgemeiner I/O-Fehler waehrend der SQLite-Operation. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="aab36a114bd2db91226fac5b7e06e8d34a658a15d633ea9338b06e40a410629dd8" name="aab36a114bd2db91226fac5b7e06e8d34a658a15d633ea9338b06e40a410629dd8"></a>Corruption&#160;</td><td class="fielddoc"><p>Hinweis auf DB-Korruption oder kein gueltiges SQLite-Format. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="aab36a114bd2db91226fac5b7e06e8d34a88183b946cc5f0e8c96b2e66e1c74a7e" name="aab36a114bd2db91226fac5b7e06e8d34a88183b946cc5f0e8c96b2e66e1c74a7e"></a>Unknown&#160;</td><td class="fielddoc"><p>Nicht eindeutig zuordenbarer Fehler. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
+<a id="a7cb3d82b2c17b6b2d88b624002377117" name="a7cb3d82b2c17b6b2d88b624002377117"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7cb3d82b2c17b6b2d88b624002377117">&#9670;&#160;</a></span>VaultStorageMigrationState</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="namespaceLOCKnet_1_1Core_1_1DataAbstractions.html#a7cb3d82b2c17b6b2d88b624002377117">LOCKnet.Core.DataAbstractions.VaultStorageMigrationState</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Beschreibt den persistierten Zustand einer Plain-zu-encrypted-Storage-Migration. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a7cb3d82b2c17b6b2d88b624002377117a6adf97f83acf6453d4a6a4b1070f3754" name="a7cb3d82b2c17b6b2d88b624002377117a6adf97f83acf6453d4a6a4b1070f3754"></a>None&#160;</td><td class="fielddoc"><p>Keine Storage-Migration aktiv. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a7cb3d82b2c17b6b2d88b624002377117a12d868c18cb29bf58f02b504be9033fd" name="a7cb3d82b2c17b6b2d88b624002377117a12d868c18cb29bf58f02b504be9033fd"></a>InProgress&#160;</td><td class="fielddoc"><p>Die Export-/Konvertierungsphase laeuft oder muss nach Unterbrechung fortgesetzt werden. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a7cb3d82b2c17b6b2d88b624002377117afb5a47dc1e976a49660dd7ebc155026b" name="a7cb3d82b2c17b6b2d88b624002377117afb5a47dc1e976a49660dd7ebc155026b"></a>FinalizationPending&#160;</td><td class="fielddoc"><p>Die Ziel-Vault wurde erstellt, aber alte Plain-Artefakte muessen noch final bereinigt werden. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a7cb3d82b2c17b6b2d88b624002377117ad7c8c85bf79bbe1b7188497c32c3b0ca" name="a7cb3d82b2c17b6b2d88b624002377117ad7c8c85bf79bbe1b7188497c32c3b0ca"></a>Failed&#160;</td><td class="fielddoc"><p>Die letzte Migration ist fehlgeschlagen und erfordert explizite Wiederaufnahme oder Diagnose. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
+<a id="a261aedd67306cdce832c77714feaa8dd" name="a261aedd67306cdce832c77714feaa8dd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a261aedd67306cdce832c77714feaa8dd">&#9670;&#160;</a></span>VaultStorageMigrationTargetMode</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="namespaceLOCKnet_1_1Core_1_1DataAbstractions.html#a261aedd67306cdce832c77714feaa8dd">LOCKnet.Core.DataAbstractions.VaultStorageMigrationTargetMode</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Beschreibt das Ziel einer spaeteren Storage-Migration. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a261aedd67306cdce832c77714feaa8dda6adf97f83acf6453d4a6a4b1070f3754" name="a261aedd67306cdce832c77714feaa8dda6adf97f83acf6453d4a6a4b1070f3754"></a>None&#160;</td><td class="fielddoc"><p>Keine Storage-Migration aktiv. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a261aedd67306cdce832c77714feaa8dda761eaace01818ef6e9aba73d79ae85f1" name="a261aedd67306cdce832c77714feaa8dda761eaace01818ef6e9aba73d79ae85f1"></a>EncryptedSqlite&#160;</td><td class="fielddoc"><p>Die Plain-SQLite-Vault soll in eine spaetere encrypted SQLite-Variante exportiert werden. </p>
 </td></tr>
 </table>
 

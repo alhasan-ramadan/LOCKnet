@@ -21,7 +21,7 @@
 <!-- Node1 -->
 <g id="Node000001" class="node">
 <title>Node1</title>
-<g id="a_Node000001"><a xlink:title="Verwaltet den einzigen Master&#45;Key der Anwendung.">
+<g id="a_Node000001"><a xlink:title="Verwaltet den einzigen Vault&#45;Header der Anwendung.">
 <polygon fill="#999999" stroke="#666666" points="174,-96 0,-96 0,-66 174,-66 174,-96"/>
 <text text-anchor="start" x="8" y="-84" font-family="Helvetica,sans-Serif" font-size="10.00">LOCKnet.Core.DataAbstractions.</text>
 <text text-anchor="middle" x="87" y="-73" font-family="Helvetica,sans-Serif" font-size="10.00">IMasterKeyRepository</text>

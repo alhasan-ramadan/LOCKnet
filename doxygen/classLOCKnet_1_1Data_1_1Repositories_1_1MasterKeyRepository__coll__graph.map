@@ -2,6 +2,6 @@
 <area shape="rect" id="Node000001" title="SQLite&#45;Implementierung von IMasterKeyRepository." alt="" coords="50,79,253,119"/>
 <area shape="rect" id="Node000002" href="$classLOCKnet_1_1Data_1_1Repositories_1_1RepositoryBase.html" title="Abstrakte Basisklasse für alle SQLite&#45;Repositories." alt="" coords="5,5,129,31"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="91,38,133,77,129,80,88,42"/>
-<area shape="rect" id="Node000003" href="$interfaceLOCKnet_1_1Core_1_1DataAbstractions_1_1IMasterKeyRepository.html" title="Verwaltet den einzigen Master&#45;Key der Anwendung." alt="" coords="154,5,319,31"/>
+<area shape="rect" id="Node000003" href="$interfaceLOCKnet_1_1Core_1_1DataAbstractions_1_1IMasterKeyRepository.html" title="Verwaltet den einzigen Vault&#45;Header der Anwendung." alt="" coords="154,5,319,31"/>
 <area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="216,42,174,80,170,77,212,38"/>
 </map>

@@ -1,15 +1,6 @@
 var searchData=
 [
-  ['password_0',['Password',['../namespaceLOCKnet_1_1Core_1_1DataAbstractions.html#a5475bd7ea4fd65a5e6b3603418fd3ea8adc647eb65e6711e155375218212b3964',1,'LOCKnet::Core::DataAbstractions']]],
-  ['passwordgeneratoroptions_1',['PasswordGeneratorOptions',['../namespaceLOCKnet_1_1Core_1_1Services.html#a9fbc48da1fdae16dd86ff67664dac5cb',1,'LOCKnet::Core::Services']]],
-  ['passwordgeneratorservice_2',['PasswordGeneratorService',['../classLOCKnet_1_1Core_1_1Services_1_1PasswordGeneratorService.html',1,'LOCKnet::Core::Services']]],
-  ['passwordgeneratorservice_2ecs_3',['PasswordGeneratorService.cs',['../PasswordGeneratorService_8cs.html',1,'']]],
-  ['passwordhash_4',['PasswordHash',['../classLOCKnet_1_1Core_1_1DataAbstractions_1_1MasterKeyRecord.html#a7e0252e1e21021c1f9755d0c736ccd7d',1,'LOCKnet::Core::DataAbstractions::MasterKeyRecord']]],
-  ['passwordstrength_5',['PasswordStrength',['../namespaceLOCKnet_1_1Core_1_1Services.html#af94924be2fc85f0b4cd6743ec56bda96',1,'LOCKnet::Core::Services']]],
-  ['passwordstrengthservice_6',['PasswordStrengthService',['../classLOCKnet_1_1Core_1_1Services_1_1PasswordStrengthService.html',1,'LOCKnet::Core::Services']]],
-  ['passwordstrengthservice_2ecs_7',['PasswordStrengthService.cs',['../PasswordStrengthService_8cs.html',1,'']]],
-  ['pbkdf2keyderivationservice_8',['Pbkdf2KeyDerivationService',['../classLOCKnet_1_1Core_1_1Crypto_1_1Pbkdf2KeyDerivationService.html',1,'LOCKnet::Core::Crypto']]],
-  ['pbkdf2keyderivationservice_2ecs_9',['Pbkdf2KeyDerivationService.cs',['../Pbkdf2KeyDerivationService_8cs.html',1,'']]],
-  ['program_10',['Program',['../classLOCKnet_1_1App_1_1Program.html',1,'LOCKnet::App']]],
-  ['program_2ecs_11',['program.cs',['../LOCKnet_8App_2Program_8cs.html',1,'(Global Namespace)'],['../LOCKnet_8CLI_2Program_8cs.html',1,'(Global Namespace)']]]
+  ['nextautomaticretryutc_0',['NextAutomaticRetryUtc',['../classLOCKnet_1_1Core_1_1DataAbstractions_1_1StorageCompactionInfo.html#aa6f44120597c1b966a56a832897838e3',1,'LOCKnet::Core::DataAbstractions::StorageCompactionInfo']]],
+  ['none_1',['none',['../namespaceLOCKnet_1_1Core_1_1DataAbstractions.html#aab36a114bd2db91226fac5b7e06e8d34a6adf97f83acf6453d4a6a4b1070f3754',1,'LOCKnet.Core.DataAbstractions.None'],['../namespaceLOCKnet_1_1Core_1_1DataAbstractions.html#a7cb3d82b2c17b6b2d88b624002377117a6adf97f83acf6453d4a6a4b1070f3754',1,'LOCKnet.Core.DataAbstractions.None'],['../namespaceLOCKnet_1_1Core_1_1DataAbstractions.html#a261aedd67306cdce832c77714feaa8dda6adf97f83acf6453d4a6a4b1070f3754',1,'LOCKnet.Core.DataAbstractions.None']]],
+  ['notes_2',['Notes',['../classLOCKnet_1_1Core_1_1DataAbstractions_1_1CredentialRecord.html#adefe6746ef9951635efb1c92feb316b1',1,'LOCKnet::Core::DataAbstractions::CredentialRecord']]]
 ];

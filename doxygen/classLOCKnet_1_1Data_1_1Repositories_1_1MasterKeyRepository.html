@@ -99,30 +99,33 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:afbae50b266671b749e094e156404363c" id="r_afbae50b266671b749e094e156404363c"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLOCKnet_1_1Data_1_1Repositories_1_1MasterKeyRepository.html#afbae50b266671b749e094e156404363c">MasterKeyRepository</a> (string connectionString)</td></tr>
 <tr class="memdesc:afbae50b266671b749e094e156404363c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialisiert eine neue Instanz von MasterKeyRepository.  <br /></td></tr>
 <tr class="separator:afbae50b266671b749e094e156404363c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a07915fc9d57a682a4cbfd1aaf79f2fdc" id="r_a07915fc9d57a682a4cbfd1aaf79f2fdc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLOCKnet_1_1Data_1_1Repositories_1_1MasterKeyRepository.html#a07915fc9d57a682a4cbfd1aaf79f2fdc">Create</a> (<a class="el" href="classLOCKnet_1_1Core_1_1DataAbstractions_1_1MasterKeyRecord.html">MasterKeyRecord</a> key)</td></tr>
-<tr class="memdesc:a07915fc9d57a682a4cbfd1aaf79f2fdc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Legt den Master-Key an.Wirft eine InvalidOperationException wenn bereits ein Eintrag vorhanden ist.<dl class="exception"><dt>Exceptions</dt><dd>
+<tr class="memitem:adb0fd13ebbff45aad472cdee998a60d1" id="r_adb0fd13ebbff45aad472cdee998a60d1"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLOCKnet_1_1Data_1_1Repositories_1_1MasterKeyRepository.html#adb0fd13ebbff45aad472cdee998a60d1">MasterKeyRepository</a> (<a class="el" href="interfaceLOCKnet_1_1Data_1_1ISqliteConnectionFactory.html">ISqliteConnectionFactory</a> connectionFactory)</td></tr>
+<tr class="memdesc:adb0fd13ebbff45aad472cdee998a60d1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialisiert eine neue Instanz von MasterKeyRepository.  <br /></td></tr>
+<tr class="separator:adb0fd13ebbff45aad472cdee998a60d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4dd718377a01287fac653f5fc10d87e5" id="r_a4dd718377a01287fac653f5fc10d87e5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLOCKnet_1_1Data_1_1Repositories_1_1MasterKeyRepository.html#a4dd718377a01287fac653f5fc10d87e5">Create</a> (<a class="el" href="classLOCKnet_1_1Core_1_1DataAbstractions_1_1VaultHeader.html">VaultHeader</a> header)</td></tr>
+<tr class="memdesc:a4dd718377a01287fac653f5fc10d87e5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Legt den Vault-Header an.Wirft eine InvalidOperationException wenn bereits ein Eintrag vorhanden ist.<dl class="exception"><dt>Exceptions</dt><dd>
   <table class="exception">
-    <tr><td class="paramname">InvalidOperationException</td><td>Master-Key existiert bereits.</td></tr>
+    <tr><td class="paramname">InvalidOperationException</td><td>Vault-Header existiert bereits.</td></tr>
   </table>
   </dd>
 </dl>
  </p><dl class="exception"><dt>Exceptions</dt><dd>
   <table class="exception">
-    <tr><td class="paramname">InvalidOperationException</td><td>Master-Key existiert bereits. </td></tr>
+    <tr><td class="paramname">InvalidOperationException</td><td>Vault-Header existiert bereits. </td></tr>
   </table>
   </dd>
 </dl>
  <br /></td></tr>
-<tr class="separator:a07915fc9d57a682a4cbfd1aaf79f2fdc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a91a544109c54f2f79c2b191fa649d567" id="r_a91a544109c54f2f79c2b191fa649d567"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classLOCKnet_1_1Core_1_1DataAbstractions_1_1MasterKeyRecord.html">MasterKeyRecord</a>?&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLOCKnet_1_1Data_1_1Repositories_1_1MasterKeyRepository.html#a91a544109c54f2f79c2b191fa649d567">Get</a> ()</td></tr>
-<tr class="memdesc:a91a544109c54f2f79c2b191fa649d567"><td class="mdescLeft">&#160;</td><td class="mdescRight">Liest den Master-Key aus der Datenbank.<dl class="section return"><dt>Returns</dt><dd>Der Master-Key, oder <code>null</code> wenn noch keiner angelegt wurde.</dd></dl>
+<tr class="separator:a4dd718377a01287fac653f5fc10d87e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5e2a3ef20dd0181ccc55df255a835145" id="r_a5e2a3ef20dd0181ccc55df255a835145"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classLOCKnet_1_1Core_1_1DataAbstractions_1_1VaultHeader.html">VaultHeader</a>?&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLOCKnet_1_1Data_1_1Repositories_1_1MasterKeyRepository.html#a5e2a3ef20dd0181ccc55df255a835145">Get</a> ()</td></tr>
+<tr class="memdesc:a5e2a3ef20dd0181ccc55df255a835145"><td class="mdescLeft">&#160;</td><td class="mdescRight">Liest den Vault-Header aus der Datenbank.<dl class="section return"><dt>Returns</dt><dd>Der Vault-Header, oder <code>null</code> wenn noch keiner angelegt wurde.</dd></dl>
   <br /></td></tr>
-<tr class="separator:a91a544109c54f2f79c2b191fa649d567"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac4879c7cad46e7fdf6af59121bab4c8c" id="r_ac4879c7cad46e7fdf6af59121bab4c8c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLOCKnet_1_1Data_1_1Repositories_1_1MasterKeyRepository.html#ac4879c7cad46e7fdf6af59121bab4c8c">Update</a> (<a class="el" href="classLOCKnet_1_1Core_1_1DataAbstractions_1_1MasterKeyRecord.html">MasterKeyRecord</a> key)</td></tr>
-<tr class="memdesc:ac4879c7cad46e7fdf6af59121bab4c8c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Aktualisiert den bestehenden Master-Key (z.B.nach Passwortänderung).  <br /></td></tr>
-<tr class="separator:ac4879c7cad46e7fdf6af59121bab4c8c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:a5e2a3ef20dd0181ccc55df255a835145"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3b16285b71d1054ecb850c6b8f8f4807" id="r_a3b16285b71d1054ecb850c6b8f8f4807"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLOCKnet_1_1Data_1_1Repositories_1_1MasterKeyRepository.html#a3b16285b71d1054ecb850c6b8f8f4807">Update</a> (<a class="el" href="classLOCKnet_1_1Core_1_1DataAbstractions_1_1VaultHeader.html">VaultHeader</a> header)</td></tr>
+<tr class="memdesc:a3b16285b71d1054ecb850c6b8f8f4807"><td class="mdescLeft">&#160;</td><td class="mdescRight">Aktualisiert den bestehenden Vault-Header (z.B.nach Passwortaenderung).  <br /></td></tr>
+<tr class="separator:a3b16285b71d1054ecb850c6b8f8f4807"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a872f080681e023f1a03f09cac7c344a2" id="r_a872f080681e023f1a03f09cac7c344a2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLOCKnet_1_1Data_1_1Repositories_1_1MasterKeyRepository.html#a872f080681e023f1a03f09cac7c344a2">Delete</a> ()</td></tr>
-<tr class="memdesc:a872f080681e023f1a03f09cac7c344a2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Löscht den Master-Key.Macht die Datenbank damit dauerhaft unzugänglich, sofern kein Backup existiert.  <br /></td></tr>
+<tr class="memdesc:a872f080681e023f1a03f09cac7c344a2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loescht den Vault-Header.Macht die Datenbank damit dauerhaft unzugaenglich, sofern kein Backup existiert.  <br /></td></tr>
 <tr class="separator:a872f080681e023f1a03f09cac7c344a2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="inherited" name="inherited"></a>
@@ -131,20 +134,25 @@ Additional Inherited Members</h2></td></tr>
 <tr class="memitem:ac9c167a385417c769521ff66cbb64c5c inherit pro_methods_classLOCKnet_1_1Data_1_1Repositories_1_1RepositoryBase" id="r_ac9c167a385417c769521ff66cbb64c5c"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLOCKnet_1_1Data_1_1Repositories_1_1RepositoryBase.html#ac9c167a385417c769521ff66cbb64c5c">RepositoryBase</a> (string connectionString)</td></tr>
 <tr class="memdesc:ac9c167a385417c769521ff66cbb64c5c inherit pro_methods_classLOCKnet_1_1Data_1_1Repositories_1_1RepositoryBase"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialisiert eine neue Instanz von RepositoryBase.  <br /></td></tr>
 <tr class="separator:ac9c167a385417c769521ff66cbb64c5c inherit pro_methods_classLOCKnet_1_1Data_1_1Repositories_1_1RepositoryBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abe67cc8d9f83742ddb05b566b7eb1bb3 inherit pro_methods_classLOCKnet_1_1Data_1_1Repositories_1_1RepositoryBase" id="r_abe67cc8d9f83742ddb05b566b7eb1bb3"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLOCKnet_1_1Data_1_1Repositories_1_1RepositoryBase.html#abe67cc8d9f83742ddb05b566b7eb1bb3">RepositoryBase</a> (<a class="el" href="interfaceLOCKnet_1_1Data_1_1ISqliteConnectionFactory.html">ISqliteConnectionFactory</a> connectionFactory)</td></tr>
+<tr class="memdesc:abe67cc8d9f83742ddb05b566b7eb1bb3 inherit pro_methods_classLOCKnet_1_1Data_1_1Repositories_1_1RepositoryBase"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialisiert eine neue Instanz von RepositoryBase mit einer zentralen Connection-Factory.  <br /></td></tr>
+<tr class="separator:abe67cc8d9f83742ddb05b566b7eb1bb3 inherit pro_methods_classLOCKnet_1_1Data_1_1Repositories_1_1RepositoryBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a92e5b7ba149588651bc6dbdf8ad88958 inherit pro_methods_classLOCKnet_1_1Data_1_1Repositories_1_1RepositoryBase" id="r_a92e5b7ba149588651bc6dbdf8ad88958"><td class="memItemLeft" align="right" valign="top">SqliteConnection&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLOCKnet_1_1Data_1_1Repositories_1_1RepositoryBase.html#a92e5b7ba149588651bc6dbdf8ad88958">GetConnection</a> ()</td></tr>
 <tr class="memdesc:a92e5b7ba149588651bc6dbdf8ad88958 inherit pro_methods_classLOCKnet_1_1Data_1_1Repositories_1_1RepositoryBase"><td class="mdescLeft">&#160;</td><td class="mdescRight">Öffnet eine neue SQLite-Verbindung und gibt sie zurück.  <br /></td></tr>
 <tr class="separator:a92e5b7ba149588651bc6dbdf8ad88958 inherit pro_methods_classLOCKnet_1_1Data_1_1Repositories_1_1RepositoryBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pro_attribs_classLOCKnet_1_1Data_1_1Repositories_1_1RepositoryBase"><td colspan="2" onclick="javascript:toggleInherit('pro_attribs_classLOCKnet_1_1Data_1_1Repositories_1_1RepositoryBase')"><img src="closed.png" alt="-"/>&#160;Protected Attributes inherited from <a class="el" href="classLOCKnet_1_1Data_1_1Repositories_1_1RepositoryBase.html">LOCKnet.Data.Repositories.RepositoryBase</a></td></tr>
 <tr class="memitem:af34a6444886c3b584631d562fb498afb inherit pro_attribs_classLOCKnet_1_1Data_1_1Repositories_1_1RepositoryBase" id="r_af34a6444886c3b584631d562fb498afb"><td class="memItemLeft" align="right" valign="top">readonly string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLOCKnet_1_1Data_1_1Repositories_1_1RepositoryBase.html#af34a6444886c3b584631d562fb498afb">_connectionString</a></td></tr>
-<tr class="memdesc:af34a6444886c3b584631d562fb498afb inherit pro_attribs_classLOCKnet_1_1Data_1_1Repositories_1_1RepositoryBase"><td class="mdescLeft">&#160;</td><td class="mdescRight">SQLite-Connection-String für diese Repository-Instanz.  <br /></td></tr>
+<tr class="memdesc:af34a6444886c3b584631d562fb498afb inherit pro_attribs_classLOCKnet_1_1Data_1_1Repositories_1_1RepositoryBase"><td class="mdescLeft">&#160;</td><td class="mdescRight">SQLite-Connection-String fuer diese Repository-Instanz.  <br /></td></tr>
 <tr class="separator:af34a6444886c3b584631d562fb498afb inherit pro_attribs_classLOCKnet_1_1Data_1_1Repositories_1_1RepositoryBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae4b23dc240b7fb33a486c48593af1042 inherit pro_attribs_classLOCKnet_1_1Data_1_1Repositories_1_1RepositoryBase" id="r_ae4b23dc240b7fb33a486c48593af1042"><td class="memItemLeft" align="right" valign="top">readonly? string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLOCKnet_1_1Data_1_1Repositories_1_1RepositoryBase.html#ae4b23dc240b7fb33a486c48593af1042">_databasePath</a></td></tr>
+<tr class="separator:ae4b23dc240b7fb33a486c48593af1042 inherit pro_attribs_classLOCKnet_1_1Data_1_1Repositories_1_1RepositoryBase"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>SQLite-Implementierung von IMasterKeyRepository. </p>
-<p>Erzwingt, dass genau ein Master-Key in der Datenbank existiert (Id = 1). </p>
+<p>Persistiert einen einzelnen Vault-Header in der bestehenden MasterKey-Tabelle (Id = 1). </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="afbae50b266671b749e094e156404363c" name="afbae50b266671b749e094e156404363c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afbae50b266671b749e094e156404363c">&#9670;&#160;</a></span>MasterKeyRepository()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#afbae50b266671b749e094e156404363c">&#9670;&#160;</a></span>MasterKeyRepository() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -177,9 +185,8 @@ Additional Inherited Members</h2></td></tr>
 
 </div>
 </div>
-<h2 class="groupheader">Member Function Documentation</h2>
-<a id="a07915fc9d57a682a4cbfd1aaf79f2fdc" name="a07915fc9d57a682a4cbfd1aaf79f2fdc"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a07915fc9d57a682a4cbfd1aaf79f2fdc">&#9670;&#160;</a></span>Create()</h2>
+<a id="adb0fd13ebbff45aad472cdee998a60d1" name="adb0fd13ebbff45aad472cdee998a60d1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adb0fd13ebbff45aad472cdee998a60d1">&#9670;&#160;</a></span>MasterKeyRepository() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -188,10 +195,10 @@ Additional Inherited Members</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void LOCKnet.Data.Repositories.MasterKeyRepository.Create </td>
+          <td class="memname">LOCKnet.Data.Repositories.MasterKeyRepository.MasterKeyRepository </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classLOCKnet_1_1Core_1_1DataAbstractions_1_1MasterKeyRecord.html">MasterKeyRecord</a>&#160;</td>
-          <td class="paramname"><em>key</em></td><td>)</td>
+          <td class="paramtype"><a class="el" href="interfaceLOCKnet_1_1Data_1_1ISqliteConnectionFactory.html">ISqliteConnectionFactory</a>&#160;</td>
+          <td class="paramname"><em>connectionFactory</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -202,21 +209,56 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Legt den Master-Key an.Wirft eine InvalidOperationException wenn bereits ein Eintrag vorhanden ist.<dl class="exception"><dt>Exceptions</dt><dd>
+<p>Initialisiert eine neue Instanz von MasterKeyRepository. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">connectionFactory</td><td>Factory fuer Storage-spezifische SQLite-Verbindungen.</td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a id="a4dd718377a01287fac653f5fc10d87e5" name="a4dd718377a01287fac653f5fc10d87e5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4dd718377a01287fac653f5fc10d87e5">&#9670;&#160;</a></span>Create()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void LOCKnet.Data.Repositories.MasterKeyRepository.Create </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classLOCKnet_1_1Core_1_1DataAbstractions_1_1VaultHeader.html">VaultHeader</a>&#160;</td>
+          <td class="paramname"><em>header</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Legt den Vault-Header an.Wirft eine InvalidOperationException wenn bereits ein Eintrag vorhanden ist.<dl class="exception"><dt>Exceptions</dt><dd>
   <table class="exception">
-    <tr><td class="paramname">InvalidOperationException</td><td>Master-Key existiert bereits.</td></tr>
+    <tr><td class="paramname">InvalidOperationException</td><td>Vault-Header existiert bereits.</td></tr>
   </table>
   </dd>
 </dl>
  </p><dl class="exception"><dt>Exceptions</dt><dd>
   <table class="exception">
-    <tr><td class="paramname">InvalidOperationException</td><td>Master-Key existiert bereits. </td></tr>
+    <tr><td class="paramname">InvalidOperationException</td><td>Vault-Header existiert bereits. </td></tr>
   </table>
   </dd>
 </dl>
 </p>
 
-<p>Implements <a class="el" href="interfaceLOCKnet_1_1Core_1_1DataAbstractions_1_1IMasterKeyRepository.html#ac0c1d0faf6b281a7e5ddbaaa2abfaff7">LOCKnet.Core.DataAbstractions.IMasterKeyRepository</a>.</p>
+<p>Implements <a class="el" href="interfaceLOCKnet_1_1Core_1_1DataAbstractions_1_1IMasterKeyRepository.html#a1c71ef3f1f0c73eb20b8fea78ce3ce77">LOCKnet.Core.DataAbstractions.IMasterKeyRepository</a>.</p>
 
 </div>
 </div>
@@ -243,14 +285,14 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Löscht den Master-Key.Macht die Datenbank damit dauerhaft unzugänglich, sofern kein Backup existiert. </p>
+<p>Loescht den Vault-Header.Macht die Datenbank damit dauerhaft unzugaenglich, sofern kein Backup existiert. </p>
 
 <p>Implements <a class="el" href="interfaceLOCKnet_1_1Core_1_1DataAbstractions_1_1IMasterKeyRepository.html#a0a91ba5d626353e3cb4a765563048178">LOCKnet.Core.DataAbstractions.IMasterKeyRepository</a>.</p>
 
 </div>
 </div>
-<a id="a91a544109c54f2f79c2b191fa649d567" name="a91a544109c54f2f79c2b191fa649d567"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a91a544109c54f2f79c2b191fa649d567">&#9670;&#160;</a></span>Get()</h2>
+<a id="a5e2a3ef20dd0181ccc55df255a835145" name="a5e2a3ef20dd0181ccc55df255a835145"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5e2a3ef20dd0181ccc55df255a835145">&#9670;&#160;</a></span>Get()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -259,7 +301,7 @@ Additional Inherited Members</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classLOCKnet_1_1Core_1_1DataAbstractions_1_1MasterKeyRecord.html">MasterKeyRecord</a>? LOCKnet.Data.Repositories.MasterKeyRepository.Get </td>
+          <td class="memname"><a class="el" href="classLOCKnet_1_1Core_1_1DataAbstractions_1_1VaultHeader.html">VaultHeader</a>? LOCKnet.Data.Repositories.MasterKeyRepository.Get </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -272,15 +314,15 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Liest den Master-Key aus der Datenbank.<dl class="section return"><dt>Returns</dt><dd>Der Master-Key, oder <code>null</code> wenn noch keiner angelegt wurde.</dd></dl>
+<p>Liest den Vault-Header aus der Datenbank.<dl class="section return"><dt>Returns</dt><dd>Der Vault-Header, oder <code>null</code> wenn noch keiner angelegt wurde.</dd></dl>
  </p>
 
-<p>Implements <a class="el" href="interfaceLOCKnet_1_1Core_1_1DataAbstractions_1_1IMasterKeyRepository.html#a4fbe5a89ac4d08453a04dd871527c17b">LOCKnet.Core.DataAbstractions.IMasterKeyRepository</a>.</p>
+<p>Implements <a class="el" href="interfaceLOCKnet_1_1Core_1_1DataAbstractions_1_1IMasterKeyRepository.html#a5ea8d076f59995847c15cc901fef45e8">LOCKnet.Core.DataAbstractions.IMasterKeyRepository</a>.</p>
 
 </div>
 </div>
-<a id="ac4879c7cad46e7fdf6af59121bab4c8c" name="ac4879c7cad46e7fdf6af59121bab4c8c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac4879c7cad46e7fdf6af59121bab4c8c">&#9670;&#160;</a></span>Update()</h2>
+<a id="a3b16285b71d1054ecb850c6b8f8f4807" name="a3b16285b71d1054ecb850c6b8f8f4807"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3b16285b71d1054ecb850c6b8f8f4807">&#9670;&#160;</a></span>Update()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -291,8 +333,8 @@ Additional Inherited Members</h2></td></tr>
         <tr>
           <td class="memname">void LOCKnet.Data.Repositories.MasterKeyRepository.Update </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classLOCKnet_1_1Core_1_1DataAbstractions_1_1MasterKeyRecord.html">MasterKeyRecord</a>&#160;</td>
-          <td class="paramname"><em>key</em></td><td>)</td>
+          <td class="paramtype"><a class="el" href="classLOCKnet_1_1Core_1_1DataAbstractions_1_1VaultHeader.html">VaultHeader</a>&#160;</td>
+          <td class="paramname"><em>header</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -303,9 +345,9 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Aktualisiert den bestehenden Master-Key (z.B.nach Passwortänderung). </p>
+<p>Aktualisiert den bestehenden Vault-Header (z.B.nach Passwortaenderung). </p>
 
-<p>Implements <a class="el" href="interfaceLOCKnet_1_1Core_1_1DataAbstractions_1_1IMasterKeyRepository.html#a27ba6f226d467e3364c94c315f7abed5">LOCKnet.Core.DataAbstractions.IMasterKeyRepository</a>.</p>
+<p>Implements <a class="el" href="interfaceLOCKnet_1_1Core_1_1DataAbstractions_1_1IMasterKeyRepository.html#ac765ce44dd9720d3cc352321cd35468d">LOCKnet.Core.DataAbstractions.IMasterKeyRepository</a>.</p>
 
 </div>
 </div>

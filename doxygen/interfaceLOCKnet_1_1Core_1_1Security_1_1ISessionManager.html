@@ -94,7 +94,7 @@ Inheritance diagram for LOCKnet.Core.Security.ISessionManager:</div>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a7d9a2d753c9ee3d40b60864beed7a1d8" id="r_a7d9a2d753c9ee3d40b60864beed7a1d8"><td class="memItemLeft" align="right" valign="top">byte?[]&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interfaceLOCKnet_1_1Core_1_1Security_1_1ISessionManager.html#a7d9a2d753c9ee3d40b60864beed7a1d8">GetSessionKey</a> ()</td></tr>
-<tr class="memdesc:a7d9a2d753c9ee3d40b60864beed7a1d8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gibt den aktuellen Session-Key zurück.  <br /></td></tr>
+<tr class="memdesc:a7d9a2d753c9ee3d40b60864beed7a1d8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gibt eine Kopie des aktuellen Session-Keys zurueck.  <br /></td></tr>
 <tr class="separator:a7d9a2d753c9ee3d40b60864beed7a1d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a02b2260ce22246064afbb1171baf78b2" id="r_a02b2260ce22246064afbb1171baf78b2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interfaceLOCKnet_1_1Core_1_1Security_1_1ISessionManager.html#a02b2260ce22246064afbb1171baf78b2">Open</a> (byte[] sessionKey)</td></tr>
 <tr class="memdesc:a02b2260ce22246064afbb1171baf78b2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Entsperrt die Sitzung mit dem angegebenen Schlüssel.  <br /></td></tr>
@@ -134,9 +134,9 @@ Events</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Gibt den aktuellen Session-Key zurück. </p>
-<dl class="section return"><dt>Returns</dt><dd>Der 32-Byte AES-Schlüssel, oder <code>null</code> wenn die Sitzung gesperrt ist.</dd></dl>
-<p>Das zurückgegebene Array darf NICHT gecacht werden — es wird bei Lock genullt. Immer direkt nach Benutzung wegwerfen. </p>
+<p>Gibt eine Kopie des aktuellen Session-Keys zurueck. </p>
+<dl class="section return"><dt>Returns</dt><dd>Eine 32-Byte-Kopie des AES-Schluessels, oder <code>null</code> wenn die Sitzung gesperrt ist.</dd></dl>
+<p>Das zurueckgegebene Array ist nie der interne Puffer. Aufrufer muessen die Kopie nach Benutzung selbst nullen. </p>
 
 <p>Implemented in <a class="el" href="classLOCKnet_1_1Core_1_1Security_1_1SessionManager.html#aa74d989a5eb99a75ef2ff6648ffb3c3a">LOCKnet.Core.Security.SessionManager</a>.</p>
 
@@ -183,7 +183,7 @@ Events</h2></td></tr>
 <p>Wird typischerweise vom IMasterKeyManager.Unlock aufgerufen.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">sessionKey</td><td>Der 32-Byte AES-Schlüssel (Ownership geht über — nicht weiter verwenden).</td></tr>
+    <tr><td class="paramname">sessionKey</td><td>Der 32-Byte AES-Schluessel. Der uebergebene Puffer wird nach dem Kopieren genullt.</td></tr>
   </table>
   </dd>
 </dl>

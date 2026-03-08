@@ -11,10 +11,10 @@
 <!-- Node0 -->
 <g id="Node000000" class="node">
 <title>Node0</title>
-<g id="a_Node000000"><a xlink:href="classLOCKnet_1_1Core_1_1DataAbstractions_1_1MasterKeyRecord.html" target="_top" xlink:title="Master&#45;Key&#45;Eintrag wie er in der Datenbank gespeichert ist.">
+<g id="a_Node000000"><a xlink:href="classLOCKnet_1_1Core_1_1DataAbstractions_1_1CredentialRecord.html" target="_top" xlink:title="Credential&#45;Datensatz wie er aus der Datenbank kommt.">
 <polygon fill="white" stroke="#666666" points="174,-30 0,-30 0,0 174,0 174,-30"/>
 <text text-anchor="start" x="8" y="-18" font-family="Helvetica,sans-Serif" font-size="10.00">LOCKnet.Core.DataAbstractions.</text>
-<text text-anchor="middle" x="87" y="-7" font-family="Helvetica,sans-Serif" font-size="10.00">MasterKeyRecord</text>
+<text text-anchor="middle" x="87" y="-7" font-family="Helvetica,sans-Serif" font-size="10.00">CredentialRecord</text>
 </a>
 </g>
 </g>

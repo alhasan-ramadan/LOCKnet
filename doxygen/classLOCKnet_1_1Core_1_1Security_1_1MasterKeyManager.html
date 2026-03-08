@@ -97,9 +97,9 @@ Collaboration diagram for LOCKnet.Core.Security.MasterKeyManager:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:aaeaf782502e6b579f739c2a1a81db126" id="r_aaeaf782502e6b579f739c2a1a81db126"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLOCKnet_1_1Core_1_1Security_1_1MasterKeyManager.html#aaeaf782502e6b579f739c2a1a81db126">MasterKeyManager</a> (<a class="el" href="interfaceLOCKnet_1_1Core_1_1Crypto_1_1IKeyDerivationService.html">IKeyDerivationService</a> kdf, <a class="el" href="interfaceLOCKnet_1_1Core_1_1DataAbstractions_1_1IMasterKeyRepository.html">IMasterKeyRepository</a> repo, <a class="el" href="interfaceLOCKnet_1_1Core_1_1Crypto_1_1ISecureStringService.html">ISecureStringService</a> secureStr)</td></tr>
-<tr class="memdesc:aaeaf782502e6b579f739c2a1a81db126"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialisiert eine neue Instanz von MasterKeyManager.  <br /></td></tr>
-<tr class="separator:aaeaf782502e6b579f739c2a1a81db126"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a61542f09d75e0d064ebf994f6c233ecf" id="r_a61542f09d75e0d064ebf994f6c233ecf"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLOCKnet_1_1Core_1_1Security_1_1MasterKeyManager.html#a61542f09d75e0d064ebf994f6c233ecf">MasterKeyManager</a> (<a class="el" href="interfaceLOCKnet_1_1Core_1_1Crypto_1_1IKeyDerivationService.html">IKeyDerivationService</a> kdf, <a class="el" href="interfaceLOCKnet_1_1Core_1_1DataAbstractions_1_1IMasterKeyRepository.html">IMasterKeyRepository</a> repo, <a class="el" href="interfaceLOCKnet_1_1Core_1_1DataAbstractions_1_1IVaultMigrationRepository.html">IVaultMigrationRepository</a> vaultMigrationRepo, <a class="el" href="interfaceLOCKnet_1_1Core_1_1Crypto_1_1IEncryptionService.html">IEncryptionService</a> encryption, <a class="el" href="interfaceLOCKnet_1_1Core_1_1Crypto_1_1ICredentialEnvelopeService.html">ICredentialEnvelopeService</a> credentialEnvelope, <a class="el" href="interfaceLOCKnet_1_1Core_1_1Security_1_1ISessionManager.html">ISessionManager</a> session, <a class="el" href="interfaceLOCKnet_1_1Core_1_1Crypto_1_1ISecureStringService.html">ISecureStringService</a> secureStr)</td></tr>
+<tr class="memdesc:a61542f09d75e0d064ebf994f6c233ecf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialisiert eine neue Instanz von MasterKeyManager.  <br /></td></tr>
+<tr class="separator:a61542f09d75e0d064ebf994f6c233ecf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9f707d47a84f7e9c021e8a0fcea02f57" id="r_a9f707d47a84f7e9c021e8a0fcea02f57"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLOCKnet_1_1Core_1_1Security_1_1MasterKeyManager.html#a9f707d47a84f7e9c021e8a0fcea02f57">Initialize</a> (SecureString password)</td></tr>
 <tr class="memdesc:a9f707d47a84f7e9c021e8a0fcea02f57"><td class="mdescLeft">&#160;</td><td class="mdescRight">Legt einen neuen Master-Key an (Ersteinrichtung).Leitet Salt und Hash ab und speichert sie über das Repository.<dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -115,18 +115,18 @@ Public Member Functions</h2></td></tr>
 </dl>
   <br /></td></tr>
 <tr class="separator:a9f707d47a84f7e9c021e8a0fcea02f57"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae79c06beed4c7f36e6d0d9f581ea8a1d" id="r_ae79c06beed4c7f36e6d0d9f581ea8a1d"><td class="memItemLeft" align="right" valign="top">byte?[]&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLOCKnet_1_1Core_1_1Security_1_1MasterKeyManager.html#ae79c06beed4c7f36e6d0d9f581ea8a1d">Unlock</a> (SecureString password)</td></tr>
-<tr class="memdesc:ae79c06beed4c7f36e6d0d9f581ea8a1d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prüft, ob das angegebene Passwort mit dem gespeicherten Hash übereinstimmt, und gibt bei Erfolg den abgeleiteten AES-256-Schlüssel zurück.<dl class="params"><dt>Parameters</dt><dd>
+<tr class="memitem:a71f65461b1a7cf8b95ea3bc1b7e54d49" id="r_a71f65461b1a7cf8b95ea3bc1b7e54d49"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classLOCKnet_1_1Core_1_1Security_1_1UnlockResult.html">UnlockResult</a>?&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLOCKnet_1_1Core_1_1Security_1_1MasterKeyManager.html#a71f65461b1a7cf8b95ea3bc1b7e54d49">Unlock</a> (SecureString password)</td></tr>
+<tr class="memdesc:a71f65461b1a7cf8b95ea3bc1b7e54d49"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prueft das angegebene Master-Passwort, migriert bei Bedarf Legacy-Credentialdaten in das aktuelle Secret-Format und gibt bei Erfolg den aktiven VaultKey zurueck.<dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">password</td><td>Das eingegebene Passwort.</td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Der 32-Byte AES-Schlüssel bei korrektem Passwort, oder <code>null</code> wenn das Passwort falsch ist. Der Aufrufer ist verantwortlich, den Schlüssel nach Benutzung zu nullen. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Das Ergebnis des Unlocks inklusive VaultKey und Compaction-Status, oder <code>null</code> wenn das Passwort falsch ist. Der Aufrufer ist verantwortlich, den Schluessel nach Benutzung zu nullen. </dd></dl>
   <br /></td></tr>
-<tr class="separator:ae79c06beed4c7f36e6d0d9f581ea8a1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:a71f65461b1a7cf8b95ea3bc1b7e54d49"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4a4dc602f672623011768e09ed4777af" id="r_a4a4dc602f672623011768e09ed4777af"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLOCKnet_1_1Core_1_1Security_1_1MasterKeyManager.html#a4a4dc602f672623011768e09ed4777af">ChangePassword</a> (SecureString currentPassword, SecureString newPassword)</td></tr>
-<tr class="memdesc:a4a4dc602f672623011768e09ed4777af"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ändert das Master-Passwort.Prüft zuerst das alte Passwort.<dl class="params"><dt>Parameters</dt><dd>
+<tr class="memdesc:a4a4dc602f672623011768e09ed4777af"><td class="mdescLeft">&#160;</td><td class="mdescRight">Aendert das Master-Passwort.Vor dem Rewrap wird sichergestellt, dass keine Legacy-Credentialdaten mehr aktiv sind.<dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">currentPassword</td><td>Das bisherige Passwort zur Verifikation.</td></tr>
     <tr><td class="paramname">newPassword</td><td>Das neue Passwort.</td></tr>
@@ -142,6 +142,12 @@ Public Member Functions</h2></td></tr>
 </dl>
   <br /></td></tr>
 <tr class="separator:a4a4dc602f672623011768e09ed4777af"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a537c9561f049b29f9c4c4d38c8fbcc8d" id="r_a537c9561f049b29f9c4c4d38c8fbcc8d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classLOCKnet_1_1Core_1_1DataAbstractions_1_1StorageCompactionInfo.html">StorageCompactionInfo</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLOCKnet_1_1Core_1_1Security_1_1MasterKeyManager.html#a537c9561f049b29f9c4c4d38c8fbcc8d">GetStorageCompactionInfo</a> ()</td></tr>
+<tr class="memdesc:a537c9561f049b29f9c4c4d38c8fbcc8d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Liefert den aktuell persistierten Status der Storage-Kompaktierung fuer UI und Diagnostik.  <br /></td></tr>
+<tr class="separator:a537c9561f049b29f9c4c4d38c8fbcc8d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abf8200e18c3ca1364eb5a361bac05235" id="r_abf8200e18c3ca1364eb5a361bac05235"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classLOCKnet_1_1Core_1_1DataAbstractions_1_1StorageCompactionInfo.html">StorageCompactionInfo</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLOCKnet_1_1Core_1_1Security_1_1MasterKeyManager.html#abf8200e18c3ca1364eb5a361bac05235">RetryPendingStorageCompaction</a> ()</td></tr>
+<tr class="memdesc:abf8200e18c3ca1364eb5a361bac05235"><td class="mdescLeft">&#160;</td><td class="mdescRight">Startet einen manuellen Kompaktierungsversuch fuer einen bereits entschluesselten Vault-Zustand.  <br /></td></tr>
+<tr class="separator:abf8200e18c3ca1364eb5a361bac05235"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="properties" name="properties"></a>
 Properties</h2></td></tr>
@@ -154,8 +160,8 @@ Properties</h2></td></tr>
 <div class="textblock"><p>Implementierung von IMasterKeyManager. </p>
 <p>Delegiert Schlüsselableitung an IKeyDerivationService und Persistenz an IMasterKeyRepository. </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="aaeaf782502e6b579f739c2a1a81db126" name="aaeaf782502e6b579f739c2a1a81db126"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aaeaf782502e6b579f739c2a1a81db126">&#9670;&#160;</a></span>MasterKeyManager()</h2>
+<a id="a61542f09d75e0d064ebf994f6c233ecf" name="a61542f09d75e0d064ebf994f6c233ecf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a61542f09d75e0d064ebf994f6c233ecf">&#9670;&#160;</a></span>MasterKeyManager()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -174,6 +180,30 @@ Properties</h2></td></tr>
           <td></td>
           <td class="paramtype"><a class="el" href="interfaceLOCKnet_1_1Core_1_1DataAbstractions_1_1IMasterKeyRepository.html">IMasterKeyRepository</a>&#160;</td>
           <td class="paramname"><em>repo</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="interfaceLOCKnet_1_1Core_1_1DataAbstractions_1_1IVaultMigrationRepository.html">IVaultMigrationRepository</a>&#160;</td>
+          <td class="paramname"><em>vaultMigrationRepo</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="interfaceLOCKnet_1_1Core_1_1Crypto_1_1IEncryptionService.html">IEncryptionService</a>&#160;</td>
+          <td class="paramname"><em>encryption</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="interfaceLOCKnet_1_1Core_1_1Crypto_1_1ICredentialEnvelopeService.html">ICredentialEnvelopeService</a>&#160;</td>
+          <td class="paramname"><em>credentialEnvelope</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="interfaceLOCKnet_1_1Core_1_1Security_1_1ISessionManager.html">ISessionManager</a>&#160;</td>
+          <td class="paramname"><em>session</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -233,7 +263,7 @@ Properties</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Ändert das Master-Passwort.Prüft zuerst das alte Passwort.<dl class="params"><dt>Parameters</dt><dd>
+<p>Aendert das Master-Passwort.Vor dem Rewrap wird sichergestellt, dass keine Legacy-Credentialdaten mehr aktiv sind.<dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">currentPassword</td><td>Das bisherige Passwort zur Verifikation.</td></tr>
     <tr><td class="paramname">newPassword</td><td>Das neue Passwort.</td></tr>
@@ -250,6 +280,35 @@ Properties</h2></td></tr>
  </p>
 
 <p>Implements <a class="el" href="interfaceLOCKnet_1_1Core_1_1Security_1_1IMasterKeyManager.html#a8abe0293d54b20da87f99279258ad073">LOCKnet.Core.Security.IMasterKeyManager</a>.</p>
+
+</div>
+</div>
+<a id="a537c9561f049b29f9c4c4d38c8fbcc8d" name="a537c9561f049b29f9c4c4d38c8fbcc8d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a537c9561f049b29f9c4c4d38c8fbcc8d">&#9670;&#160;</a></span>GetStorageCompactionInfo()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classLOCKnet_1_1Core_1_1DataAbstractions_1_1StorageCompactionInfo.html">StorageCompactionInfo</a> LOCKnet.Core.Security.MasterKeyManager.GetStorageCompactionInfo </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Liefert den aktuell persistierten Status der Storage-Kompaktierung fuer UI und Diagnostik. </p>
+
+<p>Implements <a class="el" href="interfaceLOCKnet_1_1Core_1_1Security_1_1IMasterKeyManager.html#a85f97038882d08fbae05063dd8883b8a">LOCKnet.Core.Security.IMasterKeyManager</a>.</p>
 
 </div>
 </div>
@@ -295,8 +354,8 @@ Properties</h2></td></tr>
 
 </div>
 </div>
-<a id="ae79c06beed4c7f36e6d0d9f581ea8a1d" name="ae79c06beed4c7f36e6d0d9f581ea8a1d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae79c06beed4c7f36e6d0d9f581ea8a1d">&#9670;&#160;</a></span>Unlock()</h2>
+<a id="abf8200e18c3ca1364eb5a361bac05235" name="abf8200e18c3ca1364eb5a361bac05235"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abf8200e18c3ca1364eb5a361bac05235">&#9670;&#160;</a></span>RetryPendingStorageCompaction()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -305,7 +364,36 @@ Properties</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">byte?[] LOCKnet.Core.Security.MasterKeyManager.Unlock </td>
+          <td class="memname"><a class="el" href="classLOCKnet_1_1Core_1_1DataAbstractions_1_1StorageCompactionInfo.html">StorageCompactionInfo</a> LOCKnet.Core.Security.MasterKeyManager.RetryPendingStorageCompaction </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Startet einen manuellen Kompaktierungsversuch fuer einen bereits entschluesselten Vault-Zustand. </p>
+
+<p>Implements <a class="el" href="interfaceLOCKnet_1_1Core_1_1Security_1_1IMasterKeyManager.html#abe56ca79995fc1092e6ce983ef1a715a">LOCKnet.Core.Security.IMasterKeyManager</a>.</p>
+
+</div>
+</div>
+<a id="a71f65461b1a7cf8b95ea3bc1b7e54d49" name="a71f65461b1a7cf8b95ea3bc1b7e54d49"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a71f65461b1a7cf8b95ea3bc1b7e54d49">&#9670;&#160;</a></span>Unlock()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classLOCKnet_1_1Core_1_1Security_1_1UnlockResult.html">UnlockResult</a>? LOCKnet.Core.Security.MasterKeyManager.Unlock </td>
           <td>(</td>
           <td class="paramtype">SecureString&#160;</td>
           <td class="paramname"><em>password</em></td><td>)</td>
@@ -319,16 +407,16 @@ Properties</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Prüft, ob das angegebene Passwort mit dem gespeicherten Hash übereinstimmt, und gibt bei Erfolg den abgeleiteten AES-256-Schlüssel zurück.<dl class="params"><dt>Parameters</dt><dd>
+<p>Prueft das angegebene Master-Passwort, migriert bei Bedarf Legacy-Credentialdaten in das aktuelle Secret-Format und gibt bei Erfolg den aktiven VaultKey zurueck.<dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">password</td><td>Das eingegebene Passwort.</td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Der 32-Byte AES-Schlüssel bei korrektem Passwort, oder <code>null</code> wenn das Passwort falsch ist. Der Aufrufer ist verantwortlich, den Schlüssel nach Benutzung zu nullen. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Das Ergebnis des Unlocks inklusive VaultKey und Compaction-Status, oder <code>null</code> wenn das Passwort falsch ist. Der Aufrufer ist verantwortlich, den Schluessel nach Benutzung zu nullen. </dd></dl>
  </p>
 
-<p>Implements <a class="el" href="interfaceLOCKnet_1_1Core_1_1Security_1_1IMasterKeyManager.html#a9057575b283b3c018426976e5285006b">LOCKnet.Core.Security.IMasterKeyManager</a>.</p>
+<p>Implements <a class="el" href="interfaceLOCKnet_1_1Core_1_1Security_1_1IMasterKeyManager.html#a677fb07785deb891726760940ad8406b">LOCKnet.Core.Security.IMasterKeyManager</a>.</p>
 
 </div>
 </div>

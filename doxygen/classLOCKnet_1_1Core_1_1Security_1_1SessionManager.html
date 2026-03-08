@@ -99,13 +99,13 @@ Collaboration diagram for LOCKnet.Core.Security.SessionManager:</div>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:aa74d989a5eb99a75ef2ff6648ffb3c3a" id="r_aa74d989a5eb99a75ef2ff6648ffb3c3a"><td class="memItemLeft" align="right" valign="top">byte?[]&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLOCKnet_1_1Core_1_1Security_1_1SessionManager.html#aa74d989a5eb99a75ef2ff6648ffb3c3a">GetSessionKey</a> ()</td></tr>
-<tr class="memdesc:aa74d989a5eb99a75ef2ff6648ffb3c3a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gibt den aktuellen Session-Key zurück.<dl class="section return"><dt>Returns</dt><dd>Der 32-Byte AES-Schlüssel, oder <code>null</code> wenn die Sitzung gesperrt ist.</dd></dl>
-Das zurückgegebene Array darf NICHT gecacht werden — es wird bei <a class="el" href="interfaceLOCKnet_1_1Core_1_1Security_1_1ISessionManager.html#a3c6f338c93ec9e03bd1e3e5f29e88513" title="Sperrt die Sitzung: nullt den Session-Key im RAM und löst Locked aus.">Lock</a> genullt. Immer direkt nach Benutzung wegwerfen.   <br /></td></tr>
+<tr class="memdesc:aa74d989a5eb99a75ef2ff6648ffb3c3a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gibt eine Kopie des aktuellen Session-Keys zurueck.<dl class="section return"><dt>Returns</dt><dd>Eine 32-Byte-Kopie des AES-Schluessels, oder <code>null</code> wenn die Sitzung gesperrt ist.</dd></dl>
+Das zurueckgegebene Array ist nie der interne Puffer. Aufrufer muessen die Kopie nach Benutzung selbst nullen.   <br /></td></tr>
 <tr class="separator:aa74d989a5eb99a75ef2ff6648ffb3c3a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8b5a1b2e87c1ff63a813eed36a512da5" id="r_a8b5a1b2e87c1ff63a813eed36a512da5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLOCKnet_1_1Core_1_1Security_1_1SessionManager.html#a8b5a1b2e87c1ff63a813eed36a512da5">Open</a> (byte[] sessionKey)</td></tr>
-<tr class="memdesc:a8b5a1b2e87c1ff63a813eed36a512da5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Entsperrt die Sitzung mit dem angegebenen Schlüssel.Wird typischerweise vom <a class="el" href="interfaceLOCKnet_1_1Core_1_1Security_1_1IMasterKeyManager.html#a9057575b283b3c018426976e5285006b" title="Prüft, ob das angegebene Passwort mit dem gespeicherten Hash übereinstimmt, und gibt bei Erfolg den a...">IMasterKeyManager.Unlock</a> aufgerufen.<dl class="params"><dt>Parameters</dt><dd>
+<tr class="memdesc:a8b5a1b2e87c1ff63a813eed36a512da5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Entsperrt die Sitzung mit dem angegebenen Schlüssel.Wird typischerweise vom <a class="el" href="interfaceLOCKnet_1_1Core_1_1Security_1_1IMasterKeyManager.html#a677fb07785deb891726760940ad8406b" title="Prueft das angegebene Master-Passwort, migriert bei Bedarf Legacy-Credentialdaten in das aktuelle Sec...">IMasterKeyManager.Unlock</a> aufgerufen.<dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">sessionKey</td><td>Der 32-Byte AES-Schlüssel (Ownership geht über — nicht weiter verwenden).</td></tr>
+    <tr><td class="paramname">sessionKey</td><td>Der 32-Byte AES-Schluessel. Der uebergebene Puffer wird nach dem Kopieren genullt.</td></tr>
   </table>
   </dd>
 </dl>
@@ -158,8 +158,8 @@ Events</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Gibt den aktuellen Session-Key zurück.<dl class="section return"><dt>Returns</dt><dd>Der 32-Byte AES-Schlüssel, oder <code>null</code> wenn die Sitzung gesperrt ist.</dd></dl>
-Das zurückgegebene Array darf NICHT gecacht werden — es wird bei <a class="el" href="interfaceLOCKnet_1_1Core_1_1Security_1_1ISessionManager.html#a3c6f338c93ec9e03bd1e3e5f29e88513" title="Sperrt die Sitzung: nullt den Session-Key im RAM und löst Locked aus.">Lock</a> genullt. Immer direkt nach Benutzung wegwerfen.  </p>
+<p>Gibt eine Kopie des aktuellen Session-Keys zurueck.<dl class="section return"><dt>Returns</dt><dd>Eine 32-Byte-Kopie des AES-Schluessels, oder <code>null</code> wenn die Sitzung gesperrt ist.</dd></dl>
+Das zurueckgegebene Array ist nie der interne Puffer. Aufrufer muessen die Kopie nach Benutzung selbst nullen.  </p>
 
 <p>Implements <a class="el" href="interfaceLOCKnet_1_1Core_1_1Security_1_1ISessionManager.html#a7d9a2d753c9ee3d40b60864beed7a1d8">LOCKnet.Core.Security.ISessionManager</a>.</p>
 
@@ -218,9 +218,9 @@ Das zurückgegebene Array darf NICHT gecacht werden — es wird bei <a class="el
 </table>
 </div><div class="memdoc">
 
-<p>Entsperrt die Sitzung mit dem angegebenen Schlüssel.Wird typischerweise vom <a class="el" href="interfaceLOCKnet_1_1Core_1_1Security_1_1IMasterKeyManager.html#a9057575b283b3c018426976e5285006b" title="Prüft, ob das angegebene Passwort mit dem gespeicherten Hash übereinstimmt, und gibt bei Erfolg den a...">IMasterKeyManager.Unlock</a> aufgerufen.<dl class="params"><dt>Parameters</dt><dd>
+<p>Entsperrt die Sitzung mit dem angegebenen Schlüssel.Wird typischerweise vom <a class="el" href="interfaceLOCKnet_1_1Core_1_1Security_1_1IMasterKeyManager.html#a677fb07785deb891726760940ad8406b" title="Prueft das angegebene Master-Passwort, migriert bei Bedarf Legacy-Credentialdaten in das aktuelle Sec...">IMasterKeyManager.Unlock</a> aufgerufen.<dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">sessionKey</td><td>Der 32-Byte AES-Schlüssel (Ownership geht über — nicht weiter verwenden).</td></tr>
+    <tr><td class="paramname">sessionKey</td><td>Der 32-Byte AES-Schluessel. Der uebergebene Puffer wird nach dem Kopieren genullt.</td></tr>
   </table>
   </dd>
 </dl>

@@ -76,7 +76,8 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#namespaces">Namespaces</a> &#124;
-<a href="#nested-classes">Classes</a>  </div>
+<a href="#nested-classes">Classes</a> &#124;
+<a href="#enum-members">Enumerations</a>  </div>
   <div class="headertitle"><div class="title">LOCKnet.Data Namespace Reference</div></div>
 </div><!--header-->
 <div class="contents">
@@ -91,7 +92,66 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLOCKnet_1_1Data_1_1Database.html">Database</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Verwaltet die SQLite-Datenbankverbindung und initialisiert das Schema.  <a href="classLOCKnet_1_1Data_1_1Database.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interfaceLOCKnet_1_1Data_1_1IEncryptedVaultMigrationExporter.html">IEncryptedVaultMigrationExporter</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vertrag fuer eine spaetere Ziel-Engine, die eine Plain-Vault in eine encrypted SQLite-Vault exportieren kann.  <a href="interfaceLOCKnet_1_1Data_1_1IEncryptedVaultMigrationExporter.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interfaceLOCKnet_1_1Data_1_1ISqliteConnectionFactory.html">ISqliteConnectionFactory</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Oeffnet SQLite-Verbindungen ueber einen zentralen Storage-Seam.  <a href="interfaceLOCKnet_1_1Data_1_1ISqliteConnectionFactory.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLOCKnet_1_1Data_1_1PlainSqliteConnectionFactory.html">PlainSqliteConnectionFactory</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zentraler Connection-Factory fuer die aktuelle Plain-SQLite-Implementierung.  <a href="classLOCKnet_1_1Data_1_1PlainSqliteConnectionFactory.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><b>PlainToEncryptedVaultMigrationArtifacts</b></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><b>PlainToEncryptedVaultMigrationCoordinator</b></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><b>SqlCipherEncryptedVaultMigrationException</b></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><b>SqlCipherEncryptedVaultMigrationExporter</b></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><b>StorageRewriteArtifacts</b></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLOCKnet_1_1Data_1_1VaultStorageBootstrap.html">VaultStorageBootstrap</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bietet den aktuellen Bootstrap- und Routing-Seam fuer Storage-Modus, Datenbankinitialisierung und Repository-Erzeugung.  <a href="classLOCKnet_1_1Data_1_1VaultStorageBootstrap.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLOCKnet_1_1Data_1_1VaultStorageDescriptor.html">VaultStorageDescriptor</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Beschreibt die aktuell erkannte Storage-Konfiguration fuer eine Vault-Datei.  <a href="classLOCKnet_1_1Data_1_1VaultStorageDescriptor.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLOCKnet_1_1Data_1_1VaultStorageModeDetector.html">VaultStorageModeDetector</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ermittelt den aktuell verwendeten Storage-Modus fuer eine Vault.  <a href="classLOCKnet_1_1Data_1_1VaultStorageModeDetector.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
+Enumerations</h2></td></tr>
+<tr class="memitem:a1aba7555c9b9be008ea82d77a0a90af9" id="r_a1aba7555c9b9be008ea82d77a0a90af9"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceLOCKnet_1_1Data.html#a1aba7555c9b9be008ea82d77a0a90af9">VaultStorageMode</a> { <a class="el" href="namespaceLOCKnet_1_1Data.html#a1aba7555c9b9be008ea82d77a0a90af9a8390bc7ec7cec606c969624ef9405105">PlainSqlite</a> = 0
+, <a class="el" href="namespaceLOCKnet_1_1Data.html#a1aba7555c9b9be008ea82d77a0a90af9a761eaace01818ef6e9aba73d79ae85f1">EncryptedSqlite</a> = 1
+ }</td></tr>
+<tr class="memdesc:a1aba7555c9b9be008ea82d77a0a90af9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Beschreibt, wie die Vault-Datei auf Storage-Ebene geoeffnet wird.  <a href="namespaceLOCKnet_1_1Data.html#a1aba7555c9b9be008ea82d77a0a90af9">More...</a><br /></td></tr>
+<tr class="separator:a1aba7555c9b9be008ea82d77a0a90af9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<h2 class="groupheader">Enumeration Type Documentation</h2>
+<a id="a1aba7555c9b9be008ea82d77a0a90af9" name="a1aba7555c9b9be008ea82d77a0a90af9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1aba7555c9b9be008ea82d77a0a90af9">&#9670;&#160;</a></span>VaultStorageMode</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="namespaceLOCKnet_1_1Data.html#a1aba7555c9b9be008ea82d77a0a90af9">LOCKnet.Data.VaultStorageMode</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Beschreibt, wie die Vault-Datei auf Storage-Ebene geoeffnet wird. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a1aba7555c9b9be008ea82d77a0a90af9a8390bc7ec7cec606c969624ef9405105" name="a1aba7555c9b9be008ea82d77a0a90af9a8390bc7ec7cec606c969624ef9405105"></a>PlainSqlite&#160;</td><td class="fielddoc"><p>Normale SQLite-Datei ohne datenbankweite Dateiverschluesselung. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a1aba7555c9b9be008ea82d77a0a90af9a761eaace01818ef6e9aba73d79ae85f1" name="a1aba7555c9b9be008ea82d77a0a90af9a761eaace01818ef6e9aba73d79ae85f1"></a>EncryptedSqlite&#160;</td><td class="fielddoc"><p>Platzhalter fuer eine spaetere SQLite-Variante, die einen Schluessel bereits beim Oeffnen benoetigt. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

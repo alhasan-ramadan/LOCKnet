@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['viewlocator_0',['ViewLocator',['../classLOCKnet_1_1App_1_1ViewLocator.html',1,'LOCKnet::App']]],
-  ['viewmodelbase_1',['ViewModelBase',['../classLOCKnet_1_1App_1_1ViewModels_1_1ViewModelBase.html',1,'LOCKnet::App::ViewModels']]]
+  ['unlockresult_0',['UnlockResult',['../classLOCKnet_1_1Core_1_1Security_1_1UnlockResult.html',1,'LOCKnet::Core::Security']]]
 ];

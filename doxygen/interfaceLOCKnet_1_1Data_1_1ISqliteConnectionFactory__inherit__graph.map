@@ -1,0 +1,5 @@
+<map id="LOCKnet.Data.ISqliteConnectionFactory" name="LOCKnet.Data.ISqliteConnectionFactory">
+<area shape="rect" id="Node000001" title="Oeffnet SQLite&#45;Verbindungen ueber einen zentralen Storage&#45;Seam." alt="" coords="5,5,236,45"/>
+<area shape="rect" id="Node000002" href="$classLOCKnet_1_1Data_1_1PlainSqliteConnectionFactory.html" title="Zentraler Connection&#45;Factory fuer die aktuelle Plain&#45;SQLite&#45;Implementierung." alt="" coords="27,93,214,133"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="123,59,123,93,118,93,118,59"/>
+</map>

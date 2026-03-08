@@ -1,5 +1,3 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="Node000000" href="$interfaceLOCKnet_1_1Core_1_1Security_1_1IMasterKeyManager.html" title="Verwaltet den Master&#45;Key der Anwendung: Erstanlage, Verifikation und Passwortänderung." alt="" coords="5,5,225,45"/>
-<area shape="rect" id="Node000001" href="$classLOCKnet_1_1Core_1_1Security_1_1MasterKeyManager.html" title="Implementierung von IMasterKeyManager." alt="" coords="273,5,489,45"/>
-<area shape="poly" id="edge16_Node000000_Node000001" title=" " alt="" coords="239,23,273,23,273,28,239,28"/>
+<area shape="rect" id="Node000000" href="$classLOCKnet_1_1Core_1_1DataAbstractions_1_1CredentialSecretFormatVersion.html" title="Versionskennungen fuer das Secret&#45;Envelope&#45;Format eines Credentials." alt="" coords="5,5,237,45"/>
 </map>

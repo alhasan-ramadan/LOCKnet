@@ -94,16 +94,22 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:af6fdf46582918d4efed9a2cf058f60bb" id="r_af6fdf46582918d4efed9a2cf058f60bb"><td class="memItemLeft" align="right" valign="top">byte[]&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interfaceLOCKnet_1_1Core_1_1Crypto_1_1IEncryptionService.html#af6fdf46582918d4efed9a2cf058f60bb">Encrypt</a> (byte[] plaintext, byte[] key)</td></tr>
 <tr class="memdesc:af6fdf46582918d4efed9a2cf058f60bb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Verschlüsselt Klartext-Bytes mit dem angegebenen Schlüssel.  <br /></td></tr>
 <tr class="separator:af6fdf46582918d4efed9a2cf058f60bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5d6cd9331a079c3c10b93e0b4f4d25b7" id="r_a5d6cd9331a079c3c10b93e0b4f4d25b7"><td class="memItemLeft" align="right" valign="top">byte[]&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interfaceLOCKnet_1_1Core_1_1Crypto_1_1IEncryptionService.html#a5d6cd9331a079c3c10b93e0b4f4d25b7">Encrypt</a> (byte[] plaintext, byte[] key, byte[] associatedData)</td></tr>
+<tr class="memdesc:a5d6cd9331a079c3c10b93e0b4f4d25b7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Verschluesselt Klartext-Bytes mit optionalen Associated Data fuer AEAD-Bindung.  <br /></td></tr>
+<tr class="separator:a5d6cd9331a079c3c10b93e0b4f4d25b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a089458a1e7bf9a851cf9f47bc613e3ef" id="r_a089458a1e7bf9a851cf9f47bc613e3ef"><td class="memItemLeft" align="right" valign="top">byte[]&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interfaceLOCKnet_1_1Core_1_1Crypto_1_1IEncryptionService.html#a089458a1e7bf9a851cf9f47bc613e3ef">Decrypt</a> (byte[] cipherPacket, byte[] key)</td></tr>
 <tr class="memdesc:a089458a1e7bf9a851cf9f47bc613e3ef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Entschlüsselt ein verschlüsseltes Paket aus Encrypt.  <br /></td></tr>
 <tr class="separator:a089458a1e7bf9a851cf9f47bc613e3ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a12063190cc21b81eca7c141b4986da9b" id="r_a12063190cc21b81eca7c141b4986da9b"><td class="memItemLeft" align="right" valign="top">byte[]&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="interfaceLOCKnet_1_1Core_1_1Crypto_1_1IEncryptionService.html#a12063190cc21b81eca7c141b4986da9b">Decrypt</a> (byte[] cipherPacket, byte[] key, byte[] associatedData)</td></tr>
+<tr class="memdesc:a12063190cc21b81eca7c141b4986da9b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Entschluesselt ein verschluesseltes Paket mit Associated Data.  <br /></td></tr>
+<tr class="separator:a12063190cc21b81eca7c141b4986da9b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Verschlüsselt und entschlüsselt Daten mit AES-256-GCM. </p>
 <p>GCM bietet authenticated encryption — Manipulation der Ciphertext wird beim Entschlüsseln erkannt und als Exception gemeldet. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
 <a id="a089458a1e7bf9a851cf9f47bc613e3ef" name="a089458a1e7bf9a851cf9f47bc613e3ef"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a089458a1e7bf9a851cf9f47bc613e3ef">&#9670;&#160;</a></span>Decrypt()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a089458a1e7bf9a851cf9f47bc613e3ef">&#9670;&#160;</a></span>Decrypt() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -150,8 +156,54 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="a12063190cc21b81eca7c141b4986da9b" name="a12063190cc21b81eca7c141b4986da9b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a12063190cc21b81eca7c141b4986da9b">&#9670;&#160;</a></span>Decrypt() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">byte[] LOCKnet.Core.Crypto.IEncryptionService.Decrypt </td>
+          <td>(</td>
+          <td class="paramtype">byte[]&#160;</td>
+          <td class="paramname"><em>cipherPacket</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">byte[]&#160;</td>
+          <td class="paramname"><em>key</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">byte[]&#160;</td>
+          <td class="paramname"><em>associatedData</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Entschluesselt ein verschluesseltes Paket mit Associated Data. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">cipherPacket</td><td>Das Paket aus Encrypt(byte[], byte[], byte[]).</td></tr>
+    <tr><td class="paramname">key</td><td>AES-256-Schluessel (genau 32 Bytes).</td></tr>
+    <tr><td class="paramname">associatedData</td><td>Authentisierte Metadaten, die exakt zum Encrypt-Aufruf passen muessen.</td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p>Implemented in <a class="el" href="classLOCKnet_1_1Core_1_1Crypto_1_1AesGcmEncryptionService.html#a0a5f5af5add8b62ac5378f45d233ceb8">LOCKnet.Core.Crypto.AesGcmEncryptionService</a>.</p>
+
+</div>
+</div>
 <a id="af6fdf46582918d4efed9a2cf058f60bb" name="af6fdf46582918d4efed9a2cf058f60bb"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af6fdf46582918d4efed9a2cf058f60bb">&#9670;&#160;</a></span>Encrypt()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#af6fdf46582918d4efed9a2cf058f60bb">&#9670;&#160;</a></span>Encrypt() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -194,6 +246,52 @@ Public Member Functions</h2></td></tr>
 </dl>
 
 <p>Implemented in <a class="el" href="classLOCKnet_1_1Core_1_1Crypto_1_1AesGcmEncryptionService.html#af33bad9cce1d65d9b9970ed28a3d8407">LOCKnet.Core.Crypto.AesGcmEncryptionService</a>.</p>
+
+</div>
+</div>
+<a id="a5d6cd9331a079c3c10b93e0b4f4d25b7" name="a5d6cd9331a079c3c10b93e0b4f4d25b7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5d6cd9331a079c3c10b93e0b4f4d25b7">&#9670;&#160;</a></span>Encrypt() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">byte[] LOCKnet.Core.Crypto.IEncryptionService.Encrypt </td>
+          <td>(</td>
+          <td class="paramtype">byte[]&#160;</td>
+          <td class="paramname"><em>plaintext</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">byte[]&#160;</td>
+          <td class="paramname"><em>key</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">byte[]&#160;</td>
+          <td class="paramname"><em>associatedData</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Verschluesselt Klartext-Bytes mit optionalen Associated Data fuer AEAD-Bindung. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">plaintext</td><td>Die zu verschluesselnden Bytes.</td></tr>
+    <tr><td class="paramname">key</td><td>AES-256-Schluessel (genau 32 Bytes).</td></tr>
+    <tr><td class="paramname">associatedData</td><td>Authentisierte, aber nicht verschluesselte Metadaten.</td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p>Implemented in <a class="el" href="classLOCKnet_1_1Core_1_1Crypto_1_1AesGcmEncryptionService.html#a6d8da16b6615a924e4fd367085e76e56">LOCKnet.Core.Crypto.AesGcmEncryptionService</a>.</p>
 
 </div>
 </div>

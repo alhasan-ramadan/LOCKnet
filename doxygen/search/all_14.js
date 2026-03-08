@@ -1,4 +1,31 @@
 var searchData=
 [
-  ['zeromemory_0',['zeromemory',['../interfaceLOCKnet_1_1Core_1_1Crypto_1_1ISecureStringService.html#a83e4383095a8b9ee33760e4c1e031494',1,'LOCKnet.Core.Crypto.ISecureStringService.ZeroMemory()'],['../classLOCKnet_1_1Core_1_1Crypto_1_1SecureStringService.html#ac0f77622721124087ff7493dde52d8a5',1,'LOCKnet.Core.Crypto.SecureStringService.ZeroMemory()']]]
+  ['validateexportedvault_0',['ValidateExportedVault',['../interfaceLOCKnet_1_1Data_1_1IEncryptedVaultMigrationExporter.html#abf472b6f6e67f3d16822b9abf090c6a1',1,'LOCKnet::Data::IEncryptedVaultMigrationExporter']]],
+  ['validateparameters_1',['validateparameters',['../interfaceLOCKnet_1_1Core_1_1Crypto_1_1IKeyDerivationService.html#a5cd75d0d90831f08967bfaace60f5b78',1,'LOCKnet.Core.Crypto.IKeyDerivationService.ValidateParameters()'],['../classLOCKnet_1_1Core_1_1Crypto_1_1Pbkdf2KeyDerivationService.html#aec4bf9360dd42d1d800f801b1f64b9fc',1,'LOCKnet.Core.Crypto.Pbkdf2KeyDerivationService.ValidateParameters()']]],
+  ['vaultheader_2',['VaultHeader',['../classLOCKnet_1_1Core_1_1DataAbstractions_1_1VaultHeader.html',1,'LOCKnet::Core::DataAbstractions']]],
+  ['vaultheader_2ecs_3',['VaultHeader.cs',['../VaultHeader_8cs.html',1,'']]],
+  ['vaultheaderformatversion_4',['VaultHeaderFormatVersion',['../classLOCKnet_1_1Core_1_1DataAbstractions_1_1VaultHeaderFormatVersion.html',1,'LOCKnet::Core::DataAbstractions']]],
+  ['vaultheaderformatversion_2ecs_5',['VaultHeaderFormatVersion.cs',['../VaultHeaderFormatVersion_8cs.html',1,'']]],
+  ['vaultkdfparameters_6',['VaultKdfParameters',['../classLOCKnet_1_1Core_1_1DataAbstractions_1_1VaultKdfParameters.html',1,'LOCKnet::Core::DataAbstractions']]],
+  ['vaultkdfparameters_2ecs_7',['VaultKdfParameters.cs',['../VaultKdfParameters_8cs.html',1,'']]],
+  ['vaultkey_8',['VaultKey',['../classLOCKnet_1_1Core_1_1Security_1_1UnlockResult.html#a37e4f6e6982d39073550580ed7f62f1e',1,'LOCKnet::Core::Security::UnlockResult']]],
+  ['vaultmigrationrepository_9',['vaultmigrationrepository',['../classLOCKnet_1_1Data_1_1Repositories_1_1VaultMigrationRepository.html#a0869093a9293c3b229bed3544e811c69',1,'LOCKnet.Data.Repositories.VaultMigrationRepository.VaultMigrationRepository(ISqliteConnectionFactory connectionFactory)'],['../classLOCKnet_1_1Data_1_1Repositories_1_1VaultMigrationRepository.html#a289327589596c17bde8757cec999f987',1,'LOCKnet.Data.Repositories.VaultMigrationRepository.VaultMigrationRepository(string connectionString)'],['../classLOCKnet_1_1Data_1_1Repositories_1_1VaultMigrationRepository.html',1,'LOCKnet.Data.Repositories.VaultMigrationRepository']]],
+  ['vaultmigrationrepository_2ecs_10',['VaultMigrationRepository.cs',['../VaultMigrationRepository_8cs.html',1,'']]],
+  ['vaultstoragebootstrap_11',['vaultstoragebootstrap',['../classLOCKnet_1_1Data_1_1VaultStorageBootstrap.html#a7b8d34deea6e24ba80a47ddd483ced29',1,'LOCKnet.Data.VaultStorageBootstrap.VaultStorageBootstrap(ISqliteConnectionFactory connectionFactory)'],['../classLOCKnet_1_1Data_1_1VaultStorageBootstrap.html#a37f502b4e4751de2d0e422ad342fe501',1,'LOCKnet.Data.VaultStorageBootstrap.VaultStorageBootstrap(string databasePath)'],['../classLOCKnet_1_1Data_1_1VaultStorageBootstrap.html',1,'LOCKnet.Data.VaultStorageBootstrap']]],
+  ['vaultstoragebootstrap_2ecs_12',['VaultStorageBootstrap.cs',['../VaultStorageBootstrap_8cs.html',1,'']]],
+  ['vaultstoragedescriptor_13',['vaultstoragedescriptor',['../classLOCKnet_1_1Data_1_1VaultStorageDescriptor.html#acc7eb39abe045db7ef4e857825b7ad76',1,'LOCKnet.Data.VaultStorageDescriptor.VaultStorageDescriptor()'],['../classLOCKnet_1_1Data_1_1VaultStorageDescriptor.html',1,'LOCKnet.Data.VaultStorageDescriptor']]],
+  ['vaultstoragedescriptor_2ecs_14',['VaultStorageDescriptor.cs',['../VaultStorageDescriptor_8cs.html',1,'']]],
+  ['vaultstoragemigrationstate_15',['VaultStorageMigrationState',['../namespaceLOCKnet_1_1Core_1_1DataAbstractions.html#a7cb3d82b2c17b6b2d88b624002377117',1,'LOCKnet::Core::DataAbstractions']]],
+  ['vaultstoragemigrationstate_2ecs_16',['VaultStorageMigrationState.cs',['../VaultStorageMigrationState_8cs.html',1,'']]],
+  ['vaultstoragemigrationtargetmode_17',['VaultStorageMigrationTargetMode',['../namespaceLOCKnet_1_1Core_1_1DataAbstractions.html#a261aedd67306cdce832c77714feaa8dd',1,'LOCKnet::Core::DataAbstractions']]],
+  ['vaultstoragemigrationtargetmode_2ecs_18',['VaultStorageMigrationTargetMode.cs',['../VaultStorageMigrationTargetMode_8cs.html',1,'']]],
+  ['vaultstoragemode_19',['VaultStorageMode',['../namespaceLOCKnet_1_1Data.html#a1aba7555c9b9be008ea82d77a0a90af9',1,'LOCKnet::Data']]],
+  ['vaultstoragemode_2ecs_20',['VaultStorageMode.cs',['../VaultStorageMode_8cs.html',1,'']]],
+  ['vaultstoragemodedetector_21',['VaultStorageModeDetector',['../classLOCKnet_1_1Data_1_1VaultStorageModeDetector.html',1,'LOCKnet::Data']]],
+  ['vaultstoragemodedetector_2ecs_22',['VaultStorageModeDetector.cs',['../VaultStorageModeDetector_8cs.html',1,'']]],
+  ['verifypassword_23',['verifypassword',['../interfaceLOCKnet_1_1Core_1_1Crypto_1_1IKeyDerivationService.html#a30ce68f8d0664fdfd4bc28f975a65e88',1,'LOCKnet.Core.Crypto.IKeyDerivationService.VerifyPassword(byte[] password, byte[] salt, byte[] storedHash)'],['../interfaceLOCKnet_1_1Core_1_1Crypto_1_1IKeyDerivationService.html#a6b6370ac2947666e447ca1a7034984a5',1,'LOCKnet.Core.Crypto.IKeyDerivationService.VerifyPassword(byte[] password, byte[] salt, byte[] storedHash, VaultKdfParameters parameters)'],['../classLOCKnet_1_1Core_1_1Crypto_1_1Pbkdf2KeyDerivationService.html#a1c10c67bad537bf04d1a599e6f0ba092',1,'LOCKnet.Core.Crypto.Pbkdf2KeyDerivationService.VerifyPassword(byte[] password, byte[] salt, byte[] storedHash)'],['../classLOCKnet_1_1Core_1_1Crypto_1_1Pbkdf2KeyDerivationService.html#a8c2ec8062ff22f690fded409446dd315',1,'LOCKnet.Core.Crypto.Pbkdf2KeyDerivationService.VerifyPassword(byte[] password, byte[] salt, byte[] storedHash, VaultKdfParameters parameters)']]],
+  ['viewlocator_24',['ViewLocator',['../classLOCKnet_1_1App_1_1ViewLocator.html',1,'LOCKnet::App']]],
+  ['viewlocator_2ecs_25',['ViewLocator.cs',['../ViewLocator_8cs.html',1,'']]],
+  ['viewmodelbase_26',['ViewModelBase',['../classLOCKnet_1_1App_1_1ViewModels_1_1ViewModelBase.html',1,'LOCKnet::App::ViewModels']]],
+  ['viewmodelbase_2ecs_27',['ViewModelBase.cs',['../ViewModelBase_8cs.html',1,'']]]
 ];

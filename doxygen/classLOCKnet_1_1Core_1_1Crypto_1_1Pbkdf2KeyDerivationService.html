@@ -76,6 +76,7 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#properties">Properties</a> &#124;
 <a href="classLOCKnet_1_1Core_1_1Crypto_1_1Pbkdf2KeyDerivationService-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">LOCKnet.Core.Crypto.Pbkdf2KeyDerivationService Class Reference<span class="mlabels"><span class="mlabel">sealed</span></span></div></div>
 </div><!--header-->
@@ -96,6 +97,12 @@ Collaboration diagram for LOCKnet.Core.Crypto.Pbkdf2KeyDerivationService:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr class="memitem:aa06f2d14586cf3bd72adbb68eaffbc87" id="r_aa06f2d14586cf3bd72adbb68eaffbc87"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classLOCKnet_1_1Core_1_1DataAbstractions_1_1VaultKdfParameters.html">VaultKdfParameters</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLOCKnet_1_1Core_1_1Crypto_1_1Pbkdf2KeyDerivationService.html#aa06f2d14586cf3bd72adbb68eaffbc87">GetDefaultParameters</a> ()</td></tr>
+<tr class="memdesc:aa06f2d14586cf3bd72adbb68eaffbc87"><td class="mdescLeft">&#160;</td><td class="mdescRight">Liefert die Standardparameter fuer neue Vault-Header.  <br /></td></tr>
+<tr class="separator:aa06f2d14586cf3bd72adbb68eaffbc87"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aec4bf9360dd42d1d800f801b1f64b9fc" id="r_aec4bf9360dd42d1d800f801b1f64b9fc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLOCKnet_1_1Core_1_1Crypto_1_1Pbkdf2KeyDerivationService.html#aec4bf9360dd42d1d800f801b1f64b9fc">ValidateParameters</a> (<a class="el" href="classLOCKnet_1_1Core_1_1DataAbstractions_1_1VaultKdfParameters.html">VaultKdfParameters</a> parameters)</td></tr>
+<tr class="memdesc:aec4bf9360dd42d1d800f801b1f64b9fc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validiert persistierte KDF-Parameter und wirft bei unsicheren oder ungueltigen Werten.  <br /></td></tr>
+<tr class="separator:aec4bf9360dd42d1d800f801b1f64b9fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0adcf2f7a38476f8e76fa2aeb0b31fa4" id="r_a0adcf2f7a38476f8e76fa2aeb0b31fa4"><td class="memItemLeft" align="right" valign="top">byte[]&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLOCKnet_1_1Core_1_1Crypto_1_1Pbkdf2KeyDerivationService.html#a0adcf2f7a38476f8e76fa2aeb0b31fa4">GenerateSalt</a> (int length=32)</td></tr>
 <tr class="memdesc:a0adcf2f7a38476f8e76fa2aeb0b31fa4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generiert einen kryptografisch sicheren zufälligen Salt.<dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -116,6 +123,17 @@ Public Member Functions</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>32-Byte AES-Schlüssel.</dd></dl>
   <br /></td></tr>
 <tr class="separator:a73181146965bcabaa49d99f80298c4ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab296771b45bb162f3a234f5386288a39" id="r_ab296771b45bb162f3a234f5386288a39"><td class="memItemLeft" align="right" valign="top">byte[]&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLOCKnet_1_1Core_1_1Crypto_1_1Pbkdf2KeyDerivationService.html#ab296771b45bb162f3a234f5386288a39">DeriveKey</a> (byte[] password, byte[] salt, <a class="el" href="classLOCKnet_1_1Core_1_1DataAbstractions_1_1VaultKdfParameters.html">VaultKdfParameters</a> parameters)</td></tr>
+<tr class="memdesc:ab296771b45bb162f3a234f5386288a39"><td class="mdescLeft">&#160;</td><td class="mdescRight">Leitet einen AES-256-Schluessel mit expliziten KDF-Parametern ab.<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">password</td><td>Das Master-Passwort als Byte-Array.</td></tr>
+    <tr><td class="paramname">salt</td><td>Der persistierte Salt.</td></tr>
+    <tr><td class="paramname">parameters</td><td>Die zu verwendenden KDF-Parameter.</td></tr>
+  </table>
+  </dd>
+</dl>
+  <br /></td></tr>
+<tr class="separator:ab296771b45bb162f3a234f5386288a39"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7a3808f23ef727b4bc3f64a17d046afe" id="r_a7a3808f23ef727b4bc3f64a17d046afe"><td class="memItemLeft" align="right" valign="top">byte[]&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLOCKnet_1_1Core_1_1Crypto_1_1Pbkdf2KeyDerivationService.html#a7a3808f23ef727b4bc3f64a17d046afe">ComputePasswordHash</a> (byte[] password, byte[] salt)</td></tr>
 <tr class="memdesc:a7a3808f23ef727b4bc3f64a17d046afe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Erstellt einen gespeicherten Passwort-Hash für die Datenbank.Dieser Hash dient zur späteren Verifikation, nicht zur Schlüsselableitung.<dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -124,9 +142,12 @@ Public Member Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Hash-Bytes zum Speichern in <a class="el" href="classLOCKnet_1_1Core_1_1DataAbstractions_1_1MasterKeyRecord.html#a7e0252e1e21021c1f9755d0c736ccd7d" title="PBKDF2-Hash des Master-Passworts (zum Verifizieren beim Login).">DataAbstractions.MasterKeyRecord.PasswordHash</a>.</dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Hash-Bytes zum Speichern fuer Kompatibilitaets- und Migrationszwecke.</dd></dl>
   <br /></td></tr>
 <tr class="separator:a7a3808f23ef727b4bc3f64a17d046afe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5948f232569d3a4d2fc71f80f4d4bb56" id="r_a5948f232569d3a4d2fc71f80f4d4bb56"><td class="memItemLeft" align="right" valign="top">byte[]&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLOCKnet_1_1Core_1_1Crypto_1_1Pbkdf2KeyDerivationService.html#a5948f232569d3a4d2fc71f80f4d4bb56">ComputePasswordHash</a> (byte[] password, byte[] salt, <a class="el" href="classLOCKnet_1_1Core_1_1DataAbstractions_1_1VaultKdfParameters.html">VaultKdfParameters</a> parameters)</td></tr>
+<tr class="memdesc:a5948f232569d3a4d2fc71f80f4d4bb56"><td class="mdescLeft">&#160;</td><td class="mdescRight">Erstellt einen gespeicherten Passwort-Hash mit expliziten KDF-Parametern.  <br /></td></tr>
+<tr class="separator:a5948f232569d3a4d2fc71f80f4d4bb56"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1c10c67bad537bf04d1a599e6f0ba092" id="r_a1c10c67bad537bf04d1a599e6f0ba092"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLOCKnet_1_1Core_1_1Crypto_1_1Pbkdf2KeyDerivationService.html#a1c10c67bad537bf04d1a599e6f0ba092">VerifyPassword</a> (byte[] password, byte[] salt, byte[] storedHash)</td></tr>
 <tr class="memdesc:a1c10c67bad537bf04d1a599e6f0ba092"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prüft, ob das eingegebene Passwort zum gespeicherten Hash passt.Läuft in konstanter Zeit (timing-safe).<dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -138,19 +159,26 @@ Public Member Functions</h2></td></tr>
 </dl>
   <br /></td></tr>
 <tr class="separator:a1c10c67bad537bf04d1a599e6f0ba092"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8c2ec8062ff22f690fded409446dd315" id="r_a8c2ec8062ff22f690fded409446dd315"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLOCKnet_1_1Core_1_1Crypto_1_1Pbkdf2KeyDerivationService.html#a8c2ec8062ff22f690fded409446dd315">VerifyPassword</a> (byte[] password, byte[] salt, byte[] storedHash, <a class="el" href="classLOCKnet_1_1Core_1_1DataAbstractions_1_1VaultKdfParameters.html">VaultKdfParameters</a> parameters)</td></tr>
+<tr class="memdesc:a8c2ec8062ff22f690fded409446dd315"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prueft einen gespeicherten Passwort-Hash mit expliziten KDF-Parametern.  <br /></td></tr>
+<tr class="separator:a8c2ec8062ff22f690fded409446dd315"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="properties" name="properties"></a>
+Properties</h2></td></tr>
+<tr class="memitem:a9b6de29f982d069eb1590152cc3d57ba" id="r_a9b6de29f982d069eb1590152cc3d57ba"><td class="memItemLeft" align="right" valign="top">string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLOCKnet_1_1Core_1_1Crypto_1_1Pbkdf2KeyDerivationService.html#a9b6de29f982d069eb1590152cc3d57ba">Identifier</a><code> [get]</code></td></tr>
+<tr class="memdesc:a9b6de29f982d069eb1590152cc3d57ba"><td class="mdescLeft">&#160;</td><td class="mdescRight">Eindeutiger Bezeichner der KDF-Implementierung.  <br /></td></tr>
+<tr class="separator:a9b6de29f982d069eb1590152cc3d57ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header properties_interfaceLOCKnet_1_1Core_1_1Crypto_1_1IKeyDerivationService"><td colspan="2" onclick="javascript:toggleInherit('properties_interfaceLOCKnet_1_1Core_1_1Crypto_1_1IKeyDerivationService')"><img src="closed.png" alt="-"/>&#160;Properties inherited from <a class="el" href="interfaceLOCKnet_1_1Core_1_1Crypto_1_1IKeyDerivationService.html">LOCKnet.Core.Crypto.IKeyDerivationService</a></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>PBKDF2-Implementierung von IKeyDerivationService. </p>
 <p>Nutzt HMAC-SHA256, 600.000 Iterationen (OWASP-Empfehlung 2023). </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
 <a id="a7a3808f23ef727b4bc3f64a17d046afe" name="a7a3808f23ef727b4bc3f64a17d046afe"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7a3808f23ef727b4bc3f64a17d046afe">&#9670;&#160;</a></span>ComputePasswordHash()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a7a3808f23ef727b4bc3f64a17d046afe">&#9670;&#160;</a></span>ComputePasswordHash() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname">byte[] LOCKnet.Core.Crypto.Pbkdf2KeyDerivationService.ComputePasswordHash </td>
@@ -170,11 +198,6 @@ Public Member Functions</h2></td></tr>
           <td></td><td></td>
         </tr>
       </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
 </div><div class="memdoc">
 
 <p>Erstellt einen gespeicherten Passwort-Hash für die Datenbank.Dieser Hash dient zur späteren Verifikation, nicht zur Schlüsselableitung.<dl class="params"><dt>Parameters</dt><dd>
@@ -184,21 +207,64 @@ Public Member Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Hash-Bytes zum Speichern in <a class="el" href="classLOCKnet_1_1Core_1_1DataAbstractions_1_1MasterKeyRecord.html#a7e0252e1e21021c1f9755d0c736ccd7d" title="PBKDF2-Hash des Master-Passworts (zum Verifizieren beim Login).">DataAbstractions.MasterKeyRecord.PasswordHash</a>.</dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Hash-Bytes zum Speichern fuer Kompatibilitaets- und Migrationszwecke.</dd></dl>
  </p>
 
 <p>Implements <a class="el" href="interfaceLOCKnet_1_1Core_1_1Crypto_1_1IKeyDerivationService.html#a0942320a4ecdcbaf3c4fd0db6bed5906">LOCKnet.Core.Crypto.IKeyDerivationService</a>.</p>
 
 </div>
 </div>
-<a id="a73181146965bcabaa49d99f80298c4ac" name="a73181146965bcabaa49d99f80298c4ac"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a73181146965bcabaa49d99f80298c4ac">&#9670;&#160;</a></span>DeriveKey()</h2>
+<a id="a5948f232569d3a4d2fc71f80f4d4bb56" name="a5948f232569d3a4d2fc71f80f4d4bb56"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5948f232569d3a4d2fc71f80f4d4bb56">&#9670;&#160;</a></span>ComputePasswordHash() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">byte[] LOCKnet.Core.Crypto.Pbkdf2KeyDerivationService.ComputePasswordHash </td>
+          <td>(</td>
+          <td class="paramtype">byte[]&#160;</td>
+          <td class="paramname"><em>password</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">byte[]&#160;</td>
+          <td class="paramname"><em>salt</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classLOCKnet_1_1Core_1_1DataAbstractions_1_1VaultKdfParameters.html">VaultKdfParameters</a>&#160;</td>
+          <td class="paramname"><em>parameters</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Erstellt einen gespeicherten Passwort-Hash mit expliziten KDF-Parametern. </p>
+
+<p>Implements <a class="el" href="interfaceLOCKnet_1_1Core_1_1Crypto_1_1IKeyDerivationService.html#a391368525ba938e68852f747f5de3b23">LOCKnet.Core.Crypto.IKeyDerivationService</a>.</p>
+
+</div>
+</div>
+<a id="a73181146965bcabaa49d99f80298c4ac" name="a73181146965bcabaa49d99f80298c4ac"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a73181146965bcabaa49d99f80298c4ac">&#9670;&#160;</a></span>DeriveKey() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
       <table class="memname">
         <tr>
           <td class="memname">byte[] LOCKnet.Core.Crypto.Pbkdf2KeyDerivationService.DeriveKey </td>
@@ -218,11 +284,6 @@ Public Member Functions</h2></td></tr>
           <td></td><td></td>
         </tr>
       </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
 </div><div class="memdoc">
 
 <p>Leitet einen AES-256-Schlüssel (32 Bytes) aus dem Master-Passwort ab.<dl class="params"><dt>Parameters</dt><dd>
@@ -236,6 +297,60 @@ Public Member Functions</h2></td></tr>
  </p>
 
 <p>Implements <a class="el" href="interfaceLOCKnet_1_1Core_1_1Crypto_1_1IKeyDerivationService.html#a8b5910f636457c81fb4891f61b0fa982">LOCKnet.Core.Crypto.IKeyDerivationService</a>.</p>
+
+</div>
+</div>
+<a id="ab296771b45bb162f3a234f5386288a39" name="ab296771b45bb162f3a234f5386288a39"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab296771b45bb162f3a234f5386288a39">&#9670;&#160;</a></span>DeriveKey() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">byte[] LOCKnet.Core.Crypto.Pbkdf2KeyDerivationService.DeriveKey </td>
+          <td>(</td>
+          <td class="paramtype">byte[]&#160;</td>
+          <td class="paramname"><em>password</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">byte[]&#160;</td>
+          <td class="paramname"><em>salt</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classLOCKnet_1_1Core_1_1DataAbstractions_1_1VaultKdfParameters.html">VaultKdfParameters</a>&#160;</td>
+          <td class="paramname"><em>parameters</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Leitet einen AES-256-Schluessel mit expliziten KDF-Parametern ab.<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">password</td><td>Das Master-Passwort als Byte-Array.</td></tr>
+    <tr><td class="paramname">salt</td><td>Der persistierte Salt.</td></tr>
+    <tr><td class="paramname">parameters</td><td>Die zu verwendenden KDF-Parameter.</td></tr>
+  </table>
+  </dd>
+</dl>
+ </p>
+
+<p>Implements <a class="el" href="interfaceLOCKnet_1_1Core_1_1Crypto_1_1IKeyDerivationService.html#ae6e226f3e6c65b0859521097dfa9e2d1">LOCKnet.Core.Crypto.IKeyDerivationService</a>.</p>
 
 </div>
 </div>
@@ -275,14 +390,54 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a1c10c67bad537bf04d1a599e6f0ba092" name="a1c10c67bad537bf04d1a599e6f0ba092"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1c10c67bad537bf04d1a599e6f0ba092">&#9670;&#160;</a></span>VerifyPassword()</h2>
+<a id="aa06f2d14586cf3bd72adbb68eaffbc87" name="aa06f2d14586cf3bd72adbb68eaffbc87"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa06f2d14586cf3bd72adbb68eaffbc87">&#9670;&#160;</a></span>GetDefaultParameters()</h2>
 
 <div class="memitem">
 <div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classLOCKnet_1_1Core_1_1DataAbstractions_1_1VaultKdfParameters.html">VaultKdfParameters</a> LOCKnet.Core.Crypto.Pbkdf2KeyDerivationService.GetDefaultParameters </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Liefert die Standardparameter fuer neue Vault-Header. </p>
+
+<p>Implements <a class="el" href="interfaceLOCKnet_1_1Core_1_1Crypto_1_1IKeyDerivationService.html#a47a224fbd0d0ae69168227cc814154d3">LOCKnet.Core.Crypto.IKeyDerivationService</a>.</p>
+
+</div>
+</div>
+<a id="aec4bf9360dd42d1d800f801b1f64b9fc" name="aec4bf9360dd42d1d800f801b1f64b9fc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aec4bf9360dd42d1d800f801b1f64b9fc">&#9670;&#160;</a></span>ValidateParameters()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void LOCKnet.Core.Crypto.Pbkdf2KeyDerivationService.ValidateParameters </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classLOCKnet_1_1Core_1_1DataAbstractions_1_1VaultKdfParameters.html">VaultKdfParameters</a>&#160;</td>
+          <td class="paramname"><em>parameters</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Validiert persistierte KDF-Parameter und wirft bei unsicheren oder ungueltigen Werten. </p>
+
+<p>Implements <a class="el" href="interfaceLOCKnet_1_1Core_1_1Crypto_1_1IKeyDerivationService.html#a5cd75d0d90831f08967bfaace60f5b78">LOCKnet.Core.Crypto.IKeyDerivationService</a>.</p>
+
+</div>
+</div>
+<a id="a1c10c67bad537bf04d1a599e6f0ba092" name="a1c10c67bad537bf04d1a599e6f0ba092"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1c10c67bad537bf04d1a599e6f0ba092">&#9670;&#160;</a></span>VerifyPassword() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
       <table class="memname">
         <tr>
           <td class="memname">bool LOCKnet.Core.Crypto.Pbkdf2KeyDerivationService.VerifyPassword </td>
@@ -308,11 +463,6 @@ Public Member Functions</h2></td></tr>
           <td></td><td></td>
         </tr>
       </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
 </div><div class="memdoc">
 
 <p>Prüft, ob das eingegebene Passwort zum gespeicherten Hash passt.Läuft in konstanter Zeit (timing-safe).<dl class="params"><dt>Parameters</dt><dd>
@@ -326,6 +476,85 @@ Public Member Functions</h2></td></tr>
  </p>
 
 <p>Implements <a class="el" href="interfaceLOCKnet_1_1Core_1_1Crypto_1_1IKeyDerivationService.html#a30ce68f8d0664fdfd4bc28f975a65e88">LOCKnet.Core.Crypto.IKeyDerivationService</a>.</p>
+
+</div>
+</div>
+<a id="a8c2ec8062ff22f690fded409446dd315" name="a8c2ec8062ff22f690fded409446dd315"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8c2ec8062ff22f690fded409446dd315">&#9670;&#160;</a></span>VerifyPassword() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool LOCKnet.Core.Crypto.Pbkdf2KeyDerivationService.VerifyPassword </td>
+          <td>(</td>
+          <td class="paramtype">byte[]&#160;</td>
+          <td class="paramname"><em>password</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">byte[]&#160;</td>
+          <td class="paramname"><em>salt</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">byte[]&#160;</td>
+          <td class="paramname"><em>storedHash</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classLOCKnet_1_1Core_1_1DataAbstractions_1_1VaultKdfParameters.html">VaultKdfParameters</a>&#160;</td>
+          <td class="paramname"><em>parameters</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Prueft einen gespeicherten Passwort-Hash mit expliziten KDF-Parametern. </p>
+
+<p>Implements <a class="el" href="interfaceLOCKnet_1_1Core_1_1Crypto_1_1IKeyDerivationService.html#a6b6370ac2947666e447ca1a7034984a5">LOCKnet.Core.Crypto.IKeyDerivationService</a>.</p>
+
+</div>
+</div>
+<h2 class="groupheader">Property Documentation</h2>
+<a id="a9b6de29f982d069eb1590152cc3d57ba" name="a9b6de29f982d069eb1590152cc3d57ba"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9b6de29f982d069eb1590152cc3d57ba">&#9670;&#160;</a></span>Identifier</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">string LOCKnet.Core.Crypto.Pbkdf2KeyDerivationService.Identifier</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">get</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Eindeutiger Bezeichner der KDF-Implementierung. </p>
+
+<p>Implements <a class="el" href="interfaceLOCKnet_1_1Core_1_1Crypto_1_1IKeyDerivationService.html#a631b535b9770dcfac91fc7e2ed088c2d">LOCKnet.Core.Crypto.IKeyDerivationService</a>.</p>
 
 </div>
 </div>

@@ -1,5 +1,6 @@
 var searchData=
 [
-  ['timeout_0',['timeout',['../classLOCKnet_1_1Core_1_1Security_1_1ActivityMonitor.html#a3d68af5266279d8c61052f2c51b19f4a',1,'LOCKnet.Core.Security.ActivityMonitor.Timeout'],['../interfaceLOCKnet_1_1Core_1_1Security_1_1IActivityMonitor.html#ae5de64b10b166de5dad813679e956a6b',1,'LOCKnet.Core.Security.IActivityMonitor.Timeout']]],
-  ['title_1',['Title',['../classLOCKnet_1_1Core_1_1DataAbstractions_1_1CredentialRecord.html#af4dcf4450f1ee70b61906109018b33d0',1,'LOCKnet::Core::DataAbstractions::CredentialRecord']]]
+  ['masterkeymanager_0',['MasterKeyManager',['../classLOCKnet_1_1App_1_1AppServices.html#a84febd1c0e97a0f74d3a82db3d21dba5',1,'LOCKnet::App::AppServices']]],
+  ['metadataformatversion_1',['MetadataFormatVersion',['../classLOCKnet_1_1Core_1_1DataAbstractions_1_1CredentialRecord.html#a4aa172a06bd308f1b531d1733e48fd61',1,'LOCKnet::Core::DataAbstractions::CredentialRecord']]],
+  ['mode_2',['Mode',['../classLOCKnet_1_1Data_1_1VaultStorageDescriptor.html#a9d595831dfaa276f172765ca84cf9898',1,'LOCKnet::Data::VaultStorageDescriptor']]]
 ];

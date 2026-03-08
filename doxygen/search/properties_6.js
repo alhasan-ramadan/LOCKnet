@@ -1,4 +1,15 @@
 var searchData=
 [
-  ['notes_0',['Notes',['../classLOCKnet_1_1Core_1_1DataAbstractions_1_1CredentialRecord.html#adefe6746ef9951635efb1c92feb316b1',1,'LOCKnet::Core::DataAbstractions::CredentialRecord']]]
+  ['iconkey_0',['IconKey',['../classLOCKnet_1_1Core_1_1DataAbstractions_1_1CredentialRecord.html#a9544fe68355faf45e4ee06b23381538b',1,'LOCKnet::Core::DataAbstractions::CredentialRecord']]],
+  ['id_1',['Id',['../classLOCKnet_1_1Core_1_1DataAbstractions_1_1CredentialRecord.html#a9b977e05c2b9a66941fd45910fa5ad95',1,'LOCKnet::Core::DataAbstractions::CredentialRecord']]],
+  ['identifier_2',['identifier',['../interfaceLOCKnet_1_1Core_1_1Crypto_1_1IKeyDerivationService.html#a631b535b9770dcfac91fc7e2ed088c2d',1,'LOCKnet.Core.Crypto.IKeyDerivationService.Identifier'],['../classLOCKnet_1_1Core_1_1Crypto_1_1Pbkdf2KeyDerivationService.html#a9b6de29f982d069eb1590152cc3d57ba',1,'LOCKnet.Core.Crypto.Pbkdf2KeyDerivationService.Identifier']]],
+  ['isapikeycredential_3',['IsApiKeyCredential',['../classLOCKnet_1_1App_1_1ViewModels_1_1CredentialDetailViewModel.html#a7cc8be8c1866397f1545f85e7bf80ff9',1,'LOCKnet::App::ViewModels::CredentialDetailViewModel']]],
+  ['iseditmode_4',['IsEditMode',['../classLOCKnet_1_1App_1_1ViewModels_1_1CredentialDetailViewModel.html#a21ec470c96bb45c3f214479bb4d7b501',1,'LOCKnet::App::ViewModels::CredentialDetailViewModel']]],
+  ['isinitialized_5',['isinitialized',['../interfaceLOCKnet_1_1Core_1_1Security_1_1IMasterKeyManager.html#a904577545b48af26d1b71595703ee32d',1,'LOCKnet.Core.Security.IMasterKeyManager.IsInitialized'],['../classLOCKnet_1_1Core_1_1Security_1_1MasterKeyManager.html#a411d27af13f87b370d9b09ed3815f4d9',1,'LOCKnet.Core.Security.MasterKeyManager.IsInitialized']]],
+  ['islaststep_6',['IsLastStep',['../classLOCKnet_1_1App_1_1ViewModels_1_1TutorialViewModel.html#a0dd176d393e4e52738f0b4bd9450063a',1,'LOCKnet::App::ViewModels::TutorialViewModel']]],
+  ['ispasswordcredential_7',['IsPasswordCredential',['../classLOCKnet_1_1App_1_1ViewModels_1_1CredentialDetailViewModel.html#ade258082aa0a7f00ee85b5d5ff93f6c8',1,'LOCKnet::App::ViewModels::CredentialDetailViewModel']]],
+  ['ispending_8',['IsPending',['../classLOCKnet_1_1Core_1_1DataAbstractions_1_1StorageCompactionInfo.html#a3ab01e3a81687e17583714e2e8a98515',1,'LOCKnet::Core::DataAbstractions::StorageCompactionInfo']]],
+  ['isrunning_9',['isrunning',['../classLOCKnet_1_1Core_1_1Security_1_1ActivityMonitor.html#adfaedb0510a15a66d5082e7115d61ace',1,'LOCKnet.Core.Security.ActivityMonitor.IsRunning'],['../interfaceLOCKnet_1_1Core_1_1Security_1_1IActivityMonitor.html#adabeff42ed296162b9a422a734ae52dc',1,'LOCKnet.Core.Security.IActivityMonitor.IsRunning']]],
+  ['isunlocked_10',['isunlocked',['../interfaceLOCKnet_1_1Core_1_1Security_1_1ISessionManager.html#a3271637c8825643316e0ac2a716e223a',1,'LOCKnet.Core.Security.ISessionManager.IsUnlocked'],['../classLOCKnet_1_1Core_1_1Security_1_1SessionManager.html#a48a8b5392e125bce4c883404cb1faf76',1,'LOCKnet.Core.Security.SessionManager.IsUnlocked']]],
+  ['iterations_11',['Iterations',['../classLOCKnet_1_1Core_1_1DataAbstractions_1_1VaultKdfParameters.html#ae6d68f90feb108eccb43f1706e38d808',1,'LOCKnet::Core::DataAbstractions::VaultKdfParameters']]]
 ];

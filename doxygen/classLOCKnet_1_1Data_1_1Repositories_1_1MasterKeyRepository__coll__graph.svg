@@ -49,7 +49,7 @@
 <!-- Node3 -->
 <g id="Node000003" class="node">
 <title>Node3</title>
-<g id="a_Node000003"><a xlink:href="interfaceLOCKnet_1_1Core_1_1DataAbstractions_1_1IMasterKeyRepository.html" target="_top" xlink:title="Verwaltet den einzigen Master&#45;Key der Anwendung.">
+<g id="a_Node000003"><a xlink:href="interfaceLOCKnet_1_1Core_1_1DataAbstractions_1_1IMasterKeyRepository.html" target="_top" xlink:title="Verwaltet den einzigen Vault&#45;Header der Anwendung.">
 <polygon fill="white" stroke="#666666" points="235.5,-85 111.5,-85 111.5,-66 235.5,-66 235.5,-85"/>
 <text text-anchor="middle" x="173.5" y="-73" font-family="Helvetica,sans-Serif" font-size="10.00">IMasterKeyRepository</text>
 </a>

@@ -1,19 +1,5 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="Node000000" title=" " alt="" coords="5,205,144,230"/>
-<area shape="rect" id="Node000001" href="$classLOCKnet_1_1App_1_1ViewModels_1_1ViewModelBase.html" title=" " alt="" coords="192,197,419,237"/>
-<area shape="poly" id="edge21_Node000000_Node000001" title=" " alt="" coords="158,215,192,215,192,220,158,220"/>
-<area shape="rect" id="Node000002" href="$classLOCKnet_1_1App_1_1ViewModels_1_1CredentialDetailViewModel.html" title="ViewModel für das Hinzufügen / Bearbeiten eines Credentials." alt="" coords="467,5,728,45"/>
-<area shape="poly" id="edge22_Node000001_Node000002" title=" " alt="" coords="327,184,385,118,423,84,465,55,492,43,494,48,468,60,426,88,389,122,331,188"/>
-<area shape="rect" id="Node000003" href="$classLOCKnet_1_1App_1_1ViewModels_1_1CredentialListDesignViewModel.html" title="Design&#45;Time&#45;Variante des CredentialListViewModel." alt="" coords="467,69,728,109"/>
-<area shape="poly" id="edge23_Node000001_Node000003" title=" " alt="" coords="344,187,400,152,466,119,500,107,502,112,468,124,403,157,347,192"/>
-<area shape="rect" id="Node000004" href="$classLOCKnet_1_1App_1_1ViewModels_1_1CredentialListViewModel.html" title="ViewModel für die Credential&#45;Liste (Hauptansicht nach dem Login)." alt="" coords="467,133,728,173"/>
-<area shape="poly" id="edge24_Node000001_Node000004" title=" " alt="" coords="410,192,505,171,506,176,411,197"/>
-<area shape="rect" id="Node000005" href="$classLOCKnet_1_1App_1_1ViewModels_1_1LockScreenViewModel.html" title="Wird angezeigt, wenn die Sitzung durch Auto&#45;Lock oder manuell gesperrt wurde." alt="" coords="485,197,709,237"/>
-<area shape="poly" id="edge25_Node000001_Node000005" title=" " alt="" coords="432,215,485,215,485,220,432,220"/>
-<area shape="rect" id="Node000006" href="$classLOCKnet_1_1App_1_1ViewModels_1_1LoginViewModel.html" title="ViewModel für den Login&#45;Screen (Ersteinrichtung + Entsperren)." alt="" coords="483,261,712,301"/>
-<area shape="poly" id="edge26_Node000001_Node000006" title=" " alt="" coords="411,238,506,259,505,264,410,243"/>
-<area shape="rect" id="Node000007" href="$classLOCKnet_1_1App_1_1ViewModels_1_1MainWindowViewModel.html" title="Shell&#45;ViewModel: verwaltet die aktive View über CurrentView." alt="" coords="484,325,711,365"/>
-<area shape="poly" id="edge27_Node000001_Node000007" title=" " alt="" coords="347,243,403,278,468,311,502,323,500,328,466,316,400,283,344,247"/>
-<area shape="rect" id="Node000008" href="$classLOCKnet_1_1App_1_1ViewModels_1_1TutorialViewModel.html" title="ViewModel für die Tutorial&#45;/Hilfe&#45;Ansicht." alt="" coords="476,389,719,429"/>
-<area shape="poly" id="edge28_Node000001_Node000008" title=" " alt="" coords="331,247,389,312,426,346,468,375,494,387,492,392,465,380,423,351,385,316,327,250"/>
+<area shape="rect" id="Node000000" href="$interfaceLOCKnet_1_1Core_1_1Security_1_1IMasterKeyManager.html" title="Verwaltet den Master&#45;Key der Anwendung: Erstanlage, Verifikation und Passwortänderung." alt="" coords="5,5,225,45"/>
+<area shape="rect" id="Node000001" href="$classLOCKnet_1_1Core_1_1Security_1_1MasterKeyManager.html" title="Implementierung von IMasterKeyManager." alt="" coords="273,5,489,45"/>
+<area shape="poly" id="edge19_Node000000_Node000001" title=" " alt="" coords="239,23,273,23,273,28,239,28"/>
 </map>
