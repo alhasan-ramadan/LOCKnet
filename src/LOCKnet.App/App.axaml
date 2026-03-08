@@ -50,8 +50,9 @@
         <CornerRadius x:Key="RadiusLg">12</CornerRadius>
         <CornerRadius x:Key="RadiusXl">16</CornerRadius>
 
-        <conv:IconSelectedBrushConverter x:Key="IconSelectedBrushConverter"/>
-        <conv:StringToMaterialIconKindConverter x:Key="StringToMaterialIconKindConverter"/>
+		<conv:IconSelectedBrushConverter x:Key="IconSelectedBrushConverter"/>
+		<conv:StringToMaterialIconKindConverter x:Key="StringToMaterialIconKindConverter"/>
+		<conv:CredentialTypeIsApiKeyConverter x:Key="CredentialTypeIsApiKeyConverter"/>
     </Application.Resources>
 
     <Application.Styles>

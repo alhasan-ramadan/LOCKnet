@@ -226,4 +226,45 @@ public class CredentialsRepositoryTests : IDisposable
 		Assert.NotEqual(default, record.CreatedAt);
 		Assert.NotEqual(default, record.UpdatedAt);
 	}
-}
+	// ── CredentialType ───────────────────────────────────────────────────────
+
+	[Fact]
+	public void Add_WithApiKeyType_CredentialTypeIsPersisted()
+	{
+		var record = MakeRecord();
+		record.CredentialType = CredentialType.ApiKey;
+
+		_sut.Add(record);
+
+		var stored = _sut.GetAll()[0];
+		Assert.Equal(CredentialType.ApiKey, stored.CredentialType);
+	}
+
+	[Fact]
+	public void Add_NoExplicitType_DefaultsToPassword()
+	{
+		_sut.Add(MakeRecord());
+
+		var stored = _sut.GetAll()[0];
+		Assert.Equal(CredentialType.Password, stored.CredentialType);
+	}
+
+	[Fact]
+	public void Update_CredentialType_IsPersisted()
+	{
+		_sut.Add(MakeRecord());
+		var id = _sut.GetAll()[0].Id;
+
+		_sut.Update(new CredentialRecord
+		{
+			Id = id,
+			Title = "GitHub",
+			EncryptedPassword = [0x01, 0x02, 0x03],
+			CredentialType = CredentialType.ApiKey,
+		});
+
+		var updated = _sut.GetById(id)!;
+		Assert.Equal(CredentialType.ApiKey, updated.CredentialType);
+	}
+
+	}

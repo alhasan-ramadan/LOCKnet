@@ -19,6 +19,36 @@ public partial class CredentialDetailViewModel : ViewModelBase
 	private readonly IPasswordStrengthService _strengthService = new PasswordStrengthService();
 
 	[ObservableProperty]
+	[NotifyPropertyChangedFor(nameof(IsPasswordCredential))]
+	[NotifyPropertyChangedFor(nameof(IsApiKeyCredential))]
+	[NotifyPropertyChangedFor(nameof(SecretFieldLabel))]
+	[NotifyPropertyChangedFor(nameof(SecretFieldWatermark))]
+	[NotifyPropertyChangedFor(nameof(UsernameLabel))]
+	private CredentialType _credentialType = CredentialType.Password;
+
+	/// <summary>Gibt an ob der aktuelle Typ 'Passwort' ist. Steuert RadioButton-Binding.</summary>
+	public bool IsPasswordCredential
+	{
+		get => CredentialType == CredentialType.Password;
+		set { if (value) CredentialType = CredentialType.Password; }
+	}
+
+	/// <summary>Gibt an ob der aktuelle Typ 'API-Schluessel' ist. Steuert RadioButton-Binding.</summary>
+	public bool IsApiKeyCredential
+	{
+		get => CredentialType == CredentialType.ApiKey;
+		set { if (value) CredentialType = CredentialType.ApiKey; }
+	}
+
+	/// <summary>Dynamisches Label fuer das Geheimnis-Feld je nach Credential-Typ.</summary>
+	public string SecretFieldLabel => CredentialType == CredentialType.ApiKey ? "API-Schlüssel *" : "Passwort *";
+
+	/// <summary>Dynamischer Watermark-Text fuer das Geheimnis-Feld je nach Credential-Typ.</summary>
+	public string SecretFieldWatermark => CredentialType == CredentialType.ApiKey ? "API-Schlüssel eingeben" : "Passwort eingeben";
+
+	/// <summary>Dynamisches Label fuer das Benutzername-Feld je nach Credential-Typ.</summary>
+	public string UsernameLabel => CredentialType == CredentialType.ApiKey ? "Client-ID / Bezeichner" : "Benutzername";
+	[ObservableProperty]
 	[NotifyCanExecuteChangedFor(nameof(SaveCommand))]
 	private string _title = string.Empty;
 
@@ -104,6 +134,7 @@ public partial class CredentialDetailViewModel : ViewModelBase
 		Url = record.Url ?? string.Empty;
 		Notes = record.Notes ?? string.Empty;
 		IconKey = record.IconKey ?? string.Empty;
+		CredentialType = record.CredentialType;
 		// Passwort wird entschlüsselt geladen
 		try
 		{
@@ -134,7 +165,8 @@ public partial class CredentialDetailViewModel : ViewModelBase
 					secure,
 					string.IsNullOrWhiteSpace(Url) ? null : Url,
 					string.IsNullOrWhiteSpace(Notes) ? null : Notes,
-					string.IsNullOrWhiteSpace(IconKey) ? null : IconKey);
+					string.IsNullOrWhiteSpace(IconKey) ? null : IconKey,
+					CredentialType);
 			}
 			else
 			{
@@ -144,7 +176,8 @@ public partial class CredentialDetailViewModel : ViewModelBase
 					secure,
 					string.IsNullOrWhiteSpace(Url) ? null : Url,
 					string.IsNullOrWhiteSpace(Notes) ? null : Notes,
-					string.IsNullOrWhiteSpace(IconKey) ? null : IconKey);
+					string.IsNullOrWhiteSpace(IconKey) ? null : IconKey,
+					CredentialType);
 			}
 
 			SaveCompleted?.Invoke(this, EventArgs.Empty);

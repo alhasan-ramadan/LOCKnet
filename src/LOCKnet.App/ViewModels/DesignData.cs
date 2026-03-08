@@ -38,6 +38,7 @@ public sealed class CredentialListDesignViewModel : ViewModelBase
 			Url = "https://example.com",
 			CreatedAt = DateTime.UtcNow,
 			UpdatedAt = DateTime.UtcNow,
+			CredentialType = CredentialType.ApiKey,
 		},
 	];
 

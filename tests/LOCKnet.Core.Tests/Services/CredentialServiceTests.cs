@@ -257,4 +257,45 @@ public class CredentialServiceTests
 		Assert.Throws<InvalidOperationException>(
 			() => sut.Update(1, "Title", null, null));
 	}
+
+	// ── CredentialType ───────────────────────────────────────────────────────
+
+	[Fact]
+	public void Add_ApiKeyType_TypeIsStoredOnRecord()
+	{
+		var (sut, session, repo) = BuildSut();
+		OpenSession(session);
+
+		sut.Add("MyApi", null, MakeSecure("secret"), credentialType: CredentialType.ApiKey);
+
+		var record = repo.GetAll()[0];
+		Assert.Equal(CredentialType.ApiKey, record.CredentialType);
+	}
+
+	[Fact]
+	public void Add_DefaultType_IsPassword()
+	{
+		var (sut, session, repo) = BuildSut();
+		OpenSession(session);
+
+		sut.Add("Site", null, MakeSecure("pw"));
+
+		var record = repo.GetAll()[0];
+		Assert.Equal(CredentialType.Password, record.CredentialType);
+	}
+
+	[Fact]
+	public void Update_WithCredentialType_TypeIsPreserved()
+	{
+		var (sut, session, repo) = BuildSut();
+		OpenSession(session);
+
+		sut.Add("Site", null, MakeSecure("pw"));
+		var id = sut.GetAll()[0].Id;
+
+		sut.Update(id, "Site", null, newPassword: null, credentialType: CredentialType.ApiKey);
+
+		var updated = repo.GetById(id)!;
+		Assert.Equal(CredentialType.ApiKey, updated.CredentialType);
+	}
 }

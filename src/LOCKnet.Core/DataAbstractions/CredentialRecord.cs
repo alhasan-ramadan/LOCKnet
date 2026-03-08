@@ -24,4 +24,6 @@ public class CredentialRecord
 	public DateTime UpdatedAt { get; set; }
 	/// <summary>Optionaler Icon-Schluessel fuer Material-Icon-Darstellung.</summary>
 	public string? IconKey { get; set; }
+	/// <summary>Typ des Credentials (Passwort oder API-Schlüssel). Standard: Password für Abwärtskompatibilität.</summary>
+	public CredentialType CredentialType { get; set; } = CredentialType.Password;
 }

@@ -20,8 +20,8 @@ public class CredentialsRepository : RepositoryBase, ICredentialRepository
 		using var conn = GetConnection();
 		using var cmd = conn.CreateCommand();
 		cmd.CommandText = @"
-            INSERT INTO Credentials (Title, Username, EncryptedPassword, URL, Notes, IconKey)
-            VALUES ($title, $username, $password, $url, $notes, $iconKey);";
+            INSERT INTO Credentials (Title, Username, EncryptedPassword, URL, Notes, IconKey, CredentialType)
+            VALUES ($title, $username, $password, $url, $notes, $iconKey, $credentialType);";
 
 		cmd.Parameters.AddWithValue("$title", credential.Title);
 		cmd.Parameters.AddWithValue("$username", credential.Username ?? "");
@@ -29,6 +29,7 @@ public class CredentialsRepository : RepositoryBase, ICredentialRepository
 		cmd.Parameters.AddWithValue("$url", credential.Url ?? "");
 		cmd.Parameters.AddWithValue("$notes", credential.Notes ?? "");
 		cmd.Parameters.AddWithValue("$iconKey", (object?)credential.IconKey ?? DBNull.Value);
+		cmd.Parameters.AddWithValue("$credentialType", (int)credential.CredentialType);
 
 		cmd.ExecuteNonQuery();
 	}
@@ -39,7 +40,7 @@ public class CredentialsRepository : RepositoryBase, ICredentialRepository
 		var list = new List<CredentialRecord>();
 		using var conn = GetConnection();
 		using var cmd = conn.CreateCommand();
-		cmd.CommandText = "SELECT Id, Title, Username, EncryptedPassword, URL, Notes, CreatedAt, UpdatedAt, IconKey FROM Credentials";
+		cmd.CommandText = "SELECT Id, Title, Username, EncryptedPassword, URL, Notes, CreatedAt, UpdatedAt, IconKey, CredentialType FROM Credentials";
 
 		using var reader = cmd.ExecuteReader();
 		while (reader.Read())
@@ -53,7 +54,7 @@ public class CredentialsRepository : RepositoryBase, ICredentialRepository
 	{
 		using var conn = GetConnection();
 		using var cmd = conn.CreateCommand();
-		cmd.CommandText = "SELECT Id, Title, Username, EncryptedPassword, URL, Notes, CreatedAt, UpdatedAt, IconKey FROM Credentials WHERE Id = $id LIMIT 1;";
+		cmd.CommandText = "SELECT Id, Title, Username, EncryptedPassword, URL, Notes, CreatedAt, UpdatedAt, IconKey, CredentialType FROM Credentials WHERE Id = $id LIMIT 1;";
 		cmd.Parameters.AddWithValue("$id", id);
 
 		using var reader = cmd.ExecuteReader();
@@ -73,6 +74,7 @@ public class CredentialsRepository : RepositoryBase, ICredentialRepository
                 URL = $url,
                 Notes = $notes,
                 IconKey = $iconKey,
+                CredentialType = $credentialType,
                 UpdatedAt = CURRENT_TIMESTAMP
             WHERE Id = $id;";
 
@@ -83,6 +85,7 @@ public class CredentialsRepository : RepositoryBase, ICredentialRepository
 		cmd.Parameters.AddWithValue("$url", credential.Url ?? "");
 		cmd.Parameters.AddWithValue("$notes", credential.Notes ?? "");
 		cmd.Parameters.AddWithValue("$iconKey", (object?)credential.IconKey ?? DBNull.Value);
+		cmd.Parameters.AddWithValue("$credentialType", (int)credential.CredentialType);
 
 		cmd.ExecuteNonQuery();
 	}
@@ -110,5 +113,6 @@ public class CredentialsRepository : RepositoryBase, ICredentialRepository
 		CreatedAt = reader.GetDateTime(6),
 		UpdatedAt = reader.GetDateTime(7),
 		IconKey = reader.IsDBNull(8) ? null : reader.GetString(8),
+		CredentialType = reader.IsDBNull(9) ? CredentialType.Password : (CredentialType)reader.GetInt32(9),
 	};
 }

@@ -38,7 +38,7 @@ public sealed class CredentialService : ICredentialService
 	}
 
 	/// <inheritdoc/>
-	public void Add(string title, string? username, SecureString password, string? url = null, string? notes = null, string? iconKey = null)
+	public void Add(string title, string? username, SecureString password, string? url = null, string? notes = null, string? iconKey = null, CredentialType credentialType = CredentialType.Password)
 	{
 		ArgumentException.ThrowIfNullOrWhiteSpace(title);
 		ArgumentNullException.ThrowIfNull(password);
@@ -56,6 +56,7 @@ public sealed class CredentialService : ICredentialService
 				Url = url,
 				Notes = notes,
 				IconKey = iconKey,
+				CredentialType = credentialType,
 				CreatedAt = DateTime.UtcNow,
 				UpdatedAt = DateTime.UtcNow
 			});
@@ -93,7 +94,7 @@ public sealed class CredentialService : ICredentialService
 	}
 
 	/// <inheritdoc/>
-	public void Update(int id, string title, string? username, SecureString? newPassword, string? url = null, string? notes = null, string? iconKey = null)
+	public void Update(int id, string title, string? username, SecureString? newPassword, string? url = null, string? notes = null, string? iconKey = null, CredentialType credentialType = CredentialType.Password)
 	{
 		ArgumentException.ThrowIfNullOrWhiteSpace(title);
 
@@ -129,6 +130,7 @@ public sealed class CredentialService : ICredentialService
 			Url = url,
 			Notes = notes,
 			IconKey = iconKey,
+			CredentialType = credentialType,
 			CreatedAt = existing.CreatedAt,
 			UpdatedAt = DateTime.UtcNow
 		});

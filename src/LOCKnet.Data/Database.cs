@@ -69,6 +69,16 @@ public class Database
 		{
 		}
 
+		try
+		{
+			using var mc = connection.CreateCommand();
+			mc.CommandText = "ALTER TABLE Credentials ADD COLUMN CredentialType INTEGER NOT NULL DEFAULT 0;";
+			mc.ExecuteNonQuery();
+		}
+		catch (SqliteException)
+		{
+		}
+
 		// MasterKey table
 		using (var cmd = connection.CreateCommand())
 		{
