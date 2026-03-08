@@ -43,6 +43,7 @@ public class Database
 
 		using var connection = new SqliteConnection(_connectionString);
 		connection.Open();
+		Repositories.RepositoryBase.ConfigureConnection(connection);
 
 		// Credentials table
 		using (var cmd = connection.CreateCommand())
@@ -53,8 +54,10 @@ public class Database
                     Title TEXT NOT NULL,
                     Username TEXT,
                     EncryptedPassword BLOB NOT NULL,
+                    EncryptedMetadata BLOB,
                     CredentialUuid TEXT NOT NULL DEFAULT '',
                     SecretFormatVersion INTEGER NOT NULL DEFAULT 0,
+                    MetadataFormatVersion INTEGER NOT NULL DEFAULT 0,
                     URL TEXT,
                     Notes TEXT,
                     CreatedAt TEXT DEFAULT CURRENT_TIMESTAMP,
@@ -109,6 +112,8 @@ public class Database
 
 		TryAddColumn(connection, "Credentials", "CredentialUuid", "TEXT NOT NULL DEFAULT ''");
 		TryAddColumn(connection, "Credentials", "SecretFormatVersion", "INTEGER NOT NULL DEFAULT 0");
+		TryAddColumn(connection, "Credentials", "EncryptedMetadata", "BLOB");
+		TryAddColumn(connection, "Credentials", "MetadataFormatVersion", "INTEGER NOT NULL DEFAULT 0");
 
 		using (var cmd = connection.CreateCommand())
 		{

@@ -10,6 +10,9 @@ public interface ICredentialEnvelopeService
 	/// <summary>Aktuelle Secret-Formatversion fuer neue Writes.</summary>
 	int CurrentVersion { get; }
 
+	/// <summary>Aktuelle Metadaten-Formatversion fuer neue Writes.</summary>
+	int CurrentMetadataVersion { get; }
+
 	/// <summary>
 	/// Verschluesselt ein Credential-Secret in ein versioniertes Envelope-Format.
 	/// </summary>
@@ -19,4 +22,14 @@ public interface ICredentialEnvelopeService
 	/// Entschluesselt ein Credential-Secret und validiert bei neuen Formaten die AAD-Bindung.
 	/// </summary>
 	byte[] Decrypt(CredentialRecord credential, byte[] key, int vaultFormatVersion);
+
+	/// <summary>
+	/// Verschluesselt die Metadaten eines Credentials in ein versioniertes Envelope-Format.
+	/// </summary>
+	byte[] EncryptMetadata(CredentialRecord credential, byte[] key, int vaultFormatVersion);
+
+	/// <summary>
+	/// Entschluesselt die Metadaten eines Credentials und gibt ein materialisiertes Record-Objekt zurueck.
+	/// </summary>
+	CredentialRecord DecryptMetadata(CredentialRecord credential, byte[] key, int vaultFormatVersion);
 }

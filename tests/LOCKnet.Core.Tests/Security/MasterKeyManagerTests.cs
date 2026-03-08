@@ -81,8 +81,10 @@ sealed class InMemoryVaultStore : IMasterKeyRepository, IVaultMigrationRepositor
 		Title = credential.Title,
 		Username = credential.Username,
 		EncryptedPassword = credential.EncryptedPassword.ToArray(),
+		EncryptedMetadata = credential.EncryptedMetadata.ToArray(),
 		CredentialUuid = credential.CredentialUuid,
 		SecretFormatVersion = credential.SecretFormatVersion,
+		MetadataFormatVersion = credential.MetadataFormatVersion,
 		Url = credential.Url,
 		Notes = credential.Notes,
 		CreatedAt = credential.CreatedAt,
@@ -124,10 +126,16 @@ public class MasterKeyManagerTests
 			return store.AddCredential(new CredentialRecord
 			{
 				Title = title,
+				Username = "legacy-user",
 				EncryptedPassword = encryption.Encrypt(plaintext, legacyKey),
+				EncryptedMetadata = [],
 				SecretFormatVersion = CredentialSecretFormatVersion.Legacy,
+				MetadataFormatVersion = CredentialMetadataFormatVersion.Legacy,
 				CredentialUuid = string.Empty,
-				CredentialType = CredentialType.Password,
+				CredentialType = CredentialType.ApiKey,
+				Url = "https://legacy.example",
+				Notes = "legacy-note",
+				IconKey = "legacy-icon",
 				CreatedAt = DateTime.UtcNow,
 				UpdatedAt = DateTime.UtcNow,
 			});
@@ -146,9 +154,14 @@ public class MasterKeyManagerTests
 		var record = new CredentialRecord
 		{
 			Title = title,
+			Username = "current-user",
 			CredentialUuid = Guid.NewGuid().ToString("N"),
 			SecretFormatVersion = CredentialSecretFormatVersion.Current,
-			CredentialType = CredentialType.Password,
+			MetadataFormatVersion = CredentialMetadataFormatVersion.Current,
+			CredentialType = CredentialType.ApiKey,
+			Url = "https://current.example",
+			Notes = "current-note",
+			IconKey = "current-icon",
 			CreatedAt = DateTime.UtcNow,
 			UpdatedAt = DateTime.UtcNow,
 		};
@@ -156,6 +169,13 @@ public class MasterKeyManagerTests
 		try
 		{
 			record.EncryptedPassword = envelope.Encrypt(plaintext, vaultKey, record, VaultHeaderFormatVersion.Current);
+			record.EncryptedMetadata = envelope.EncryptMetadata(record, vaultKey, VaultHeaderFormatVersion.Current);
+			record.Title = string.Empty;
+			record.Username = null;
+			record.Url = null;
+			record.Notes = null;
+			record.IconKey = null;
+			record.CredentialType = CredentialType.Password;
 			return store.AddCredential(record);
 		}
 		finally
@@ -253,13 +273,20 @@ public class MasterKeyManagerTests
 		var credential = store.GetAllCredentials().Single();
 		var envelope = new CredentialEnvelopeService(new AesGcmEncryptionService());
 		var plaintext = envelope.Decrypt(credential, key, header.FormatVersion);
+		var metadata = envelope.DecryptMetadata(credential, key, header.FormatVersion);
 
 		Assert.Equal(VaultHeaderFormatVersion.Current, header.FormatVersion);
 		Assert.False(header.UsesLegacyKeyMaterial);
 		Assert.Empty(header.LegacyPasswordHash);
 		Assert.Equal(CredentialSecretFormatVersion.Current, credential.SecretFormatVersion);
+		Assert.Equal(CredentialMetadataFormatVersion.Current, credential.MetadataFormatVersion);
 		Assert.NotEmpty(credential.CredentialUuid);
+		Assert.NotEmpty(credential.EncryptedMetadata);
+		Assert.Equal(string.Empty, credential.Title);
 		Assert.Equal("legacy-secret-1", System.Text.Encoding.UTF8.GetString(plaintext));
+		Assert.Equal("Legacy One", metadata.Title);
+		Assert.Equal("legacy-user", metadata.Username);
+		Assert.Equal(CredentialType.ApiKey, metadata.CredentialType);
 	}
 
 	[Fact]
@@ -268,22 +295,25 @@ public class MasterKeyManagerTests
 		var sut = BuildSut(out var store);
 		sut.Initialize(MakeSecure("vault-password"));
 		var currentVaultKey = sut.Unlock(MakeSecure("vault-password"))!;
-		AddLegacyCredential(store, currentVaultKey, "legacy-secret", "Legacy");
+		var legacyRecord = AddLegacyCredential(store, currentVaultKey, "legacy-secret", "Legacy");
 		var currentRecord = AddCurrentCredential(store, currentVaultKey, "current-secret", "Current");
 		CryptographicOperations.ZeroMemory(currentVaultKey);
 
 		var reopenedKey = sut.Unlock(MakeSecure("vault-password"))!;
 		var header = store.Get()!;
 		var records = store.GetAllCredentials();
-		var migratedLegacy = records.Single(r => r.Title == "Legacy");
-		var unchangedCurrent = records.Single(r => r.Title == "Current");
+		var migratedLegacy = records.Single(r => r.Id == legacyRecord.Id);
+		var unchangedCurrent = records.Single(r => r.Id == currentRecord.Id);
 		var envelope = new CredentialEnvelopeService(new AesGcmEncryptionService());
 
 		Assert.Equal(CredentialSecretFormatVersion.Current, migratedLegacy.SecretFormatVersion);
+		Assert.Equal(CredentialMetadataFormatVersion.Current, migratedLegacy.MetadataFormatVersion);
 		Assert.NotEmpty(migratedLegacy.CredentialUuid);
 		Assert.Equal(currentRecord.CredentialUuid, unchangedCurrent.CredentialUuid);
 		Assert.Equal(currentRecord.EncryptedPassword, unchangedCurrent.EncryptedPassword);
+		Assert.Equal(currentRecord.EncryptedMetadata, unchangedCurrent.EncryptedMetadata);
 		Assert.Equal("legacy-secret", System.Text.Encoding.UTF8.GetString(envelope.Decrypt(migratedLegacy, reopenedKey, header.FormatVersion)));
+		Assert.Equal("Legacy", envelope.DecryptMetadata(migratedLegacy, reopenedKey, header.FormatVersion).Title);
 	}
 
 	[Fact]

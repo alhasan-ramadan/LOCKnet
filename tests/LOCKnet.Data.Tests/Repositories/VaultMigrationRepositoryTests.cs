@@ -53,9 +53,16 @@ public class VaultMigrationRepositoryTests : IDisposable
 		_credentialsRepository.Add(new CredentialRecord
 		{
 			Title = "GitHub",
+			Username = "legacy-user",
 			EncryptedPassword = [0x01, 0x02, 0x03],
+			EncryptedMetadata = [],
 			CredentialUuid = string.Empty,
 			SecretFormatVersion = CredentialSecretFormatVersion.Legacy,
+			MetadataFormatVersion = CredentialMetadataFormatVersion.Legacy,
+			CredentialType = CredentialType.ApiKey,
+			Url = "https://legacy.example",
+			Notes = "legacy-note",
+			IconKey = "legacy-icon",
 			CreatedAt = DateTime.UtcNow,
 			UpdatedAt = DateTime.UtcNow,
 		});
@@ -64,12 +71,17 @@ public class VaultMigrationRepositoryTests : IDisposable
 		var migratedCredential = new CredentialRecord
 		{
 			Id = credential.Id,
-			Title = credential.Title,
-			Username = credential.Username,
+			Title = string.Empty,
+			Username = null,
 			EncryptedPassword = [0x09, 0x08, 0x07],
+			EncryptedMetadata = [0x06, 0x05, 0x04],
 			CredentialUuid = Guid.NewGuid().ToString("N"),
 			SecretFormatVersion = CredentialSecretFormatVersion.Current,
-			CredentialType = credential.CredentialType,
+			MetadataFormatVersion = CredentialMetadataFormatVersion.Current,
+			CredentialType = CredentialType.Password,
+			Url = null,
+			Notes = null,
+			IconKey = null,
 			CreatedAt = credential.CreatedAt,
 			UpdatedAt = DateTime.UtcNow,
 		};
@@ -88,6 +100,10 @@ public class VaultMigrationRepositoryTests : IDisposable
 		Assert.False(storedHeader.UsesLegacyKeyMaterial);
 		Assert.Equal(migratedCredential.CredentialUuid, storedCredential.CredentialUuid);
 		Assert.Equal(CredentialSecretFormatVersion.Current, storedCredential.SecretFormatVersion);
+		Assert.Equal(CredentialMetadataFormatVersion.Current, storedCredential.MetadataFormatVersion);
 		Assert.Equal(migratedCredential.EncryptedPassword, storedCredential.EncryptedPassword);
+		Assert.Equal(migratedCredential.EncryptedMetadata, storedCredential.EncryptedMetadata);
+		Assert.Equal(string.Empty, storedCredential.Title);
+		Assert.Null(storedCredential.Username);
 	}
 }

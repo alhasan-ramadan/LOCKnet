@@ -37,8 +37,10 @@ public class CredentialsRepositoryTests : IDisposable
 			Title = title,
 			Username = username,
 			EncryptedPassword = [0x01, 0x02, 0x03],
+			EncryptedMetadata = [0x0A, 0x0B, 0x0C],
 			CredentialUuid = Guid.NewGuid().ToString("N"),
 			SecretFormatVersion = CredentialSecretFormatVersion.Current,
+			MetadataFormatVersion = CredentialMetadataFormatVersion.Current,
 			Url = "https://github.com",
 			Notes = "test notes",
 		};
@@ -103,6 +105,18 @@ public class CredentialsRepositoryTests : IDisposable
 		var stored = _sut.GetAll()[0];
 		Assert.Equal(record.CredentialUuid, stored.CredentialUuid);
 		Assert.Equal(record.SecretFormatVersion, stored.SecretFormatVersion);
+	}
+
+	[Fact]
+	public void Add_PersistsEncryptedMetadataAndMetadataFormatVersion()
+	{
+		var record = MakeRecord();
+
+		_sut.Add(record);
+
+		var stored = _sut.GetAll()[0];
+		Assert.Equal(record.EncryptedMetadata, stored.EncryptedMetadata);
+		Assert.Equal(record.MetadataFormatVersion, stored.MetadataFormatVersion);
 	}
 
 	[Fact]

@@ -144,7 +144,9 @@ public class CredentialServiceTests
 		Assert.Single(all);
 		Assert.Equal("GitHub", all[0].Title);
 		Assert.Equal("alice", all[0].Username);
+		Assert.Equal("https://github.com", all[0].Url);
 		Assert.Equal(CredentialSecretFormatVersion.Current, all[0].SecretFormatVersion);
+		Assert.Equal(CredentialMetadataFormatVersion.Current, all[0].MetadataFormatVersion);
 		Assert.NotEmpty(all[0].CredentialUuid);
 	}
 
@@ -161,7 +163,32 @@ public class CredentialServiceTests
 		var plaintextBytes = System.Text.Encoding.UTF8.GetBytes("plaintextpassword");
 		Assert.False(record.EncryptedPassword.SequenceEqual(plaintextBytes));
 		Assert.Equal(CredentialSecretFormatVersion.Current, record.SecretFormatVersion);
+		Assert.Equal(CredentialMetadataFormatVersion.Current, record.MetadataFormatVersion);
+		Assert.NotEmpty(record.EncryptedMetadata);
+		Assert.Equal(string.Empty, record.Title);
+		Assert.Null(record.Username);
 		Assert.NotEmpty(record.CredentialUuid);
+	}
+
+	[Fact]
+	public void GetAll_DecryptsEncryptedMetadata()
+	{
+		var (sut, session, repo) = BuildSut();
+		OpenSession(session);
+
+		sut.Add("Console", "alice", MakeSecure("secret"), url: "https://example.com", notes: "note", iconKey: "github", credentialType: CredentialType.ApiKey);
+
+		var stored = repo.GetAll()[0];
+		Assert.NotEmpty(stored.EncryptedMetadata);
+		Assert.Equal(string.Empty, stored.Title);
+
+		var materialized = sut.GetAll()[0];
+		Assert.Equal("Console", materialized.Title);
+		Assert.Equal("alice", materialized.Username);
+		Assert.Equal("https://example.com", materialized.Url);
+		Assert.Equal("note", materialized.Notes);
+		Assert.Equal("github", materialized.IconKey);
+		Assert.Equal(CredentialType.ApiKey, materialized.CredentialType);
 	}
 
 	// ── GetPassword ───────────────────────────────────────────────────────────
@@ -225,8 +252,12 @@ public class CredentialServiceTests
 		sut.Update(id, "Site Updated", "user", newPassword: null);
 
 		var updated = repo.GetById(id)!;
-		Assert.Equal("Site Updated", updated.Title);
+		Assert.Equal(string.Empty, updated.Title);
+		Assert.NotEmpty(updated.EncryptedMetadata);
 		Assert.Equal(originalEncrypted, updated.EncryptedPassword);
+
+		var materialized = sut.GetAll().Single(r => r.Id == id);
+		Assert.Equal("Site Updated", materialized.Title);
 	}
 
 	[Fact]
@@ -270,6 +301,21 @@ public class CredentialServiceTests
 		repo.Update(record);
 
 		Assert.Throws<InvalidOperationException>(() => sut.GetPassword(record.Id));
+	}
+
+	[Fact]
+	public void GetAll_WithMalformedMetadataEnvelope_ThrowsInvalidOperationException()
+	{
+		var (sut, session, repo) = BuildSut();
+		OpenSession(session);
+
+		sut.Add("BrokenMeta", null, MakeSecure("secret"));
+		var record = repo.GetAll()[0];
+		record.EncryptedMetadata = [0x01];
+		record.MetadataFormatVersion = CredentialMetadataFormatVersion.Current;
+		repo.Update(record);
+
+		Assert.Throws<InvalidOperationException>(() => sut.GetAll());
 	}
 
 	[Fact]
@@ -352,8 +398,9 @@ public class CredentialServiceTests
 
 		sut.Add("MyApi", null, MakeSecure("secret"), credentialType: CredentialType.ApiKey);
 
-		var record = repo.GetAll()[0];
-		Assert.Equal(CredentialType.ApiKey, record.CredentialType);
+		var stored = repo.GetAll()[0];
+		Assert.Equal(CredentialType.Password, stored.CredentialType);
+		Assert.Equal(CredentialType.ApiKey, sut.GetAll()[0].CredentialType);
 	}
 
 	[Fact]
@@ -380,6 +427,7 @@ public class CredentialServiceTests
 		sut.Update(id, "Site", null, newPassword: null, credentialType: CredentialType.ApiKey);
 
 		var updated = repo.GetById(id)!;
-		Assert.Equal(CredentialType.ApiKey, updated.CredentialType);
+		Assert.Equal(CredentialType.Password, updated.CredentialType);
+		Assert.Equal(CredentialType.ApiKey, sut.GetAll()[0].CredentialType);
 	}
 }

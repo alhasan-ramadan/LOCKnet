@@ -113,9 +113,11 @@ LOCKnet.sln
 
 | Concern | Solution |
 |---------|----------|
-| Password storage | Versioned AES-256-GCM secret envelope with AAD bound to credential metadata |
+| Password storage | Versioned AES-256-GCM secret envelope with AAD bound to credential identity |
+| Metadata storage | Versioned AES-256-GCM metadata envelope; plaintext SQLite columns are scrubbed after migration |
 | Key derivation | PBKDF2-HMAC-SHA256 with persisted KDF parameters in the `VaultHeader` |
 | Vault unlock flow | Master password derives a KEK, unwraps the VaultKey, and migrates legacy records before use |
+| SQLite hardening | `journal_mode=DELETE`, `synchronous=FULL`, `temp_store=MEMORY`, `secure_delete=ON` |
 | In-memory safety | Session key copies only, `ZeroMemory`, and reduced ViewModel plaintext retention |
 | Auto-lock | `ActivityMonitor` with configurable timeout (default 60 s) |
 | SQL injection | Parameterised queries everywhere — no string interpolation in SQL |
@@ -357,9 +359,11 @@ LOCKnet.sln
 
 | Aspekt | Lösung |
 |--------|--------|
-| Passwort-Speicherung | Versionierter AES-256-GCM-Secret-Envelope mit AAD-Bindung an Credential-Metadaten |
+| Passwort-Speicherung | Versionierter AES-256-GCM-Secret-Envelope mit AAD-Bindung an die Credential-Identitaet |
+| Metadaten-Speicherung | Versionierter AES-256-GCM-Metadaten-Envelope; Klartextspalten werden nach Migration geleert |
 | Schlüsselableitung | PBKDF2-HMAC-SHA256 mit persistenten KDF-Parametern im `VaultHeader` |
 | Vault-Unlock-Flow | Master-Passwort leitet einen KEK ab, entpackt den VaultKey und migriert Legacy-Records vor der Nutzung |
+| SQLite-Haertung | `journal_mode=DELETE`, `synchronous=FULL`, `temp_store=MEMORY`, `secure_delete=ON` |
 | RAM-Sicherheit | Nur Session-Key-Kopien, `ZeroMemory` und reduzierte ViewModel-Klartextspeicherung |
 | Auto-Lock | `ActivityMonitor` mit konfigurierbarem Timeout (Standard 60 s) |
 | SQL-Injection | Parameterbindung überall — keine String-Interpolation in SQL |

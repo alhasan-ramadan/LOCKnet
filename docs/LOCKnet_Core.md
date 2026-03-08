@@ -58,7 +58,8 @@ Core fungiert damit als zentrale Sicherheits- und Logikschicht, die vollständig
 
 * Vergibt IDs, erstellt, aktualisiert und löscht Credentials.
 * Schreibt Secrets nur im versionierten Envelope-Format mit AAD-Bindung.
-* Entschlüsselt Secrets nur auf expliziten Aufruf und faellt bei Tampering hart aus.
+* Schreibt Credential-Metadaten verschluesselt und laesst im SQLite-Schema nur minimierte Klartextreste zurueck.
+* Entschlüsselt Secrets und Metadaten nur auf expliziten Aufruf und faellt bei Tampering hart aus.
 * Validiert Eingaben (Titel, URL, Pflichtfelder).
 * Orchestriert Kommunikation mit CredentialsRepository.
 

@@ -226,22 +226,48 @@ public sealed class MasterKeyManager : IMasterKeyManager
 		{
 			foreach (var credential in credentials)
 			{
-				if (!NeedsCredentialMigration(credential))
+				if (!NeedsCredentialMigration(credential, usesLegacyKey))
 					continue;
 
-				var plaintext = DecryptForMigration(credential, currentVaultKey, header.FormatVersion);
+				var needsSecretMigration = NeedsSecretMigration(credential) || usesLegacyKey;
+				var needsMetadataMigration = NeedsMetadataMigration(credential) || usesLegacyKey;
+				byte[]? secretPlaintext = null;
+				CredentialRecord? metadataRecord = null;
 				try
 				{
 					var migrated = CloneCredential(credential);
 					migrated.CredentialUuid = EnsureCredentialUuid(migrated.CredentialUuid);
-					migrated.SecretFormatVersion = CredentialSecretFormatVersion.Current;
-					migrated.EncryptedPassword = _credentialEnvelope.Encrypt(plaintext, targetVaultKey, migrated, VaultHeaderFormatVersion.Current);
+
+					if (needsSecretMigration)
+					{
+						secretPlaintext = DecryptSecretForMigration(credential, currentVaultKey, header.FormatVersion);
+						migrated.SecretFormatVersion = CredentialSecretFormatVersion.Current;
+						migrated.EncryptedPassword = _credentialEnvelope.Encrypt(secretPlaintext, targetVaultKey, migrated, VaultHeaderFormatVersion.Current);
+					}
+
+					if (needsMetadataMigration)
+					{
+						metadataRecord = DecryptMetadataForMigration(credential, currentVaultKey, header.FormatVersion);
+						migrated.Title = metadataRecord.Title;
+						migrated.Username = metadataRecord.Username;
+						migrated.Url = metadataRecord.Url;
+						migrated.Notes = metadataRecord.Notes;
+						migrated.IconKey = metadataRecord.IconKey;
+						migrated.CredentialType = metadataRecord.CredentialType;
+						migrated.MetadataFormatVersion = _credentialEnvelope.CurrentMetadataVersion;
+						migrated.EncryptedMetadata = _credentialEnvelope.EncryptMetadata(migrated, targetVaultKey, VaultHeaderFormatVersion.Current);
+						migrated = SanitizePersistedMetadata(migrated);
+					}
+
 					migrated.UpdatedAt = DateTime.UtcNow;
 					migratedCredentials.Add(migrated);
 				}
 				finally
 				{
-					CryptographicOperations.ZeroMemory(plaintext);
+					if (secretPlaintext is not null)
+						CryptographicOperations.ZeroMemory(secretPlaintext);
+					if (metadataRecord is not null)
+						metadataRecord.EncryptedMetadata = [];
 				}
 			}
 
@@ -270,11 +296,23 @@ public sealed class MasterKeyManager : IMasterKeyManager
 	}
 
 	private byte[] DecryptForMigration(CredentialRecord credential, byte[] currentVaultKey, int vaultFormatVersion)
+		=> DecryptSecretForMigration(credential, currentVaultKey, vaultFormatVersion);
+
+	private byte[] DecryptSecretForMigration(CredentialRecord credential, byte[] currentVaultKey, int vaultFormatVersion)
 		=> credential.SecretFormatVersion switch
 		{
 			CredentialSecretFormatVersion.Legacy => _encryption.Decrypt(credential.EncryptedPassword, currentVaultKey),
 			CredentialSecretFormatVersion.AesGcmV1 => _credentialEnvelope.Decrypt(credential, currentVaultKey, vaultFormatVersion),
+			CredentialSecretFormatVersion.AesGcmV2 => _credentialEnvelope.Decrypt(credential, currentVaultKey, vaultFormatVersion),
 			_ => throw new InvalidOperationException($"Nicht unterstuetzte Secret-Formatversion: {credential.SecretFormatVersion}"),
+		};
+
+	private CredentialRecord DecryptMetadataForMigration(CredentialRecord credential, byte[] currentVaultKey, int vaultFormatVersion)
+		=> credential.MetadataFormatVersion switch
+		{
+			CredentialMetadataFormatVersion.Legacy => CloneCredential(credential),
+			CredentialMetadataFormatVersion.AesGcmV1 => _credentialEnvelope.DecryptMetadata(credential, currentVaultKey, vaultFormatVersion),
+			_ => throw new InvalidOperationException($"Nicht unterstuetzte Metadaten-Formatversion: {credential.MetadataFormatVersion}"),
 		};
 
 	private void ValidateHeader(VaultHeader header)
@@ -310,8 +348,24 @@ public sealed class MasterKeyManager : IMasterKeyManager
 			throw new InvalidOperationException("VaultHeader enthaelt einen ungueltigen WrappedVaultKey.");
 	}
 
-	private static bool NeedsCredentialMigration(CredentialRecord credential)
+	private static bool NeedsCredentialMigration(CredentialRecord credential, bool usesLegacyKey)
+		=> usesLegacyKey || NeedsSecretMigration(credential) || NeedsMetadataMigration(credential);
+
+	private static bool NeedsSecretMigration(CredentialRecord credential)
 		=> credential.SecretFormatVersion != CredentialSecretFormatVersion.Current || !Guid.TryParseExact(credential.CredentialUuid, "N", out _);
+
+	private static bool NeedsMetadataMigration(CredentialRecord credential)
+		=> credential.MetadataFormatVersion != CredentialMetadataFormatVersion.Current ||
+			!Guid.TryParseExact(credential.CredentialUuid, "N", out _) ||
+			HasPlaintextMetadataResidue(credential);
+
+	private static bool HasPlaintextMetadataResidue(CredentialRecord credential)
+		=> !string.IsNullOrEmpty(credential.Title) ||
+			!string.IsNullOrEmpty(credential.Username) ||
+			!string.IsNullOrEmpty(credential.Url) ||
+			!string.IsNullOrEmpty(credential.Notes) ||
+			!string.IsNullOrEmpty(credential.IconKey) ||
+			credential.CredentialType != CredentialType.Password;
 
 	private static string EnsureCredentialUuid(string credentialUuid)
 		=> Guid.TryParseExact(credentialUuid, "N", out _) ? credentialUuid : Guid.NewGuid().ToString("N");
@@ -330,8 +384,10 @@ public sealed class MasterKeyManager : IMasterKeyManager
 		Title = credential.Title,
 		Username = credential.Username,
 		EncryptedPassword = credential.EncryptedPassword.ToArray(),
+		EncryptedMetadata = credential.EncryptedMetadata.ToArray(),
 		CredentialUuid = credential.CredentialUuid,
 		SecretFormatVersion = credential.SecretFormatVersion,
+		MetadataFormatVersion = credential.MetadataFormatVersion,
 		Url = credential.Url,
 		Notes = credential.Notes,
 		CreatedAt = credential.CreatedAt,
@@ -339,6 +395,17 @@ public sealed class MasterKeyManager : IMasterKeyManager
 		IconKey = credential.IconKey,
 		CredentialType = credential.CredentialType,
 	};
+
+	private static CredentialRecord SanitizePersistedMetadata(CredentialRecord credential)
+	{
+		credential.Title = string.Empty;
+		credential.Username = null;
+		credential.Url = null;
+		credential.Notes = null;
+		credential.IconKey = null;
+		credential.CredentialType = CredentialType.Password;
+		return credential;
+	}
 
 	private static VaultHeader CloneHeader(VaultHeader header) => new()
 	{

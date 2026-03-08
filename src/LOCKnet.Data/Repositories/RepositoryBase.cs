@@ -30,6 +30,21 @@ public abstract class RepositoryBase
 	{
 		var conn = new SqliteConnection(_connectionString);
 		conn.Open();
+		ConfigureConnection(conn);
 		return conn;
+	}
+
+	internal static void ConfigureConnection(SqliteConnection conn)
+	{
+		using var cmd = conn.CreateCommand();
+		cmd.CommandText = @"
+                PRAGMA foreign_keys = ON;
+                PRAGMA journal_mode = DELETE;
+                PRAGMA synchronous = FULL;
+                PRAGMA temp_store = MEMORY;
+                PRAGMA secure_delete = ON;
+                PRAGMA busy_timeout = 5000;
+                PRAGMA locking_mode = NORMAL;";
+		cmd.ExecuteNonQuery();
 	}
 }
