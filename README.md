@@ -113,9 +113,9 @@ LOCKnet.sln
 
 | Concern | Solution |
 |---------|----------|
-| Password storage | AES-256-GCM, encrypted BLOB in SQLite |
+| Password storage | Versioned AES-256-GCM secret envelope with AAD bound to credential metadata |
 | Key derivation | PBKDF2-HMAC-SHA256 with persisted KDF parameters in the `VaultHeader` |
-| Vault unlock flow | Master password derives a KEK that unwraps a stored random VaultKey |
+| Vault unlock flow | Master password derives a KEK, unwraps the VaultKey, and migrates legacy records before use |
 | In-memory safety | Session key copies only, `ZeroMemory`, and reduced ViewModel plaintext retention |
 | Auto-lock | `ActivityMonitor` with configurable timeout (default 60 s) |
 | SQL injection | Parameterised queries everywhere — no string interpolation in SQL |
@@ -357,9 +357,9 @@ LOCKnet.sln
 
 | Aspekt | Lösung |
 |--------|--------|
-| Passwort-Speicherung | AES-256-GCM, verschlüsseltes BLOB in SQLite |
+| Passwort-Speicherung | Versionierter AES-256-GCM-Secret-Envelope mit AAD-Bindung an Credential-Metadaten |
 | Schlüsselableitung | PBKDF2-HMAC-SHA256 mit persistenten KDF-Parametern im `VaultHeader` |
-| Vault-Unlock-Flow | Master-Passwort leitet einen KEK ab, der einen gespeicherten zufaelligen VaultKey entpackt |
+| Vault-Unlock-Flow | Master-Passwort leitet einen KEK ab, entpackt den VaultKey und migriert Legacy-Records vor der Nutzung |
 | RAM-Sicherheit | Nur Session-Key-Kopien, `ZeroMemory` und reduzierte ViewModel-Klartextspeicherung |
 | Auto-Lock | `ActivityMonitor` mit konfigurierbarem Timeout (Standard 60 s) |
 | SQL-Injection | Parameterbindung überall — keine String-Interpolation in SQL |

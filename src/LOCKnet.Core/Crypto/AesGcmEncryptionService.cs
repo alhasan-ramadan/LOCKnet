@@ -16,9 +16,14 @@ public sealed class AesGcmEncryptionService : IEncryptionService
 
 	/// <inheritdoc/>
 	public byte[] Encrypt(byte[] plaintext, byte[] key)
+		=> Encrypt(plaintext, key, []);
+
+	/// <inheritdoc/>
+	public byte[] Encrypt(byte[] plaintext, byte[] key, byte[] associatedData)
 	{
 		ArgumentNullException.ThrowIfNull(plaintext);
 		ArgumentNullException.ThrowIfNull(key);
+		ArgumentNullException.ThrowIfNull(associatedData);
 		if (key.Length != KeyBytes)
 			throw new ArgumentException($"Key muss genau {KeyBytes} Bytes lang sein.", nameof(key));
 
@@ -27,7 +32,7 @@ public sealed class AesGcmEncryptionService : IEncryptionService
 		var ciphertext = new byte[plaintext.Length];
 
 		using var aes = new AesGcm(key, TagBytes);
-		aes.Encrypt(nonce, plaintext, ciphertext, tag);
+		aes.Encrypt(nonce, plaintext, ciphertext, tag, associatedData);
 
 		// Paket zusammensetzen: Nonce | Tag | Ciphertext
 		var packet = new byte[HeaderBytes + ciphertext.Length];
@@ -40,9 +45,14 @@ public sealed class AesGcmEncryptionService : IEncryptionService
 
 	/// <inheritdoc/>
 	public byte[] Decrypt(byte[] cipherPacket, byte[] key)
+		=> Decrypt(cipherPacket, key, []);
+
+	/// <inheritdoc/>
+	public byte[] Decrypt(byte[] cipherPacket, byte[] key, byte[] associatedData)
 	{
 		ArgumentNullException.ThrowIfNull(cipherPacket);
 		ArgumentNullException.ThrowIfNull(key);
+		ArgumentNullException.ThrowIfNull(associatedData);
 
 		if (key.Length != KeyBytes)
 			throw new ArgumentException($"Key muss genau {KeyBytes} Bytes lang sein.", nameof(key));
@@ -59,8 +69,7 @@ public sealed class AesGcmEncryptionService : IEncryptionService
 		var plaintext = new byte[ciphertext.Length];
 
 		using var aes = new AesGcm(key, TagBytes);
-		// Wirft CryptographicException bei ungültigem Tag (Manipulation / falscher Key)
-		aes.Decrypt(nonce, ciphertext, tag, plaintext);
+		aes.Decrypt(nonce, ciphertext, tag, plaintext, associatedData);
 
 		return plaintext;
 	}

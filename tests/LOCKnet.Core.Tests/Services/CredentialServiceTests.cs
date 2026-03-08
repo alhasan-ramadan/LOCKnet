@@ -3,6 +3,7 @@ using LOCKnet.Core.DataAbstractions;
 using LOCKnet.Core.Security;
 using LOCKnet.Core.Services;
 using System.Security;
+using System.Security.Cryptography;
 
 namespace LOCKnet.Core.Tests.Services;
 
@@ -32,6 +33,36 @@ sealed class InMemoryCredentialRepo : ICredentialRepository
 	public void Remove(int id) => _store.RemoveAll(c => c.Id == id);
 }
 
+sealed class FixedMasterKeyRepo : IMasterKeyRepository
+{
+	private VaultHeader? _header = new()
+	{
+		FormatVersion = VaultHeaderFormatVersion.Current,
+		KdfIdentifier = "PBKDF2-SHA256",
+		KdfParameters = new VaultKdfParameters
+		{
+			HashAlgorithm = "SHA256",
+			Iterations = 600_000,
+			KeyLengthBytes = 32,
+			SaltLengthBytes = 32,
+		},
+		Salt = new byte[32],
+		WrappedVaultKey = new byte[60],
+		LegacyPasswordHash = [],
+		UsesLegacyKeyMaterial = false,
+		CreatedAt = DateTime.UtcNow,
+		UpdatedAt = DateTime.UtcNow,
+	};
+
+	public void Create(VaultHeader header) => _header = header;
+
+	public VaultHeader? Get() => _header;
+
+	public void Update(VaultHeader header) => _header = header;
+
+	public void Delete() => _header = null;
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 
 public class CredentialServiceTests
@@ -47,10 +78,14 @@ public class CredentialServiceTests
 	private static (CredentialService sut, SessionManager session, InMemoryCredentialRepo repo) BuildSut()
 	{
 		var repo = new InMemoryCredentialRepo();
+		var masterKeyRepo = new FixedMasterKeyRepo();
 		var session = new SessionManager();
+		var encryption = new AesGcmEncryptionService();
 		var sut = new CredentialService(
 			repo,
-			new AesGcmEncryptionService(),
+			masterKeyRepo,
+			encryption,
+			new CredentialEnvelopeService(encryption),
 			session,
 			new SecureStringService());
 		return (sut, session, repo);
@@ -109,6 +144,8 @@ public class CredentialServiceTests
 		Assert.Single(all);
 		Assert.Equal("GitHub", all[0].Title);
 		Assert.Equal("alice", all[0].Username);
+		Assert.Equal(CredentialSecretFormatVersion.Current, all[0].SecretFormatVersion);
+		Assert.NotEmpty(all[0].CredentialUuid);
 	}
 
 	[Fact]
@@ -123,6 +160,8 @@ public class CredentialServiceTests
 		// Encrypted bytes must not equal plaintext bytes
 		var plaintextBytes = System.Text.Encoding.UTF8.GetBytes("plaintextpassword");
 		Assert.False(record.EncryptedPassword.SequenceEqual(plaintextBytes));
+		Assert.Equal(CredentialSecretFormatVersion.Current, record.SecretFormatVersion);
+		Assert.NotEmpty(record.CredentialUuid);
 	}
 
 	// ── GetPassword ───────────────────────────────────────────────────────────
@@ -142,6 +181,7 @@ public class CredentialServiceTests
 		var decryptedText = System.Text.Encoding.UTF8.GetString(decryptedBytes);
 
 		Assert.Equal(original, decryptedText);
+		new SecureStringService().ZeroMemory(decryptedBytes);
 	}
 
 	[Fact]
@@ -169,6 +209,7 @@ public class CredentialServiceTests
 		using var pw = sut.GetPassword(id)!;
 		var bytes = new SecureStringService().ToByteArray(pw);
 		Assert.Equal("new", System.Text.Encoding.UTF8.GetString(bytes));
+		new SecureStringService().ZeroMemory(bytes);
 	}
 
 	[Fact]
@@ -186,6 +227,49 @@ public class CredentialServiceTests
 		var updated = repo.GetById(id)!;
 		Assert.Equal("Site Updated", updated.Title);
 		Assert.Equal(originalEncrypted, updated.EncryptedPassword);
+	}
+
+	[Fact]
+	public void GetPassword_WhenCiphertextSwappedBetweenRecords_ThrowsCryptographicException()
+	{
+		var (sut, session, repo) = BuildSut();
+		OpenSession(session);
+
+		sut.Add("One", null, MakeSecure("secret-one"));
+		sut.Add("Two", null, MakeSecure("secret-two"));
+
+		var first = repo.GetAll()[0];
+		var second = repo.GetAll()[1];
+		var swappedFirst = new CredentialRecord
+		{
+			Id = first.Id,
+			Title = first.Title,
+			Username = first.Username,
+			EncryptedPassword = second.EncryptedPassword,
+			CredentialUuid = first.CredentialUuid,
+			SecretFormatVersion = first.SecretFormatVersion,
+			CredentialType = first.CredentialType,
+			CreatedAt = first.CreatedAt,
+			UpdatedAt = first.UpdatedAt,
+		};
+		repo.Update(swappedFirst);
+
+		Assert.ThrowsAny<CryptographicException>(() => sut.GetPassword(first.Id));
+	}
+
+	[Fact]
+	public void GetPassword_WithMalformedEnvelope_ThrowsInvalidOperationException()
+	{
+		var (sut, session, repo) = BuildSut();
+		OpenSession(session);
+
+		sut.Add("Broken", null, MakeSecure("secret"));
+		var record = repo.GetAll()[0];
+		record.EncryptedPassword = [0x01];
+		record.SecretFormatVersion = CredentialSecretFormatVersion.Current;
+		repo.Update(record);
+
+		Assert.Throws<InvalidOperationException>(() => sut.GetPassword(record.Id));
 	}
 
 	[Fact]

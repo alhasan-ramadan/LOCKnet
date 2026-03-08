@@ -10,7 +10,7 @@ namespace LOCKnet.Core.DataAbstractions;
 public sealed class VaultHeader
 {
 	/// <summary>Aktuelle Versionsnummer des Header-Formats.</summary>
-	public int FormatVersion { get; set; } = 1;
+	public int FormatVersion { get; set; } = VaultHeaderFormatVersion.WrappedVaultKeyV1;
 
 	/// <summary>Bezeichner der verwendeten KDF, z.B. <c>PBKDF2-SHA256</c>.</summary>
 	public string KdfIdentifier { get; set; } = string.Empty;
@@ -32,6 +32,12 @@ public sealed class VaultHeader
 	/// Neue Unlocks verlassen sich primaer auf <see cref="WrappedVaultKey"/>.
 	/// </summary>
 	public byte[] LegacyPasswordHash { get; set; } = [];
+
+	/// <summary>
+	/// Gibt an, ob der aktuell verpackte VaultKey noch aus einem Legacy-KDF-Schluessel stammt
+	/// und deshalb vor kryptografisch abgeschlossener Passwortrotation ersetzt werden muss.
+	/// </summary>
+	public bool UsesLegacyKeyMaterial { get; set; }
 
 	/// <summary>UTC-Zeitstempel der Erstellung.</summary>
 	public DateTime CreatedAt { get; set; }

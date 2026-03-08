@@ -15,6 +15,9 @@ public interface IKeyDerivationService
 	/// <summary>Liefert die Standardparameter fuer neue Vault-Header.</summary>
 	VaultKdfParameters GetDefaultParameters();
 
+	/// <summary>Validiert persistierte KDF-Parameter und wirft bei unsicheren oder ungueltigen Werten.</summary>
+	void ValidateParameters(VaultKdfParameters parameters);
+
 	/// <summary>
 	/// Generiert einen kryptografisch sicheren zufälligen Salt.
 	/// </summary>

@@ -14,6 +14,10 @@ public class CredentialRecord
 	public string? Username { get; set; }
 	/// <summary>AES-256-GCM-verschlüsseltes Passwort als Byte-Array. Niemals Klartext.</summary>
 	public byte[] EncryptedPassword { get; set; } = [];
+	/// <summary>Stabile GUID fuer AAD-Bindung und Record-Swap-Schutz.</summary>
+	public string CredentialUuid { get; set; } = string.Empty;
+	/// <summary>Versionsmarker des gespeicherten Secret-Envelopes.</summary>
+	public int SecretFormatVersion { get; set; } = CredentialSecretFormatVersion.Legacy;
 	/// <summary>Optionale URL des zugehörigen Dienstes.</summary>
 	public string? Url { get; set; }
 	/// <summary>Optionale Freitextnotizen zum Eintrag.</summary>

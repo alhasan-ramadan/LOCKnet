@@ -22,18 +22,19 @@ public interface IMasterKeyManager
 	void Initialize(SecureString password);
 
 	/// <summary>
-	/// Prüft, ob das angegebene Passwort mit dem gespeicherten Hash übereinstimmt,
-	/// und gibt bei Erfolg den abgeleiteten AES-256-Schlüssel zurück.
+	/// Prueft das angegebene Master-Passwort, migriert bei Bedarf Legacy-Credentialdaten
+	/// in das aktuelle Secret-Format und gibt bei Erfolg den aktiven VaultKey zurueck.
 	/// </summary>
 	/// <param name="password">Das eingegebene Passwort.</param>
 	/// <returns>
-	/// Der 32-Byte AES-Schlüssel bei korrektem Passwort, oder <c>null</c> wenn das Passwort falsch ist.
-	/// Der Aufrufer ist verantwortlich, den Schlüssel nach Benutzung zu nullen.
+	/// Der 32-Byte-VaultKey bei korrektem Passwort, oder <c>null</c> wenn das Passwort falsch ist.
+	/// Der Aufrufer ist verantwortlich, den Schluessel nach Benutzung zu nullen.
 	/// </returns>
 	byte[]? Unlock(SecureString password);
 
 	/// <summary>
-	/// Ändert das Master-Passwort. Prüft zuerst das alte Passwort.
+	/// Aendert das Master-Passwort.
+	/// Vor dem Rewrap wird sichergestellt, dass keine Legacy-Credentialdaten mehr aktiv sind.
 	/// </summary>
 	/// <param name="currentPassword">Das bisherige Passwort zur Verifikation.</param>
 	/// <param name="newPassword">Das neue Passwort.</param>

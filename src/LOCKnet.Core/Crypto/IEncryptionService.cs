@@ -21,6 +21,14 @@ public interface IEncryptionService
 	byte[] Encrypt(byte[] plaintext, byte[] key);
 
 	/// <summary>
+	/// Verschluesselt Klartext-Bytes mit optionalen Associated Data fuer AEAD-Bindung.
+	/// </summary>
+	/// <param name="plaintext">Die zu verschluesselnden Bytes.</param>
+	/// <param name="key">AES-256-Schluessel (genau 32 Bytes).</param>
+	/// <param name="associatedData">Authentisierte, aber nicht verschluesselte Metadaten.</param>
+	byte[] Encrypt(byte[] plaintext, byte[] key, byte[] associatedData);
+
+	/// <summary>
 	/// Entschlüsselt ein verschlüsseltes Paket aus <see cref="Encrypt"/>.
 	/// Verifiziert den GCM-Authentifizierungs-Tag — wirft Exception bei Manipulation.
 	/// </summary>
@@ -32,4 +40,12 @@ public interface IEncryptionService
 	/// Authentifizierung fehlgeschlagen — Daten wurden manipuliert oder falscher Key.
 	/// </exception>
 	byte[] Decrypt(byte[] cipherPacket, byte[] key);
+
+	/// <summary>
+	/// Entschluesselt ein verschluesseltes Paket mit Associated Data.
+	/// </summary>
+	/// <param name="cipherPacket">Das Paket aus <see cref="Encrypt(byte[], byte[], byte[])"/>.</param>
+	/// <param name="key">AES-256-Schluessel (genau 32 Bytes).</param>
+	/// <param name="associatedData">Authentisierte Metadaten, die exakt zum Encrypt-Aufruf passen muessen.</param>
+	byte[] Decrypt(byte[] cipherPacket, byte[] key, byte[] associatedData);
 }

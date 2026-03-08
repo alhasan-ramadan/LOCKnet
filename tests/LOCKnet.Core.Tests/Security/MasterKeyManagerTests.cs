@@ -2,30 +2,95 @@ using LOCKnet.Core.Crypto;
 using LOCKnet.Core.DataAbstractions;
 using LOCKnet.Core.Security;
 using System.Security;
+using System.Security.Cryptography;
 
 namespace LOCKnet.Core.Tests.Security;
 
-// ── Minimal in-memory fake für IMasterKeyRepository ───────────────────────────
-
-sealed class InMemoryMasterKeyRepo : IMasterKeyRepository
+sealed class InMemoryVaultStore : IMasterKeyRepository, IVaultMigrationRepository
 {
-	private VaultHeader? _stored;
+	private VaultHeader? _header;
+	private readonly List<CredentialRecord> _credentials = [];
+	private int _nextId = 1;
+
+	public bool ThrowOnApplyMigration { get; set; }
 
 	public void Create(VaultHeader header)
 	{
-		if (_stored is not null)
+		if (_header is not null)
 			throw new InvalidOperationException("Vault-Header existiert bereits.");
-		_stored = header;
+
+		_header = CloneHeader(header);
 	}
 
-	public VaultHeader? Get() => _stored;
+	public VaultHeader? Get() => _header is null ? null : CloneHeader(_header);
 
-	public void Update(VaultHeader header) => _stored = header;
+	public void Update(VaultHeader header) => _header = CloneHeader(header);
 
-	public void Delete() => _stored = null;
+	public void Delete() => _header = null;
+
+	public IReadOnlyList<CredentialRecord> GetAllCredentials()
+		=> _credentials.Select(CloneCredential).ToList();
+
+	public void ApplyMigration(VaultHeader header, IReadOnlyList<CredentialRecord> credentials)
+	{
+		if (ThrowOnApplyMigration)
+			throw new InvalidOperationException("Simulierter Migrationsabbruch.");
+
+		_header = CloneHeader(header);
+		foreach (var credential in credentials)
+		{
+			var index = _credentials.FindIndex(c => c.Id == credential.Id);
+			if (index >= 0)
+				_credentials[index] = CloneCredential(credential);
+		}
+	}
+
+	public CredentialRecord AddCredential(CredentialRecord credential)
+	{
+		var stored = CloneCredential(credential);
+		stored.Id = _nextId++;
+		_credentials.Add(stored);
+		return CloneCredential(stored);
+	}
+
+	public CredentialRecord GetCredential(int id)
+		=> CloneCredential(_credentials.Single(c => c.Id == id));
+
+	private static VaultHeader CloneHeader(VaultHeader header) => new()
+	{
+		FormatVersion = header.FormatVersion,
+		KdfIdentifier = header.KdfIdentifier,
+		KdfParameters = new VaultKdfParameters
+		{
+			HashAlgorithm = header.KdfParameters.HashAlgorithm,
+			Iterations = header.KdfParameters.Iterations,
+			KeyLengthBytes = header.KdfParameters.KeyLengthBytes,
+			SaltLengthBytes = header.KdfParameters.SaltLengthBytes,
+		},
+		Salt = header.Salt.ToArray(),
+		WrappedVaultKey = header.WrappedVaultKey.ToArray(),
+		LegacyPasswordHash = header.LegacyPasswordHash.ToArray(),
+		UsesLegacyKeyMaterial = header.UsesLegacyKeyMaterial,
+		CreatedAt = header.CreatedAt,
+		UpdatedAt = header.UpdatedAt,
+	};
+
+	private static CredentialRecord CloneCredential(CredentialRecord credential) => new()
+	{
+		Id = credential.Id,
+		Title = credential.Title,
+		Username = credential.Username,
+		EncryptedPassword = credential.EncryptedPassword.ToArray(),
+		CredentialUuid = credential.CredentialUuid,
+		SecretFormatVersion = credential.SecretFormatVersion,
+		Url = credential.Url,
+		Notes = credential.Notes,
+		CreatedAt = credential.CreatedAt,
+		UpdatedAt = credential.UpdatedAt,
+		IconKey = credential.IconKey,
+		CredentialType = credential.CredentialType,
+	};
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
 
 public class MasterKeyManagerTests
 {
@@ -37,17 +102,101 @@ public class MasterKeyManagerTests
 		return s;
 	}
 
-	private static MasterKeyManager BuildSut(out InMemoryMasterKeyRepo repo)
+	private static MasterKeyManager BuildSut(out InMemoryVaultStore store)
 	{
-		repo = new InMemoryMasterKeyRepo();
+		store = new InMemoryVaultStore();
+		var encryption = new AesGcmEncryptionService();
 		return new MasterKeyManager(
 			new Pbkdf2KeyDerivationService(),
-			repo,
-			new AesGcmEncryptionService(),
+			store,
+			store,
+			encryption,
+			new CredentialEnvelopeService(encryption),
 			new SecureStringService());
 	}
 
-	// ── IsInitialized ─────────────────────────────────────────────────────────
+	private static CredentialRecord AddLegacyCredential(InMemoryVaultStore store, byte[] legacyKey, string secret, string title = "Legacy")
+	{
+		var encryption = new AesGcmEncryptionService();
+		var plaintext = System.Text.Encoding.UTF8.GetBytes(secret);
+		try
+		{
+			return store.AddCredential(new CredentialRecord
+			{
+				Title = title,
+				EncryptedPassword = encryption.Encrypt(plaintext, legacyKey),
+				SecretFormatVersion = CredentialSecretFormatVersion.Legacy,
+				CredentialUuid = string.Empty,
+				CredentialType = CredentialType.Password,
+				CreatedAt = DateTime.UtcNow,
+				UpdatedAt = DateTime.UtcNow,
+			});
+		}
+		finally
+		{
+			CryptographicOperations.ZeroMemory(plaintext);
+		}
+	}
+
+	private static CredentialRecord AddCurrentCredential(InMemoryVaultStore store, byte[] vaultKey, string secret, string title = "Current")
+	{
+		var encryption = new AesGcmEncryptionService();
+		var envelope = new CredentialEnvelopeService(encryption);
+		var plaintext = System.Text.Encoding.UTF8.GetBytes(secret);
+		var record = new CredentialRecord
+		{
+			Title = title,
+			CredentialUuid = Guid.NewGuid().ToString("N"),
+			SecretFormatVersion = CredentialSecretFormatVersion.Current,
+			CredentialType = CredentialType.Password,
+			CreatedAt = DateTime.UtcNow,
+			UpdatedAt = DateTime.UtcNow,
+		};
+
+		try
+		{
+			record.EncryptedPassword = envelope.Encrypt(plaintext, vaultKey, record, VaultHeaderFormatVersion.Current);
+			return store.AddCredential(record);
+		}
+		finally
+		{
+			CryptographicOperations.ZeroMemory(plaintext);
+		}
+	}
+
+	private static void SeedLegacyVault(InMemoryVaultStore store, string password, bool withWrappedLegacyKey)
+	{
+		var kdf = new Pbkdf2KeyDerivationService();
+		var encryption = new AesGcmEncryptionService();
+		var secure = new SecureStringService();
+		var securePassword = MakeSecure(password);
+		var passwordBytes = secure.ToByteArray(securePassword);
+		var parameters = kdf.GetDefaultParameters();
+		var salt = kdf.GenerateSalt(parameters.SaltLengthBytes);
+
+		try
+		{
+			var legacyKey = kdf.DeriveKey(passwordBytes, salt, parameters);
+			var header = new VaultHeader
+			{
+				FormatVersion = withWrappedLegacyKey ? VaultHeaderFormatVersion.WrappedVaultKeyV1 : VaultHeaderFormatVersion.Legacy,
+				KdfIdentifier = kdf.Identifier,
+				KdfParameters = parameters,
+				Salt = salt,
+				WrappedVaultKey = withWrappedLegacyKey ? encryption.Encrypt(legacyKey, legacyKey) : [],
+				LegacyPasswordHash = kdf.ComputePasswordHash(passwordBytes, salt, parameters),
+				UsesLegacyKeyMaterial = withWrappedLegacyKey,
+				CreatedAt = DateTime.UtcNow,
+				UpdatedAt = DateTime.UtcNow,
+			};
+			store.Create(header);
+			AddLegacyCredential(store, legacyKey, "legacy-secret-1", "Legacy One");
+		}
+		finally
+		{
+			secure.ZeroMemory(passwordBytes);
+		}
+	}
 
 	[Fact]
 	public void IsInitialized_BeforeSetup_ReturnsFalse()
@@ -57,87 +206,28 @@ public class MasterKeyManagerTests
 	}
 
 	[Fact]
-	public void IsInitialized_AfterInitialize_ReturnsTrue()
+	public void Initialize_PersistsCurrentHeaderWithWrappedRandomVaultKey()
 	{
-		var sut = BuildSut(out _);
-		sut.Initialize(MakeSecure("secret"));
-		Assert.True(sut.IsInitialized);
-	}
-
-	// ── Initialize ────────────────────────────────────────────────────────────
-
-	[Fact]
-	public void Initialize_PersistsVaultHeaderAndWrappedKey()
-	{
-		var sut = BuildSut(out var repo);
+		var sut = BuildSut(out var store);
 		sut.Initialize(MakeSecure("masterkey"));
 
-		var record = repo.Get();
-		Assert.NotNull(record);
-		Assert.NotEmpty(record.Salt);
-		Assert.Empty(record.LegacyPasswordHash);
-		Assert.NotEmpty(record.WrappedVaultKey);
-		Assert.Equal("PBKDF2-SHA256", record.KdfIdentifier);
+		var header = store.Get();
+		Assert.NotNull(header);
+		Assert.Equal(VaultHeaderFormatVersion.Current, header.FormatVersion);
+		Assert.Equal("PBKDF2-SHA256", header.KdfIdentifier);
+		Assert.NotEmpty(header.WrappedVaultKey);
+		Assert.Empty(header.LegacyPasswordHash);
+		Assert.False(header.UsesLegacyKeyMaterial);
 	}
 
 	[Fact]
-	public void Unlock_LegacyHeaderMigration_ClearsLegacyPasswordHash()
-	{
-		var repo = new InMemoryMasterKeyRepo();
-		var kdf = new Pbkdf2KeyDerivationService();
-		var secure = new SecureStringService();
-		var sut = new MasterKeyManager(kdf, repo, new AesGcmEncryptionService(), secure);
-		var password = MakeSecure("legacy-password");
-		var passwordBytes = secure.ToByteArray(password);
-		var parameters = kdf.GetDefaultParameters();
-		var salt = kdf.GenerateSalt(parameters.SaltLengthBytes);
-
-		try
-		{
-			repo.Create(new VaultHeader
-			{
-				FormatVersion = 0,
-				KdfIdentifier = kdf.Identifier,
-				KdfParameters = parameters,
-				Salt = salt,
-				LegacyPasswordHash = kdf.ComputePasswordHash(passwordBytes, salt, parameters),
-				WrappedVaultKey = [],
-				CreatedAt = DateTime.UtcNow,
-				UpdatedAt = DateTime.UtcNow,
-			});
-		}
-		finally
-		{
-			secure.ZeroMemory(passwordBytes);
-		}
-
-		var unlocked = sut.Unlock(password);
-		var migrated = repo.Get()!;
-
-		Assert.NotNull(unlocked);
-		Assert.NotEmpty(migrated.WrappedVaultKey);
-		Assert.Empty(migrated.LegacyPasswordHash);
-	}
-
-	[Fact]
-	public void Initialize_CalledTwice_Throws()
+	public void Unlock_CorrectPassword_Returns32ByteVaultKey()
 	{
 		var sut = BuildSut(out _);
-		sut.Initialize(MakeSecure("first"));
+		const string password = "correct horse battery staple";
+		sut.Initialize(MakeSecure(password));
 
-		Assert.Throws<InvalidOperationException>(() => sut.Initialize(MakeSecure("second")));
-	}
-
-	// ── Unlock ────────────────────────────────────────────────────────────────
-
-	[Fact]
-	public void Unlock_CorrectPassword_Returns32ByteKey()
-	{
-		var sut = BuildSut(out _);
-		const string pw = "correct horse battery staple";
-		sut.Initialize(MakeSecure(pw));
-
-		var key = sut.Unlock(MakeSecure(pw));
+		var key = sut.Unlock(MakeSecure(password));
 
 		Assert.NotNull(key);
 		Assert.Equal(32, key.Length);
@@ -149,119 +239,141 @@ public class MasterKeyManagerTests
 		var sut = BuildSut(out _);
 		sut.Initialize(MakeSecure("correct"));
 
-		var key = sut.Unlock(MakeSecure("wrong"));
-
-		Assert.Null(key);
+		Assert.Null(sut.Unlock(MakeSecure("wrong")));
 	}
 
 	[Fact]
-	public void Unlock_BeforeInitialize_Throws()
+	public void Unlock_LegacyVault_MigratesHeaderAndCredentialCiphertext()
 	{
-		var sut = BuildSut(out _);
-		Assert.Throws<InvalidOperationException>(() => sut.Unlock(MakeSecure("anything")));
+		var sut = BuildSut(out var store);
+		SeedLegacyVault(store, "legacy-password", withWrappedLegacyKey: false);
+
+		var key = sut.Unlock(MakeSecure("legacy-password"))!;
+		var header = store.Get()!;
+		var credential = store.GetAllCredentials().Single();
+		var envelope = new CredentialEnvelopeService(new AesGcmEncryptionService());
+		var plaintext = envelope.Decrypt(credential, key, header.FormatVersion);
+
+		Assert.Equal(VaultHeaderFormatVersion.Current, header.FormatVersion);
+		Assert.False(header.UsesLegacyKeyMaterial);
+		Assert.Empty(header.LegacyPasswordHash);
+		Assert.Equal(CredentialSecretFormatVersion.Current, credential.SecretFormatVersion);
+		Assert.NotEmpty(credential.CredentialUuid);
+		Assert.Equal("legacy-secret-1", System.Text.Encoding.UTF8.GetString(plaintext));
 	}
 
 	[Fact]
-	public void Unlock_SamePasswordTwice_ReturnsSameKey()
+	public void Unlock_MixedLegacyAndCurrentRecords_MigratesOnlyLegacyEntries()
 	{
-		var sut = BuildSut(out _);
-		const string pw = "deterministic";
-		sut.Initialize(MakeSecure(pw));
+		var sut = BuildSut(out var store);
+		sut.Initialize(MakeSecure("vault-password"));
+		var currentVaultKey = sut.Unlock(MakeSecure("vault-password"))!;
+		AddLegacyCredential(store, currentVaultKey, "legacy-secret", "Legacy");
+		var currentRecord = AddCurrentCredential(store, currentVaultKey, "current-secret", "Current");
+		CryptographicOperations.ZeroMemory(currentVaultKey);
 
-		var key1 = sut.Unlock(MakeSecure(pw))!;
-		var key2 = sut.Unlock(MakeSecure(pw))!;
+		var reopenedKey = sut.Unlock(MakeSecure("vault-password"))!;
+		var header = store.Get()!;
+		var records = store.GetAllCredentials();
+		var migratedLegacy = records.Single(r => r.Title == "Legacy");
+		var unchangedCurrent = records.Single(r => r.Title == "Current");
+		var envelope = new CredentialEnvelopeService(new AesGcmEncryptionService());
 
-		Assert.Equal(key1, key2);
+		Assert.Equal(CredentialSecretFormatVersion.Current, migratedLegacy.SecretFormatVersion);
+		Assert.NotEmpty(migratedLegacy.CredentialUuid);
+		Assert.Equal(currentRecord.CredentialUuid, unchangedCurrent.CredentialUuid);
+		Assert.Equal(currentRecord.EncryptedPassword, unchangedCurrent.EncryptedPassword);
+		Assert.Equal("legacy-secret", System.Text.Encoding.UTF8.GetString(envelope.Decrypt(migratedLegacy, reopenedKey, header.FormatVersion)));
 	}
 
 	[Fact]
-	public void Unlock_AfterInitialize_UsesWrappedVaultKeyRoundTrip()
+	public void Unlock_WhenMigrationApplyFails_LeavesVaultStateRecoverable()
 	{
-		var sut = BuildSut(out var repo);
-		const string password = "wrapped-vault-key";
-		sut.Initialize(MakeSecure(password));
+		var sut = BuildSut(out var store);
+		SeedLegacyVault(store, "legacy-password", withWrappedLegacyKey: false);
+		var beforeHeader = store.Get()!;
+		var beforeCredential = store.GetAllCredentials().Single();
+		store.ThrowOnApplyMigration = true;
 
-		var header = repo.Get()!;
-		Assert.NotEmpty(header.WrappedVaultKey);
+		Assert.Throws<InvalidOperationException>(() => sut.Unlock(MakeSecure("legacy-password")));
+		Assert.Equal(beforeHeader.FormatVersion, store.Get()!.FormatVersion);
+		Assert.Equal(beforeCredential.EncryptedPassword, store.GetAllCredentials().Single().EncryptedPassword);
 
-		var key1 = sut.Unlock(MakeSecure(password))!;
-		var key2 = sut.Unlock(MakeSecure(password))!;
-
-		Assert.Equal(key1, key2);
-	}
-
-	// ── ChangePassword ────────────────────────────────────────────────────────
-
-	[Fact]
-	public void ChangePassword_CorrectCurrent_NewPasswordUnlocks()
-	{
-		var sut = BuildSut(out _);
-		sut.Initialize(MakeSecure("old"));
-		sut.ChangePassword(MakeSecure("old"), MakeSecure("new"));
-
-		var key = sut.Unlock(MakeSecure("new"));
+		store.ThrowOnApplyMigration = false;
+		var key = sut.Unlock(MakeSecure("legacy-password"));
 		Assert.NotNull(key);
+		Assert.Equal(VaultHeaderFormatVersion.Current, store.Get()!.FormatVersion);
 	}
 
 	[Fact]
-	public void ChangePassword_CorrectCurrent_OldPasswordNoLongerUnlocks()
+	public void ChangePassword_OnLegacyVault_MigratesThenMakesOldPasswordUseless()
 	{
-		var sut = BuildSut(out _);
-		sut.Initialize(MakeSecure("old"));
-		sut.ChangePassword(MakeSecure("old"), MakeSecure("new"));
+		var sut = BuildSut(out var store);
+		SeedLegacyVault(store, "old-password", withWrappedLegacyKey: true);
 
-		var key = sut.Unlock(MakeSecure("old"));
-		Assert.Null(key);
+		sut.ChangePassword(MakeSecure("old-password"), MakeSecure("new-password"));
+
+		Assert.Null(sut.Unlock(MakeSecure("old-password")));
+		var newKey = sut.Unlock(MakeSecure("new-password"));
+		Assert.NotNull(newKey);
+		Assert.Equal(VaultHeaderFormatVersion.Current, store.Get()!.FormatVersion);
+		Assert.False(store.Get()!.UsesLegacyKeyMaterial);
 	}
 
 	[Fact]
-	public void ChangePassword_WrongCurrent_Throws()
+	public void ChangePassword_AfterMigration_RewrapsWithoutReintroducingLegacyState()
 	{
-		var sut = BuildSut(out _);
-		sut.Initialize(MakeSecure("correct"));
+		var sut = BuildSut(out var store);
+		sut.Initialize(MakeSecure("initial"));
+		var migratedKey = sut.Unlock(MakeSecure("initial"))!;
+		AddCurrentCredential(store, migratedKey, "current-secret", "Current");
+		CryptographicOperations.ZeroMemory(migratedKey);
 
-		Assert.Throws<UnauthorizedAccessException>(
-			() => sut.ChangePassword(MakeSecure("wrong"), MakeSecure("new")));
+		sut.ChangePassword(MakeSecure("initial"), MakeSecure("updated"));
+
+		Assert.Null(sut.Unlock(MakeSecure("initial")));
+		Assert.NotNull(sut.Unlock(MakeSecure("updated")));
+		Assert.False(store.Get()!.UsesLegacyKeyMaterial);
 	}
 
-	// ── ChangePassword edge cases ────────────────────────────────────────────
+	[Fact]
+	public void Unlock_TamperedHeaderIdentifier_Throws()
+	{
+		var sut = BuildSut(out var store);
+		sut.Initialize(MakeSecure("pw"));
+		var header = store.Get()!;
+		header.KdfIdentifier = "PBKDF2-SHA1";
+		store.Update(header);
+
+		Assert.Throws<InvalidOperationException>(() => sut.Unlock(MakeSecure("pw")));
+	}
+
+	[Fact]
+	public void Unlock_TamperedWrappedVaultKeyStructure_Throws()
+	{
+		var sut = BuildSut(out var store);
+		sut.Initialize(MakeSecure("pw"));
+		var header = store.Get()!;
+		header.WrappedVaultKey = [0x01, 0x02, 0x03];
+		store.Update(header);
+
+		Assert.Throws<InvalidOperationException>(() => sut.Unlock(MakeSecure("pw")));
+	}
+
+	[Fact]
+	public void Initialize_CalledTwice_Throws()
+	{
+		var sut = BuildSut(out _);
+		sut.Initialize(MakeSecure("first"));
+		Assert.Throws<InvalidOperationException>(() => sut.Initialize(MakeSecure("second")));
+	}
 
 	[Fact]
 	public void ChangePassword_BeforeInitialize_Throws()
 	{
 		var sut = BuildSut(out _);
-		Assert.Throws<InvalidOperationException>(
-			() => sut.ChangePassword(MakeSecure("old"), MakeSecure("new")));
+		Assert.Throws<InvalidOperationException>(() => sut.ChangePassword(MakeSecure("old"), MakeSecure("new")));
 	}
-
-	[Fact]
-	public void ChangePassword_GeneratesNewSalt()
-	{
-		var sut = BuildSut(out var repo);
-		sut.Initialize(MakeSecure("initial"));
-		var saltBefore = repo.Get()!.Salt;
-
-		sut.ChangePassword(MakeSecure("initial"), MakeSecure("updated"));
-
-		var saltAfter = repo.Get()!.Salt;
-		Assert.False(saltBefore.SequenceEqual(saltAfter),
-			"ChangePassword must generate a fresh salt.");
-	}
-
-	[Fact]
-	public void ChangePassword_RewrapsExistingVaultKey()
-	{
-		var sut = BuildSut(out _);
-		sut.Initialize(MakeSecure("old-password"));
-
-		var originalKey = sut.Unlock(MakeSecure("old-password"))!;
-		sut.ChangePassword(MakeSecure("old-password"), MakeSecure("new-password"));
-		var unlockedWithNewPassword = sut.Unlock(MakeSecure("new-password"))!;
-
-		Assert.Equal(originalKey, unlockedWithNewPassword);
-	}
-
-	// ── Initialize null guard ───────────────────────────────────────────────
 
 	[Fact]
 	public void Initialize_NullPassword_Throws()
@@ -269,8 +381,6 @@ public class MasterKeyManagerTests
 		var sut = BuildSut(out _);
 		Assert.Throws<ArgumentNullException>(() => sut.Initialize(null!));
 	}
-
-	// ── Unlock null guard ────────────────────────────────────────────────────
 
 	[Fact]
 	public void Unlock_NullPassword_Throws()

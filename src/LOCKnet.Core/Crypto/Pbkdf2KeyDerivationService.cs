@@ -32,6 +32,10 @@ public sealed class Pbkdf2KeyDerivationService : IKeyDerivationService
 	};
 
 	/// <inheritdoc/>
+	public void ValidateParameters(VaultKdfParameters parameters)
+		=> ValidateParametersCore(parameters);
+
+	/// <inheritdoc/>
 	public byte[] GenerateSalt(int length = 32)
 	{
 		ArgumentOutOfRangeException.ThrowIfLessThan(length, 16, nameof(length));
@@ -48,7 +52,7 @@ public sealed class Pbkdf2KeyDerivationService : IKeyDerivationService
 		ArgumentNullException.ThrowIfNull(password);
 		ArgumentNullException.ThrowIfNull(salt);
 		ArgumentNullException.ThrowIfNull(parameters);
-		ValidateParameters(parameters);
+		ValidateParametersCore(parameters);
 
 		return Rfc2898DeriveBytes.Pbkdf2(
 			password,
@@ -68,7 +72,7 @@ public sealed class Pbkdf2KeyDerivationService : IKeyDerivationService
 		ArgumentNullException.ThrowIfNull(password);
 		ArgumentNullException.ThrowIfNull(salt);
 		ArgumentNullException.ThrowIfNull(parameters);
-		ValidateParameters(parameters);
+		ValidateParametersCore(parameters);
 
 		// Separater Durchlauf mit anderem Kontext-Byte, damit
 		// DeriveKey-Ausgabe und PasswordHash nie identisch sind.
@@ -106,7 +110,7 @@ public sealed class Pbkdf2KeyDerivationService : IKeyDerivationService
 			_ => throw new NotSupportedException($"Nicht unterstuetzter PBKDF2-Hash-Algorithmus: {algorithm}"),
 		};
 
-	private static void ValidateParameters(VaultKdfParameters parameters)
+	private static void ValidateParametersCore(VaultKdfParameters parameters)
 	{
 		if (parameters.Iterations is < 100_000 or > 5_000_000)
 			throw new InvalidOperationException("Persistierte PBKDF2-Iterationen liegen ausserhalb des erlaubten Bereichs.");

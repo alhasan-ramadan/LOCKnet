@@ -38,23 +38,25 @@ public sealed class AppServices
 
 		ICredentialRepository credRepo = new CredentialsRepository(connectionString);
 		IMasterKeyRepository masterKeyRepo = new MasterKeyRepository(connectionString);
+		IVaultMigrationRepository vaultMigrationRepo = new VaultMigrationRepository(connectionString);
 
 		// Crypto layer
 		IKeyDerivationService kdf = new Pbkdf2KeyDerivationService();
 		IEncryptionService encryption = new AesGcmEncryptionService();
+		ICredentialEnvelopeService credentialEnvelope = new CredentialEnvelopeService(encryption);
 		ISecureStringService secureStr = new SecureStringService();
 
 		// Security layer
 		var sessionManager = new SessionManager();
 		SessionManager = sessionManager;
-		MasterKeyManager = new MasterKeyManager(kdf, masterKeyRepo, encryption, secureStr);
+		MasterKeyManager = new MasterKeyManager(kdf, masterKeyRepo, vaultMigrationRepo, encryption, credentialEnvelope, secureStr);
 		ActivityMonitor = new ActivityMonitor(sessionManager)
 		{
 			Timeout = TimeSpan.FromSeconds(60)
 		};
 
 		// Service layer
-		CredentialService = new CredentialService(credRepo, encryption, sessionManager, secureStr);
+		CredentialService = new CredentialService(credRepo, masterKeyRepo, encryption, credentialEnvelope, sessionManager, secureStr);
 	}
 
 	/// <summary>

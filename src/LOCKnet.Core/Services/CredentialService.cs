@@ -14,7 +14,9 @@ namespace LOCKnet.Core.Services;
 public sealed class CredentialService : ICredentialService
 {
 	private readonly ICredentialRepository _repo;
+	private readonly IMasterKeyRepository _masterKeyRepo;
 	private readonly IEncryptionService _encryption;
+	private readonly ICredentialEnvelopeService _credentialEnvelope;
 	private readonly ISessionManager _session;
 	private readonly ISecureStringService _secureStr;
 
@@ -23,16 +25,22 @@ public sealed class CredentialService : ICredentialService
 	/// </summary>
 	public CredentialService(
 		ICredentialRepository repo,
+		IMasterKeyRepository masterKeyRepo,
 		IEncryptionService encryption,
+		ICredentialEnvelopeService credentialEnvelope,
 		ISessionManager session,
 		ISecureStringService secureStr)
 	{
 		ArgumentNullException.ThrowIfNull(repo);
+		ArgumentNullException.ThrowIfNull(masterKeyRepo);
 		ArgumentNullException.ThrowIfNull(encryption);
+		ArgumentNullException.ThrowIfNull(credentialEnvelope);
 		ArgumentNullException.ThrowIfNull(session);
 		ArgumentNullException.ThrowIfNull(secureStr);
 		_repo = repo;
+		_masterKeyRepo = masterKeyRepo;
 		_encryption = encryption;
+		_credentialEnvelope = credentialEnvelope;
 		_session = session;
 		_secureStr = secureStr;
 	}
@@ -44,22 +52,25 @@ public sealed class CredentialService : ICredentialService
 		ArgumentNullException.ThrowIfNull(password);
 
 		var key = RequireSessionKey();
+		var header = RequireCurrentHeader();
 		var passwordBytes = _secureStr.ToByteArray(password);
 		try
 		{
-			var encrypted = _encryption.Encrypt(passwordBytes, key);
-			_repo.Add(new CredentialRecord
+			var record = new CredentialRecord
 			{
 				Title = title,
 				Username = username,
-				EncryptedPassword = encrypted,
+				CredentialUuid = Guid.NewGuid().ToString("N"),
+				SecretFormatVersion = _credentialEnvelope.CurrentVersion,
 				Url = url,
 				Notes = notes,
 				IconKey = iconKey,
 				CredentialType = credentialType,
 				CreatedAt = DateTime.UtcNow,
 				UpdatedAt = DateTime.UtcNow
-			});
+			};
+			record.EncryptedPassword = _credentialEnvelope.Encrypt(passwordBytes, key, record, header.FormatVersion);
+			_repo.Add(record);
 		}
 		finally
 		{
@@ -79,12 +90,13 @@ public sealed class CredentialService : ICredentialService
 	public SecureString? GetPassword(int id)
 	{
 		var key = RequireSessionKey();
+		var header = RequireCurrentHeader();
 		try
 		{
 			var record = _repo.GetById(id);
 			if (record is null) return null;
 
-			var decrypted = _encryption.Decrypt(record.EncryptedPassword, key);
+			var decrypted = _credentialEnvelope.Decrypt(record, key, header.FormatVersion);
 			try
 			{
 				return _secureStr.FromByteArray(decrypted);
@@ -106,18 +118,31 @@ public sealed class CredentialService : ICredentialService
 		ArgumentException.ThrowIfNullOrWhiteSpace(title);
 
 		var key = RequireSessionKey();
+		var header = RequireCurrentHeader();
 		try
 		{
 			var existing = _repo.GetById(id)
 				?? throw new InvalidOperationException($"Credential mit ID {id} nicht gefunden.");
 
 			byte[] encryptedPassword;
+			var credentialUuid = existing.CredentialUuid;
+			var secretFormatVersion = existing.SecretFormatVersion;
 			if (newPassword is not null)
 			{
 				var passwordBytes = _secureStr.ToByteArray(newPassword);
 				try
 				{
-					encryptedPassword = _encryption.Encrypt(passwordBytes, key);
+					credentialUuid = string.IsNullOrWhiteSpace(existing.CredentialUuid)
+						? Guid.NewGuid().ToString("N")
+						: existing.CredentialUuid;
+					secretFormatVersion = _credentialEnvelope.CurrentVersion;
+					var encryptedRecord = new CredentialRecord
+					{
+						Id = id,
+						CredentialUuid = credentialUuid,
+						CredentialType = credentialType,
+					};
+					encryptedPassword = _credentialEnvelope.Encrypt(passwordBytes, key, encryptedRecord, header.FormatVersion);
 				}
 				finally
 				{
@@ -135,6 +160,8 @@ public sealed class CredentialService : ICredentialService
 				Title = title,
 				Username = username,
 				EncryptedPassword = encryptedPassword,
+				CredentialUuid = credentialUuid,
+				SecretFormatVersion = secretFormatVersion,
 				Url = url,
 				Notes = notes,
 				IconKey = iconKey,
@@ -170,5 +197,16 @@ public sealed class CredentialService : ICredentialService
 	{
 		if (!_session.IsUnlocked)
 			throw new InvalidOperationException("Sitzung ist gesperrt. Bitte zuerst entsperren.");
+	}
+
+	private VaultHeader RequireCurrentHeader()
+	{
+		var header = _masterKeyRepo.Get()
+			?? throw new InvalidOperationException("VaultHeader konnte nicht geladen werden.");
+
+		if (header.FormatVersion != VaultHeaderFormatVersion.Current)
+			throw new InvalidOperationException("Vault ist noch nicht auf das aktuelle Secret-Format migriert.");
+
+		return header;
 	}
 }

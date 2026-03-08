@@ -37,6 +37,8 @@ public class CredentialsRepositoryTests : IDisposable
 			Title = title,
 			Username = username,
 			EncryptedPassword = [0x01, 0x02, 0x03],
+			CredentialUuid = Guid.NewGuid().ToString("N"),
+			SecretFormatVersion = CredentialSecretFormatVersion.Current,
 			Url = "https://github.com",
 			Notes = "test notes",
 		};
@@ -89,6 +91,32 @@ public class CredentialsRepositoryTests : IDisposable
 
 		var stored = _sut.GetAll()[0];
 		Assert.Equal(expectedBytes, stored.EncryptedPassword);
+	}
+
+	[Fact]
+	public void Add_PersistsCredentialUuidAndSecretFormatVersion()
+	{
+		var record = MakeRecord();
+
+		_sut.Add(record);
+
+		var stored = _sut.GetAll()[0];
+		Assert.Equal(record.CredentialUuid, stored.CredentialUuid);
+		Assert.Equal(record.SecretFormatVersion, stored.SecretFormatVersion);
+	}
+
+	[Fact]
+	public void Add_DuplicateNonEmptyCredentialUuid_ThrowsSqliteException()
+	{
+		var credentialUuid = Guid.NewGuid().ToString("N");
+		var first = MakeRecord("First");
+		var second = MakeRecord("Second");
+		first.CredentialUuid = credentialUuid;
+		second.CredentialUuid = credentialUuid;
+
+		_sut.Add(first);
+
+		Assert.Throws<SqliteException>(() => _sut.Add(second));
 	}
 
 	[Fact]

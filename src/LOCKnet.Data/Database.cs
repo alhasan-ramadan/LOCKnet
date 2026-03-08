@@ -53,6 +53,8 @@ public class Database
                     Title TEXT NOT NULL,
                     Username TEXT,
                     EncryptedPassword BLOB NOT NULL,
+                    CredentialUuid TEXT NOT NULL DEFAULT '',
+                    SecretFormatVersion INTEGER NOT NULL DEFAULT 0,
                     URL TEXT,
                     Notes TEXT,
                     CreatedAt TEXT DEFAULT CURRENT_TIMESTAMP,
@@ -103,6 +105,19 @@ public class Database
 		TryAddColumn(connection, "MasterKey", "KdfIdentifier", "TEXT NOT NULL DEFAULT 'PBKDF2-SHA256'");
 		TryAddColumn(connection, "MasterKey", "KdfParameters", kdfParametersDefault);
 		TryAddColumn(connection, "MasterKey", "WrappedVaultKey", "BLOB");
+		TryAddColumn(connection, "MasterKey", "UsesLegacyKeyMaterial", "INTEGER NOT NULL DEFAULT 0");
+
+		TryAddColumn(connection, "Credentials", "CredentialUuid", "TEXT NOT NULL DEFAULT ''");
+		TryAddColumn(connection, "Credentials", "SecretFormatVersion", "INTEGER NOT NULL DEFAULT 0");
+
+		using (var cmd = connection.CreateCommand())
+		{
+			cmd.CommandText = @"
+                CREATE UNIQUE INDEX IF NOT EXISTS IX_Credentials_CredentialUuid
+                ON Credentials(CredentialUuid)
+                WHERE CredentialUuid <> '';";
+			cmd.ExecuteNonQuery();
+		}
 
 		// Settings table
 		using (var cmd = connection.CreateCommand())

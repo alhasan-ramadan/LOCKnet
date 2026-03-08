@@ -12,9 +12,12 @@ namespace LOCKnet.Core.Security;
 /// </summary>
 public sealed class MasterKeyManager : IMasterKeyManager
 {
+	private const int WrappedVaultKeyPacketBytes = 60;
 	private readonly IKeyDerivationService _kdf;
 	private readonly IMasterKeyRepository _repo;
+	private readonly IVaultMigrationRepository _vaultMigrationRepo;
 	private readonly IEncryptionService _encryption;
+	private readonly ICredentialEnvelopeService _credentialEnvelope;
 	private readonly ISecureStringService _secureStr;
 
 	/// <summary>
@@ -23,16 +26,22 @@ public sealed class MasterKeyManager : IMasterKeyManager
 	public MasterKeyManager(
 		IKeyDerivationService kdf,
 		IMasterKeyRepository repo,
+		IVaultMigrationRepository vaultMigrationRepo,
 		IEncryptionService encryption,
+		ICredentialEnvelopeService credentialEnvelope,
 		ISecureStringService secureStr)
 	{
 		ArgumentNullException.ThrowIfNull(kdf);
 		ArgumentNullException.ThrowIfNull(repo);
+		ArgumentNullException.ThrowIfNull(vaultMigrationRepo);
 		ArgumentNullException.ThrowIfNull(encryption);
+		ArgumentNullException.ThrowIfNull(credentialEnvelope);
 		ArgumentNullException.ThrowIfNull(secureStr);
 		_kdf = kdf;
 		_repo = repo;
+		_vaultMigrationRepo = vaultMigrationRepo;
 		_encryption = encryption;
+		_credentialEnvelope = credentialEnvelope;
 		_secureStr = secureStr;
 	}
 
@@ -59,12 +68,13 @@ public sealed class MasterKeyManager : IMasterKeyManager
 
 			_repo.Create(new VaultHeader
 			{
-				FormatVersion = 1,
+				FormatVersion = VaultHeaderFormatVersion.Current,
 				KdfIdentifier = _kdf.Identifier,
 				KdfParameters = parameters,
 				Salt = salt,
 				WrappedVaultKey = wrappedVaultKey,
 				LegacyPasswordHash = [],
+				UsesLegacyKeyMaterial = false,
 				CreatedAt = DateTime.UtcNow,
 				UpdatedAt = DateTime.UtcNow
 			});
@@ -87,24 +97,46 @@ public sealed class MasterKeyManager : IMasterKeyManager
 		var record = _repo.Get();
 		if (record is null)
 			throw new InvalidOperationException("Kein Master-Key vorhanden. Bitte zuerst Initialize() aufrufen.");
+		ValidateHeader(record);
 
 		var passwordBytes = _secureStr.ToByteArray(password);
 		byte[]? kek = null;
+		byte[]? currentVaultKey = null;
+		byte[]? targetVaultKey = null;
+		byte[]? resultKey = null;
 		try
 		{
-			var parameters = record.KdfParameters ?? _kdf.GetDefaultParameters();
+			var parameters = record.KdfParameters;
 			kek = _kdf.DeriveKey(passwordBytes, record.Salt, parameters);
 
 			if (record.WrappedVaultKey.Length > 0)
 			{
 				try
 				{
-					return _encryption.Decrypt(record.WrappedVaultKey, kek);
+					currentVaultKey = _encryption.Decrypt(record.WrappedVaultKey, kek);
 				}
 				catch (CryptographicException)
 				{
 					return null;
 				}
+
+				var usesLegacyKey = record.UsesLegacyKeyMaterial ||
+					(record.FormatVersion < VaultHeaderFormatVersion.Current &&
+					CryptographicOperations.FixedTimeEquals(currentVaultKey, kek));
+
+				var migration = BuildMigrationPlan(record, currentVaultKey, kek, usesLegacyKey);
+				if (migration is not null)
+				{
+					_vaultMigrationRepo.ApplyMigration(migration.Header, migration.Credentials);
+					targetVaultKey = migration.ActiveVaultKey;
+					resultKey = targetVaultKey;
+					targetVaultKey = null;
+					return resultKey;
+				}
+
+				resultKey = currentVaultKey;
+				currentVaultKey = null;
+				return resultKey;
 			}
 
 			if (record.LegacyPasswordHash.Length == 0 ||
@@ -113,21 +145,24 @@ public sealed class MasterKeyManager : IMasterKeyManager
 				return null;
 			}
 
-			var legacyVaultKey = _kdf.DeriveKey(passwordBytes, record.Salt, parameters);
-			var migrated = CloneHeader(record);
-			migrated.FormatVersion = 1;
-			migrated.KdfIdentifier = _kdf.Identifier;
-			migrated.KdfParameters = parameters;
-			migrated.WrappedVaultKey = _encryption.Encrypt(legacyVaultKey, kek);
-			migrated.LegacyPasswordHash = [];
-			migrated.UpdatedAt = DateTime.UtcNow;
-			_repo.Update(migrated);
-			return legacyVaultKey;
+			currentVaultKey = _kdf.DeriveKey(passwordBytes, record.Salt, parameters);
+			var legacyMigration = BuildMigrationPlan(record, currentVaultKey, kek, true)
+				?? throw new InvalidOperationException("Legacy-Vault konnte nicht in das aktuelle Format migriert werden.");
+
+			_vaultMigrationRepo.ApplyMigration(legacyMigration.Header, legacyMigration.Credentials);
+			targetVaultKey = legacyMigration.ActiveVaultKey;
+			resultKey = targetVaultKey;
+			targetVaultKey = null;
+			return resultKey;
 		}
 		finally
 		{
 			if (kek is not null)
 				CryptographicOperations.ZeroMemory(kek);
+			if (currentVaultKey is not null)
+				CryptographicOperations.ZeroMemory(currentVaultKey);
+			if (targetVaultKey is not null)
+				CryptographicOperations.ZeroMemory(targetVaultKey);
 			_secureStr.ZeroMemory(passwordBytes);
 		}
 	}
@@ -157,12 +192,13 @@ public sealed class MasterKeyManager : IMasterKeyManager
 
 			_repo.Update(new VaultHeader
 			{
-				FormatVersion = 1,
+				FormatVersion = VaultHeaderFormatVersion.Current,
 				KdfIdentifier = _kdf.Identifier,
 				KdfParameters = parameters,
 				Salt = newSalt,
 				WrappedVaultKey = wrappedVaultKey,
 				LegacyPasswordHash = [],
+				UsesLegacyKeyMaterial = false,
 				CreatedAt = record.CreatedAt,
 				UpdatedAt = DateTime.UtcNow
 			});
@@ -176,21 +212,146 @@ public sealed class MasterKeyManager : IMasterKeyManager
 		}
 	}
 
+	private CredentialMigrationPlan? BuildMigrationPlan(VaultHeader header, byte[] currentVaultKey, byte[] kek, bool usesLegacyKey)
+	{
+		var credentials = _vaultMigrationRepo.GetAllCredentials();
+		var migratedCredentials = new List<CredentialRecord>();
+		var targetVaultKey = usesLegacyKey ? RandomNumberGenerator.GetBytes(32) : currentVaultKey.ToArray();
+		var headerNeedsUpgrade = header.FormatVersion != VaultHeaderFormatVersion.Current ||
+			header.UsesLegacyKeyMaterial != usesLegacyKey ||
+			header.LegacyPasswordHash.Length > 0 ||
+			header.WrappedVaultKey.Length != WrappedVaultKeyPacketBytes;
+
+		try
+		{
+			foreach (var credential in credentials)
+			{
+				if (!NeedsCredentialMigration(credential))
+					continue;
+
+				var plaintext = DecryptForMigration(credential, currentVaultKey, header.FormatVersion);
+				try
+				{
+					var migrated = CloneCredential(credential);
+					migrated.CredentialUuid = EnsureCredentialUuid(migrated.CredentialUuid);
+					migrated.SecretFormatVersion = CredentialSecretFormatVersion.Current;
+					migrated.EncryptedPassword = _credentialEnvelope.Encrypt(plaintext, targetVaultKey, migrated, VaultHeaderFormatVersion.Current);
+					migrated.UpdatedAt = DateTime.UtcNow;
+					migratedCredentials.Add(migrated);
+				}
+				finally
+				{
+					CryptographicOperations.ZeroMemory(plaintext);
+				}
+			}
+
+			if (!headerNeedsUpgrade && migratedCredentials.Count == 0)
+			{
+				CryptographicOperations.ZeroMemory(targetVaultKey);
+				return null;
+			}
+
+			var migratedHeader = CloneHeader(header);
+			migratedHeader.FormatVersion = VaultHeaderFormatVersion.Current;
+			migratedHeader.KdfIdentifier = _kdf.Identifier;
+			migratedHeader.KdfParameters = CloneParameters(header.KdfParameters);
+			migratedHeader.LegacyPasswordHash = [];
+			migratedHeader.WrappedVaultKey = _encryption.Encrypt(targetVaultKey, kek);
+			migratedHeader.UsesLegacyKeyMaterial = false;
+			migratedHeader.UpdatedAt = DateTime.UtcNow;
+
+			return new CredentialMigrationPlan(migratedHeader, migratedCredentials, targetVaultKey);
+		}
+		catch
+		{
+			CryptographicOperations.ZeroMemory(targetVaultKey);
+			throw;
+		}
+	}
+
+	private byte[] DecryptForMigration(CredentialRecord credential, byte[] currentVaultKey, int vaultFormatVersion)
+		=> credential.SecretFormatVersion switch
+		{
+			CredentialSecretFormatVersion.Legacy => _encryption.Decrypt(credential.EncryptedPassword, currentVaultKey),
+			CredentialSecretFormatVersion.AesGcmV1 => _credentialEnvelope.Decrypt(credential, currentVaultKey, vaultFormatVersion),
+			_ => throw new InvalidOperationException($"Nicht unterstuetzte Secret-Formatversion: {credential.SecretFormatVersion}"),
+		};
+
+	private void ValidateHeader(VaultHeader header)
+	{
+		ArgumentNullException.ThrowIfNull(header);
+
+		if (header.FormatVersion < VaultHeaderFormatVersion.Legacy || header.FormatVersion > VaultHeaderFormatVersion.Current)
+			throw new InvalidOperationException($"Nicht unterstuetzte VaultHeader-Version: {header.FormatVersion}");
+
+		if (!string.Equals(header.KdfIdentifier, _kdf.Identifier, StringComparison.Ordinal))
+			throw new InvalidOperationException($"Nicht unterstuetzter KDF-Identifier: {header.KdfIdentifier}");
+
+		if (header.KdfParameters is null)
+			throw new InvalidOperationException("VaultHeader enthaelt keine KDF-Parameter.");
+
+		_kdf.ValidateParameters(header.KdfParameters);
+
+		if (header.Salt.Length != header.KdfParameters.SaltLengthBytes)
+			throw new InvalidOperationException("VaultHeader enthaelt einen ungueltigen Salt.");
+
+		if (header.FormatVersion == VaultHeaderFormatVersion.Legacy)
+		{
+			if (header.WrappedVaultKey.Length != 0)
+				throw new InvalidOperationException("Legacy-VaultHeader darf keinen WrappedVaultKey enthalten.");
+
+			if (header.LegacyPasswordHash.Length == 0)
+				throw new InvalidOperationException("Legacy-VaultHeader enthaelt keinen Passwort-Hash.");
+
+			return;
+		}
+
+		if (header.WrappedVaultKey.Length != WrappedVaultKeyPacketBytes)
+			throw new InvalidOperationException("VaultHeader enthaelt einen ungueltigen WrappedVaultKey.");
+	}
+
+	private static bool NeedsCredentialMigration(CredentialRecord credential)
+		=> credential.SecretFormatVersion != CredentialSecretFormatVersion.Current || !Guid.TryParseExact(credential.CredentialUuid, "N", out _);
+
+	private static string EnsureCredentialUuid(string credentialUuid)
+		=> Guid.TryParseExact(credentialUuid, "N", out _) ? credentialUuid : Guid.NewGuid().ToString("N");
+
+	private static VaultKdfParameters CloneParameters(VaultKdfParameters parameters) => new()
+	{
+		HashAlgorithm = parameters.HashAlgorithm,
+		Iterations = parameters.Iterations,
+		KeyLengthBytes = parameters.KeyLengthBytes,
+		SaltLengthBytes = parameters.SaltLengthBytes,
+	};
+
+	private static CredentialRecord CloneCredential(CredentialRecord credential) => new()
+	{
+		Id = credential.Id,
+		Title = credential.Title,
+		Username = credential.Username,
+		EncryptedPassword = credential.EncryptedPassword.ToArray(),
+		CredentialUuid = credential.CredentialUuid,
+		SecretFormatVersion = credential.SecretFormatVersion,
+		Url = credential.Url,
+		Notes = credential.Notes,
+		CreatedAt = credential.CreatedAt,
+		UpdatedAt = credential.UpdatedAt,
+		IconKey = credential.IconKey,
+		CredentialType = credential.CredentialType,
+	};
+
 	private static VaultHeader CloneHeader(VaultHeader header) => new()
 	{
 		FormatVersion = header.FormatVersion,
 		KdfIdentifier = header.KdfIdentifier,
-		KdfParameters = new VaultKdfParameters
-		{
-			HashAlgorithm = header.KdfParameters.HashAlgorithm,
-			Iterations = header.KdfParameters.Iterations,
-			KeyLengthBytes = header.KdfParameters.KeyLengthBytes,
-			SaltLengthBytes = header.KdfParameters.SaltLengthBytes,
-		},
+		KdfParameters = CloneParameters(header.KdfParameters),
 		Salt = header.Salt.ToArray(),
 		WrappedVaultKey = header.WrappedVaultKey.ToArray(),
 		LegacyPasswordHash = header.LegacyPasswordHash.ToArray(),
+		UsesLegacyKeyMaterial = header.UsesLegacyKeyMaterial,
 		CreatedAt = header.CreatedAt,
 		UpdatedAt = header.UpdatedAt,
 	};
+
+	private sealed record CredentialMigrationPlan(VaultHeader Header, IReadOnlyList<CredentialRecord> Credentials, byte[] ActiveVaultKey);
 }

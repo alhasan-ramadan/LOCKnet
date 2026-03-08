@@ -25,14 +25,15 @@ public class MasterKeyRepository : RepositoryBase, IMasterKeyRepository
 		using var conn = GetConnection();
 		using var cmd = conn.CreateCommand();
 		cmd.CommandText = @"
-	            INSERT INTO MasterKey (Id, PasswordHash, FormatVersion, KdfIdentifier, KdfParameters, Salt, WrappedVaultKey)
-	            VALUES (1, $hash, $formatVersion, $kdfIdentifier, $kdfParameters, $salt, $wrappedVaultKey);";
+            INSERT INTO MasterKey (Id, PasswordHash, FormatVersion, KdfIdentifier, KdfParameters, Salt, WrappedVaultKey, UsesLegacyKeyMaterial)
+            VALUES (1, $hash, $formatVersion, $kdfIdentifier, $kdfParameters, $salt, $wrappedVaultKey, $usesLegacyKeyMaterial);";
 		cmd.Parameters.AddWithValue("$hash", header.LegacyPasswordHash);
 		cmd.Parameters.AddWithValue("$formatVersion", header.FormatVersion);
 		cmd.Parameters.AddWithValue("$kdfIdentifier", header.KdfIdentifier);
 		cmd.Parameters.AddWithValue("$kdfParameters", header.KdfParameters.Serialize());
 		cmd.Parameters.AddWithValue("$salt", header.Salt);
 		cmd.Parameters.AddWithValue("$wrappedVaultKey", (object?)header.WrappedVaultKey ?? DBNull.Value);
+		cmd.Parameters.AddWithValue("$usesLegacyKeyMaterial", header.UsesLegacyKeyMaterial ? 1 : 0);
 		cmd.ExecuteNonQuery();
 	}
 
@@ -41,7 +42,7 @@ public class MasterKeyRepository : RepositoryBase, IMasterKeyRepository
 	{
 		using var conn = GetConnection();
 		using var cmd = conn.CreateCommand();
-		cmd.CommandText = "SELECT PasswordHash, FormatVersion, KdfIdentifier, KdfParameters, Salt, WrappedVaultKey, CreatedAt, UpdatedAt FROM MasterKey WHERE Id = 1 LIMIT 1;";
+		cmd.CommandText = "SELECT PasswordHash, FormatVersion, KdfIdentifier, KdfParameters, Salt, WrappedVaultKey, UsesLegacyKeyMaterial, CreatedAt, UpdatedAt FROM MasterKey WHERE Id = 1 LIMIT 1;";
 
 		using var reader = cmd.ExecuteReader();
 		if (!reader.Read())
@@ -57,8 +58,9 @@ public class MasterKeyRepository : RepositoryBase, IMasterKeyRepository
 				: VaultKdfParameters.Deserialize(reader.GetString(3)),
 			Salt = (byte[])reader[4],
 			WrappedVaultKey = reader.IsDBNull(5) ? [] : (byte[])reader[5],
-			CreatedAt = reader.GetDateTime(6),
-			UpdatedAt = reader.GetDateTime(7),
+			UsesLegacyKeyMaterial = !reader.IsDBNull(6) && reader.GetInt32(6) != 0,
+			CreatedAt = reader.GetDateTime(7),
+			UpdatedAt = reader.GetDateTime(8),
 		};
 	}
 
@@ -75,6 +77,7 @@ public class MasterKeyRepository : RepositoryBase, IMasterKeyRepository
                 KdfParameters = $kdfParameters,
                 Salt = $salt,
                 WrappedVaultKey = $wrappedVaultKey,
+                UsesLegacyKeyMaterial = $usesLegacyKeyMaterial,
                 UpdatedAt = CURRENT_TIMESTAMP
             WHERE Id = 1;";
 		cmd.Parameters.AddWithValue("$hash", header.LegacyPasswordHash);
@@ -83,6 +86,7 @@ public class MasterKeyRepository : RepositoryBase, IMasterKeyRepository
 		cmd.Parameters.AddWithValue("$kdfParameters", header.KdfParameters.Serialize());
 		cmd.Parameters.AddWithValue("$salt", header.Salt);
 		cmd.Parameters.AddWithValue("$wrappedVaultKey", (object?)header.WrappedVaultKey ?? DBNull.Value);
+		cmd.Parameters.AddWithValue("$usesLegacyKeyMaterial", header.UsesLegacyKeyMaterial ? 1 : 0);
 		cmd.ExecuteNonQuery();
 	}
 

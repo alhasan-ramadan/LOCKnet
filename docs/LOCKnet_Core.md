@@ -37,6 +37,7 @@ Core fungiert damit als zentrale Sicherheits- und Logikschicht, die vollständig
 
 * Leitet aus dem Master-Passwort einen KEK ab.
 * Entpackt bzw. verpackt damit den persistierten VaultKey.
+* Migriert Legacy-Credentialciphertexte atomar auf das aktuelle VaultKey-basierte Secret-Format.
 * Speichert und aktualisiert den VaultHeader in der Data-Schicht.
 * Verwaltet die Entsperrung und Sperrung der Sitzung.
 
@@ -56,8 +57,8 @@ Core fungiert damit als zentrale Sicherheits- und Logikschicht, die vollständig
 ### **ICredentialService**
 
 * Vergibt IDs, erstellt, aktualisiert und löscht Credentials.
-* Verschlüsselt Passwörter beim Speichern.
-* Entschlüsselt Passwörter nur auf expliziten Aufruf.
+* Schreibt Secrets nur im versionierten Envelope-Format mit AAD-Bindung.
+* Entschlüsselt Secrets nur auf expliziten Aufruf und faellt bei Tampering hart aus.
 * Validiert Eingaben (Titel, URL, Pflichtfelder).
 * Orchestriert Kommunikation mit CredentialsRepository.
 

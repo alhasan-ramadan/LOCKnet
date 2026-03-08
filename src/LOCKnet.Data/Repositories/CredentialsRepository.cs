@@ -20,12 +20,14 @@ public class CredentialsRepository : RepositoryBase, ICredentialRepository
 		using var conn = GetConnection();
 		using var cmd = conn.CreateCommand();
 		cmd.CommandText = @"
-            INSERT INTO Credentials (Title, Username, EncryptedPassword, URL, Notes, IconKey, CredentialType)
-            VALUES ($title, $username, $password, $url, $notes, $iconKey, $credentialType);";
+            INSERT INTO Credentials (Title, Username, EncryptedPassword, CredentialUuid, SecretFormatVersion, URL, Notes, IconKey, CredentialType)
+            VALUES ($title, $username, $password, $credentialUuid, $secretFormatVersion, $url, $notes, $iconKey, $credentialType);";
 
 		cmd.Parameters.AddWithValue("$title", credential.Title);
 		cmd.Parameters.AddWithValue("$username", credential.Username ?? "");
 		cmd.Parameters.AddWithValue("$password", credential.EncryptedPassword);
+		cmd.Parameters.AddWithValue("$credentialUuid", credential.CredentialUuid);
+		cmd.Parameters.AddWithValue("$secretFormatVersion", credential.SecretFormatVersion);
 		cmd.Parameters.AddWithValue("$url", credential.Url ?? "");
 		cmd.Parameters.AddWithValue("$notes", credential.Notes ?? "");
 		cmd.Parameters.AddWithValue("$iconKey", (object?)credential.IconKey ?? DBNull.Value);
@@ -40,7 +42,7 @@ public class CredentialsRepository : RepositoryBase, ICredentialRepository
 		var list = new List<CredentialRecord>();
 		using var conn = GetConnection();
 		using var cmd = conn.CreateCommand();
-		cmd.CommandText = "SELECT Id, Title, Username, EncryptedPassword, URL, Notes, CreatedAt, UpdatedAt, IconKey, CredentialType FROM Credentials";
+		cmd.CommandText = "SELECT Id, Title, Username, EncryptedPassword, CredentialUuid, SecretFormatVersion, URL, Notes, CreatedAt, UpdatedAt, IconKey, CredentialType FROM Credentials";
 
 		using var reader = cmd.ExecuteReader();
 		while (reader.Read())
@@ -54,7 +56,7 @@ public class CredentialsRepository : RepositoryBase, ICredentialRepository
 	{
 		using var conn = GetConnection();
 		using var cmd = conn.CreateCommand();
-		cmd.CommandText = "SELECT Id, Title, Username, EncryptedPassword, URL, Notes, CreatedAt, UpdatedAt, IconKey, CredentialType FROM Credentials WHERE Id = $id LIMIT 1;";
+		cmd.CommandText = "SELECT Id, Title, Username, EncryptedPassword, CredentialUuid, SecretFormatVersion, URL, Notes, CreatedAt, UpdatedAt, IconKey, CredentialType FROM Credentials WHERE Id = $id LIMIT 1;";
 		cmd.Parameters.AddWithValue("$id", id);
 
 		using var reader = cmd.ExecuteReader();
@@ -71,6 +73,8 @@ public class CredentialsRepository : RepositoryBase, ICredentialRepository
             SET Title = $title,
                 Username = $username,
                 EncryptedPassword = $password,
+                CredentialUuid = $credentialUuid,
+                SecretFormatVersion = $secretFormatVersion,
                 URL = $url,
                 Notes = $notes,
                 IconKey = $iconKey,
@@ -82,6 +86,8 @@ public class CredentialsRepository : RepositoryBase, ICredentialRepository
 		cmd.Parameters.AddWithValue("$title", credential.Title);
 		cmd.Parameters.AddWithValue("$username", credential.Username ?? "");
 		cmd.Parameters.AddWithValue("$password", credential.EncryptedPassword);
+		cmd.Parameters.AddWithValue("$credentialUuid", credential.CredentialUuid);
+		cmd.Parameters.AddWithValue("$secretFormatVersion", credential.SecretFormatVersion);
 		cmd.Parameters.AddWithValue("$url", credential.Url ?? "");
 		cmd.Parameters.AddWithValue("$notes", credential.Notes ?? "");
 		cmd.Parameters.AddWithValue("$iconKey", (object?)credential.IconKey ?? DBNull.Value);
@@ -108,11 +114,13 @@ public class CredentialsRepository : RepositoryBase, ICredentialRepository
 		Title = reader.GetString(1),
 		Username = reader.IsDBNull(2) ? null : reader.GetString(2),
 		EncryptedPassword = (byte[])reader["EncryptedPassword"],
-		Url = reader.IsDBNull(4) ? null : reader.GetString(4),
-		Notes = reader.IsDBNull(5) ? null : reader.GetString(5),
-		CreatedAt = reader.GetDateTime(6),
-		UpdatedAt = reader.GetDateTime(7),
-		IconKey = reader.IsDBNull(8) ? null : reader.GetString(8),
-		CredentialType = reader.IsDBNull(9) ? CredentialType.Password : (CredentialType)reader.GetInt32(9),
+		CredentialUuid = reader.IsDBNull(4) ? string.Empty : reader.GetString(4),
+		SecretFormatVersion = reader.IsDBNull(5) ? CredentialSecretFormatVersion.Legacy : reader.GetInt32(5),
+		Url = reader.IsDBNull(6) ? null : reader.GetString(6),
+		Notes = reader.IsDBNull(7) ? null : reader.GetString(7),
+		CreatedAt = reader.GetDateTime(8),
+		UpdatedAt = reader.GetDateTime(9),
+		IconKey = reader.IsDBNull(10) ? null : reader.GetString(10),
+		CredentialType = reader.IsDBNull(11) ? CredentialType.Password : (CredentialType)reader.GetInt32(11),
 	};
 }
