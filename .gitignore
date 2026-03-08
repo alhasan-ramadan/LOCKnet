@@ -655,3 +655,4 @@ doxygen-output/
 roslynator-report.xml
 analysis.sarif
 **/analysis.sarif
+NuGet.official-sqlcipher.config

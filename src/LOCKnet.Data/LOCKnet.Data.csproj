@@ -5,6 +5,8 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <UseOfficialSqlCipher>false</UseOfficialSqlCipher>
+        <OfficialSqlCipherRuntimePackage></OfficialSqlCipherRuntimePackage>
+        <OfficialSqlCipherRuntimeVersion></OfficialSqlCipherRuntimeVersion>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(UseOfficialSqlCipher)' == 'true'">
@@ -22,10 +24,16 @@
     <ItemGroup Condition="'$(UseOfficialSqlCipher)' == 'true'">
       <PackageReference Include="SQLitePCLRaw.bundle_zetetic" Version="2.1.11" />
       <PackageReference Include="SQLitePCLRaw.provider.sqlcipher" Version="2.1.11" />
+      <PackageReference Include="$(OfficialSqlCipherRuntimePackage)" Version="$(OfficialSqlCipherRuntimeVersion)" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(UseOfficialSqlCipher)' != 'true'">
       <PackageReference Include="SQLitePCLRaw.bundle_e_sqlcipher" Version="2.1.11" />
     </ItemGroup>
+
+    <Target Name="ValidateOfficialSqlCipherRuntimePackage" BeforeTargets="Restore" Condition="'$(UseOfficialSqlCipher)' == 'true'">
+      <Error Condition="'$(OfficialSqlCipherRuntimePackage)' == ''" Text="UseOfficialSqlCipher=true requires OfficialSqlCipherRuntimePackage (for example a vendor package like sqlcipher-windows/sqlcipher-linux/sqlcipher-macos from the official SQLCipher package source)." />
+      <Error Condition="'$(OfficialSqlCipherRuntimeVersion)' == ''" Text="UseOfficialSqlCipher=true requires OfficialSqlCipherRuntimeVersion matching your licensed vendor package set." />
+    </Target>
 
 </Project>

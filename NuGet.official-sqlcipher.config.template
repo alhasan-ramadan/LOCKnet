@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <packageSources>
+    <clear />
+    <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
+    <add key="zetetic-official" value="__REPLACE_WITH_OFFICIAL_SQLCIPHER_SOURCE_URL__" />
+  </packageSources>
+
+  <!--
+    IMPORTANT:
+    - Do not commit real credentials.
+    - For local development, create NuGet.official-sqlcipher.config from this template
+      and fill credentials via environment expansion where supported.
+    - For CI, generate a temporary config file at runtime from encrypted secrets.
+  -->
+  <packageSourceCredentials>
+    <zetetic-official>
+      <add key="Username" value="__REPLACE_WITH_SOURCE_USERNAME__" />
+      <add key="ClearTextPassword" value="__REPLACE_WITH_SOURCE_TOKEN_OR_PASSWORD__" />
+    </zetetic-official>
+  </packageSourceCredentials>
+</configuration>

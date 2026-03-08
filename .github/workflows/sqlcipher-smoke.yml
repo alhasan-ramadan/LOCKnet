@@ -79,6 +79,56 @@ jobs:
           /p:UseOfficialSqlCipher=true
           --filter "FullyQualifiedName~SqlCipherEncryptedVaultMigrationExporterTests.ProbeRuntime_LoadsSqlCipherProvider"
 
+      - name: Generate official SQLCipher NuGet config
+        if: matrix.run_smoke && env.USE_OFFICIAL_SQLCIPHER == 'true'
+        shell: bash
+        run: |
+          cat > NuGet.official-sqlcipher.config << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <configuration>
+            <packageSources>
+              <clear />
+              <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
+              <add key="zetetic-official" value="${SQLCIPHER_NUGET_SOURCE_URL}" />
+            </packageSources>
+            <packageSourceCredentials>
+              <zetetic-official>
+                <add key="Username" value="${SQLCIPHER_NUGET_USERNAME}" />
+                <add key="ClearTextPassword" value="${SQLCIPHER_NUGET_PASSWORD}" />
+              </zetetic-official>
+            </packageSourceCredentials>
+          </configuration>
+          EOF
+        env:
+          SQLCIPHER_NUGET_SOURCE_URL: ${{ secrets.SQLCIPHER_NUGET_SOURCE_URL }}
+          SQLCIPHER_NUGET_USERNAME: ${{ secrets.SQLCIPHER_NUGET_USERNAME }}
+          SQLCIPHER_NUGET_PASSWORD: ${{ secrets.SQLCIPHER_NUGET_PASSWORD }}
+
+      - name: Official SQLCipher restore
+        if: matrix.run_smoke && env.USE_OFFICIAL_SQLCIPHER == 'true'
+        run: >-
+          dotnet restore LOCKnet.sln
+          --configfile NuGet.official-sqlcipher.config
+          /p:UseOfficialSqlCipher=true
+          /p:OfficialSqlCipherRuntimePackage=${{ env.OFFICIAL_SQLCIPHER_RUNTIME_PACKAGE }}
+          /p:OfficialSqlCipherRuntimeVersion=${{ env.OFFICIAL_SQLCIPHER_RUNTIME_VERSION }}
+
+      - name: Official SQLCipher runtime smoke tests
+        if: matrix.run_smoke && env.USE_OFFICIAL_SQLCIPHER == 'true'
+        run: >-
+          dotnet test tests/LOCKnet.Data.Tests/LOCKnet.Data.Tests.csproj
+          -c Release
+          --no-restore
+          /p:UseOfficialSqlCipher=true
+          /p:OfficialSqlCipherRuntimePackage=${{ env.OFFICIAL_SQLCIPHER_RUNTIME_PACKAGE }}
+          /p:OfficialSqlCipherRuntimeVersion=${{ env.OFFICIAL_SQLCIPHER_RUNTIME_VERSION }}
+          --filter "FullyQualifiedName~SqlCipherEncryptedVaultMigrationExporterTests"
+
+      - name: Clean official SQLCipher NuGet config
+        if: always() && env.USE_OFFICIAL_SQLCIPHER == 'true'
+        shell: bash
+        run: rm -f NuGet.official-sqlcipher.config
+
       - name: Upload published smoke artifact
         uses: actions/upload-artifact@v4
         with:
