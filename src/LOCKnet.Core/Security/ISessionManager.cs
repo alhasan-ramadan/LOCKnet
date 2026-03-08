@@ -18,12 +18,12 @@ public interface ISessionManager
 	event EventHandler? Locked;
 
 	/// <summary>
-	/// Gibt den aktuellen Session-Key zurück.
+	/// Gibt eine Kopie des aktuellen Session-Keys zurueck.
 	/// </summary>
-	/// <returns>Der 32-Byte AES-Schlüssel, oder <c>null</c> wenn die Sitzung gesperrt ist.</returns>
+	/// <returns>Eine 32-Byte-Kopie des AES-Schluessels, oder <c>null</c> wenn die Sitzung gesperrt ist.</returns>
 	/// <remarks>
-	/// Das zurückgegebene Array darf NICHT gecacht werden — es wird bei <see cref="Lock"/> genullt.
-	/// Immer direkt nach Benutzung wegwerfen.
+	/// Das zurueckgegebene Array ist nie der interne Puffer.
+	/// Aufrufer muessen die Kopie nach Benutzung selbst nullen.
 	/// </remarks>
 	byte[]? GetSessionKey();
 
@@ -31,7 +31,7 @@ public interface ISessionManager
 	/// Entsperrt die Sitzung mit dem angegebenen Schlüssel.
 	/// Wird typischerweise vom <see cref="IMasterKeyManager.Unlock"/> aufgerufen.
 	/// </summary>
-	/// <param name="sessionKey">Der 32-Byte AES-Schlüssel (Ownership geht über — nicht weiter verwenden).</param>
+	/// <param name="sessionKey">Der 32-Byte AES-Schluessel. Der uebergebene Puffer wird nach dem Kopieren genullt.</param>
 	void Open(byte[] sessionKey);
 
 	/// <summary>

@@ -78,7 +78,7 @@
                         <TextBlock Text="Master-Passwort"
                                    FontSize="12"
                                    Foreground="{StaticResource BrushTextSecondary}"/>
-                        <TextBox Text="{Binding Password, Mode=TwoWay}"
+                        <TextBox x:Name="PasswordInput"
                                  PasswordChar="●"
                                  Watermark="Passwort eingeben…"/>
                     </StackPanel>
@@ -88,7 +88,7 @@
                         <TextBlock Text="Passwort bestätigen"
                                    FontSize="12"
                                    Foreground="{StaticResource BrushTextSecondary}"/>
-                        <TextBox Text="{Binding ConfirmPassword, Mode=TwoWay}"
+                        <TextBox x:Name="ConfirmPasswordInput"
                                  PasswordChar="●"
                                  Watermark="Passwort wiederholen…"/>
                     </StackPanel>
@@ -103,14 +103,14 @@
                     <!-- Buttons -->
                     <Button Content="Entsperren"
                             Classes="primary"
-                            Command="{Binding UnlockCommand}"
+                            Click="OnUnlockClick"
                             IsVisible="{Binding !IsSetupMode}"
                             HorizontalAlignment="Stretch"
                             HorizontalContentAlignment="Center"/>
 
                     <Button Content="Einrichten &amp; Entsperren"
                             Classes="primary"
-                            Command="{Binding SetupCommand}"
+                            Click="OnSetupClick"
                             IsVisible="{Binding IsSetupMode}"
                             HorizontalAlignment="Stretch"
                             HorizontalContentAlignment="Center"/>

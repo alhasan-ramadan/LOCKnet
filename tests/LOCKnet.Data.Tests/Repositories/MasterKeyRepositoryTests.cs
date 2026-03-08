@@ -30,11 +30,21 @@ public class MasterKeyRepositoryTests : IDisposable
 
 	// ── Helper ────────────────────────────────────────────────────────────────
 
-	private static MasterKeyRecord MakeKey(byte seed = 0xAB) =>
+	private static VaultHeader MakeKey(byte seed = 0xAB) =>
 		new()
 		{
-			PasswordHash = Enumerable.Repeat(seed, 32).ToArray(),
+			FormatVersion = 1,
+			KdfIdentifier = "PBKDF2-SHA256",
+			KdfParameters = new VaultKdfParameters
+			{
+				HashAlgorithm = "SHA256",
+				Iterations = 600_000,
+				KeyLengthBytes = 32,
+				SaltLengthBytes = 32,
+			},
+			LegacyPasswordHash = Enumerable.Repeat(seed, 32).ToArray(),
 			Salt = Enumerable.Repeat((byte)(seed + 1), 32).ToArray(),
+			WrappedVaultKey = Enumerable.Repeat((byte)(seed + 2), 48).ToArray(),
 			CreatedAt = DateTime.UtcNow,
 			UpdatedAt = DateTime.UtcNow,
 		};
@@ -52,7 +62,7 @@ public class MasterKeyRepositoryTests : IDisposable
 	// ── Create / Get ──────────────────────────────────────────────────────────
 
 	[Fact]
-	public void Create_ThenGet_RoundTripsHashAndSalt()
+	public void Create_ThenGet_RoundTripsHeader()
 	{
 		var key = MakeKey();
 
@@ -60,8 +70,11 @@ public class MasterKeyRepositoryTests : IDisposable
 
 		var retrieved = _sut.Get();
 		Assert.NotNull(retrieved);
-		Assert.Equal(key.PasswordHash, retrieved.PasswordHash);
+		Assert.Equal(key.LegacyPasswordHash, retrieved.LegacyPasswordHash);
+		Assert.Equal(key.KdfIdentifier, retrieved.KdfIdentifier);
+		Assert.Equal(key.KdfParameters.Iterations, retrieved.KdfParameters.Iterations);
 		Assert.Equal(key.Salt, retrieved.Salt);
+		Assert.Equal(key.WrappedVaultKey, retrieved.WrappedVaultKey);
 	}
 
 	[Fact]
@@ -86,14 +99,24 @@ public class MasterKeyRepositoryTests : IDisposable
 	// ── Update ────────────────────────────────────────────────────────────────
 
 	[Fact]
-	public void Update_PersistsNewHashAndSalt()
+	public void Update_PersistsNewHeaderValues()
 	{
 		_sut.Create(MakeKey(0x01));
 
-		var updatedKey = new MasterKeyRecord
+		var updatedKey = new VaultHeader
 		{
-			PasswordHash = Enumerable.Repeat((byte)0xF0, 32).ToArray(),
+			FormatVersion = 2,
+			KdfIdentifier = "PBKDF2-SHA256",
+			KdfParameters = new VaultKdfParameters
+			{
+				HashAlgorithm = "SHA256",
+				Iterations = 750_000,
+				KeyLengthBytes = 32,
+				SaltLengthBytes = 32,
+			},
+			LegacyPasswordHash = Enumerable.Repeat((byte)0xF0, 32).ToArray(),
 			Salt = Enumerable.Repeat((byte)0xF1, 32).ToArray(),
+			WrappedVaultKey = Enumerable.Repeat((byte)0xF2, 48).ToArray(),
 			CreatedAt = DateTime.UtcNow,
 			UpdatedAt = DateTime.UtcNow,
 		};
@@ -101,8 +124,11 @@ public class MasterKeyRepositoryTests : IDisposable
 
 		var retrieved = _sut.Get();
 		Assert.NotNull(retrieved);
-		Assert.Equal(updatedKey.PasswordHash, retrieved.PasswordHash);
+		Assert.Equal(updatedKey.LegacyPasswordHash, retrieved.LegacyPasswordHash);
+		Assert.Equal(updatedKey.FormatVersion, retrieved.FormatVersion);
+		Assert.Equal(updatedKey.KdfParameters.Iterations, retrieved.KdfParameters.Iterations);
 		Assert.Equal(updatedKey.Salt, retrieved.Salt);
+		Assert.Equal(updatedKey.WrappedVaultKey, retrieved.WrappedVaultKey);
 	}
 
 	[Fact]
@@ -112,10 +138,20 @@ public class MasterKeyRepositoryTests : IDisposable
 		_sut.Create(original);
 		var originalCreated = _sut.Get()!.CreatedAt;
 
-		_sut.Update(new MasterKeyRecord
+		_sut.Update(new VaultHeader
 		{
-			PasswordHash = Enumerable.Repeat((byte)0xFF, 32).ToArray(),
+			FormatVersion = 1,
+			KdfIdentifier = "PBKDF2-SHA256",
+			KdfParameters = new VaultKdfParameters
+			{
+				HashAlgorithm = "SHA256",
+				Iterations = 610_000,
+				KeyLengthBytes = 32,
+				SaltLengthBytes = 32,
+			},
+			LegacyPasswordHash = Enumerable.Repeat((byte)0xFF, 32).ToArray(),
 			Salt = Enumerable.Repeat((byte)0xEE, 32).ToArray(),
+			WrappedVaultKey = Enumerable.Repeat((byte)0xDD, 48).ToArray(),
 			CreatedAt = originalCreated,
 			UpdatedAt = DateTime.UtcNow,
 		});

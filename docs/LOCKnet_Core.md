@@ -13,9 +13,9 @@ Core fungiert damit als zentrale Sicherheits- und Logikschicht, die vollständig
 
 ### **1.1 IKeyDerivationService**
 
-* Verantwortlich für die Ableitung des Master-Key-Hashes und des AES-Schlüssels.
+* Verantwortlich fuer die Ableitung des KEK aus dem Master-Passwort.
 * Unterstützt Argon2 oder PBKDF2.
-* Führt Salt-Generierung und Validierung durch.
+* Fuehrt Salt-Generierung, Parameter-Persistenz und Validierung durch.
 
 ### **1.2 IEncryptionService**
 
@@ -35,9 +35,9 @@ Core fungiert damit als zentrale Sicherheits- und Logikschicht, die vollständig
 
 ### **IMasterKeyManager**
 
-* Validiert ein eingegebenes Master-Passwort.
-* Leitet Schlüssel für die Sitzung ab.
-* Speichert und aktualisiert den MasterKey in der Data-Schicht.
+* Leitet aus dem Master-Passwort einen KEK ab.
+* Entpackt bzw. verpackt damit den persistierten VaultKey.
+* Speichert und aktualisiert den VaultHeader in der Data-Schicht.
 * Verwaltet die Entsperrung und Sperrung der Sitzung.
 
 ### Verantwortliche Klassen:
@@ -47,7 +47,7 @@ Core fungiert damit als zentrale Sicherheits- und Logikschicht, die vollständig
 
   * IKeyDerivationService
   * IEncryptionService
-  * MasterKeyRepository (über Interface)
+  * MasterKeyRepository (ueber Interface, speichert `VaultHeader`)
 
 ---
 
@@ -89,9 +89,10 @@ Core fungiert damit als zentrale Sicherheits- und Logikschicht, die vollständig
 ### **5.1 ISessionManager**
 
 * Verwalten des Authentifizierungsstatus der Anwendung.
-* Speichert den abgeleiteten Session-Schlüssel im Speicher.
+* Speichert den entschluesselten VaultKey im Speicher.
 * Entfernt Schlüssel bei Sperre oder Timeout.
-* Gewährleistet, dass nur im entsperrten Zustand auf Daten zugegriffen wird.
+* Gibt nur defensive Kopien des Session-Schluessels aus.
+* Gewaehrleistet, dass nur im entsperrten Zustand auf Daten zugegriffen wird.
 
 ### **5.2 IActivityMonitor**
 

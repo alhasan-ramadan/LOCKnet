@@ -58,7 +58,7 @@
                         <TextBlock Text="Master-Passwort"
                                    FontSize="12"
                                    Foreground="{StaticResource BrushTextSecondary}"/>
-                        <TextBox Text="{Binding Password, Mode=TwoWay}"
+                        <TextBox x:Name="PasswordInput"
                                  PasswordChar="●"
                                  Watermark="Passwort eingeben…"/>
                     </StackPanel>
@@ -72,7 +72,7 @@
                     <!-- Unlock Button -->
                     <Button Content="Entsperren"
                             Classes="primary"
-                            Command="{Binding UnlockCommand}"
+                            Click="OnUnlockClick"
                             HorizontalAlignment="Stretch"
                             HorizontalContentAlignment="Center"/>
 

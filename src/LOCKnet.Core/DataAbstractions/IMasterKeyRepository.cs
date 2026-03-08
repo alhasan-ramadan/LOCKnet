@@ -1,31 +1,31 @@
 namespace LOCKnet.Core.DataAbstractions;
 
 /// <summary>
-/// Verwaltet den einzigen Master-Key der Anwendung.
+/// Verwaltet den einzigen Vault-Header der Anwendung.
 /// Pro Datenbank existiert immer genau ein Eintrag (Id = 1).
 /// </summary>
 public interface IMasterKeyRepository
 {
 	/// <summary>
-	/// Legt den Master-Key an. Wirft eine <see cref="InvalidOperationException"/>
+	/// Legt den Vault-Header an. Wirft eine <see cref="InvalidOperationException"/>
 	/// wenn bereits ein Eintrag vorhanden ist.
 	/// </summary>
-	/// <exception cref="InvalidOperationException">Master-Key existiert bereits.</exception>
-	void Create(MasterKeyRecord key);
+	/// <exception cref="InvalidOperationException">Vault-Header existiert bereits.</exception>
+	void Create(VaultHeader header);
 
 	/// <summary>
-	/// Liest den Master-Key aus der Datenbank.
+	/// Liest den Vault-Header aus der Datenbank.
 	/// </summary>
-	/// <returns>Der Master-Key, oder <c>null</c> wenn noch keiner angelegt wurde.</returns>
-	MasterKeyRecord? Get();
+	/// <returns>Der Vault-Header, oder <c>null</c> wenn noch keiner angelegt wurde.</returns>
+	VaultHeader? Get();
 
 	/// <summary>
-	/// Aktualisiert den bestehenden Master-Key (z.B. nach Passwortänderung).
+	/// Aktualisiert den bestehenden Vault-Header (z.B. nach Passwortaenderung).
 	/// </summary>
-	void Update(MasterKeyRecord key);
+	void Update(VaultHeader header);
 
 	/// <summary>
-	/// Löscht den Master-Key. Macht die Datenbank damit dauerhaft unzugänglich,
+	/// Loescht den Vault-Header. Macht die Datenbank damit dauerhaft unzugaenglich,
 	/// sofern kein Backup existiert.
 	/// </summary>
 	void Delete();

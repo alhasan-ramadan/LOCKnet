@@ -114,9 +114,9 @@ LOCKnet.sln
 | Concern | Solution |
 |---------|----------|
 | Password storage | AES-256-GCM, encrypted BLOB in SQLite |
-| Key derivation | PBKDF2-HMAC-SHA256, 600 000 iterations (OWASP 2023) |
-| Master key verification | Constant-time compare via `CryptographicOperations.FixedTimeEquals` |
-| In-memory safety | `SecureString` + explicit `ZeroMemory` after use |
+| Key derivation | PBKDF2-HMAC-SHA256 with persisted KDF parameters in the `VaultHeader` |
+| Vault unlock flow | Master password derives a KEK that unwraps a stored random VaultKey |
+| In-memory safety | Session key copies only, `ZeroMemory`, and reduced ViewModel plaintext retention |
 | Auto-lock | `ActivityMonitor` with configurable timeout (default 60 s) |
 | SQL injection | Parameterised queries everywhere — no string interpolation in SQL |
 | Tamper detection | AES-GCM authentication tag rejects any modified ciphertext |
@@ -358,9 +358,9 @@ LOCKnet.sln
 | Aspekt | Lösung |
 |--------|--------|
 | Passwort-Speicherung | AES-256-GCM, verschlüsseltes BLOB in SQLite |
-| Schlüsselableitung | PBKDF2-HMAC-SHA256, 600 000 Iterationen (OWASP 2023) |
-| Master-Key-Verifikation | Konstantzeit-Vergleich via `CryptographicOperations.FixedTimeEquals` |
-| RAM-Sicherheit | `SecureString` + explizites `ZeroMemory` nach Verwendung |
+| Schlüsselableitung | PBKDF2-HMAC-SHA256 mit persistenten KDF-Parametern im `VaultHeader` |
+| Vault-Unlock-Flow | Master-Passwort leitet einen KEK ab, der einen gespeicherten zufaelligen VaultKey entpackt |
+| RAM-Sicherheit | Nur Session-Key-Kopien, `ZeroMemory` und reduzierte ViewModel-Klartextspeicherung |
 | Auto-Lock | `ActivityMonitor` mit konfigurierbarem Timeout (Standard 60 s) |
 | SQL-Injection | Parameterbindung überall — keine String-Interpolation in SQL |
 | Manipulationsschutz | AES-GCM-Authentifizierungs-Tag lehnt manipulierten Ciphertext ab |

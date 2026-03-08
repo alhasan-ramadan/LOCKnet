@@ -63,6 +63,7 @@ public sealed class CredentialService : ICredentialService
 		}
 		finally
 		{
+			_secureStr.ZeroMemory(key);
 			_secureStr.ZeroMemory(passwordBytes);
 		}
 	}
@@ -70,7 +71,7 @@ public sealed class CredentialService : ICredentialService
 	/// <inheritdoc/>
 	public IReadOnlyList<CredentialRecord> GetAll()
 	{
-		RequireSessionKey(); // Sitzungsprüfung — Key selbst nicht benötigt
+		RequireUnlocked();
 		return _repo.GetAll();
 	}
 
@@ -78,18 +79,24 @@ public sealed class CredentialService : ICredentialService
 	public SecureString? GetPassword(int id)
 	{
 		var key = RequireSessionKey();
-
-		var record = _repo.GetById(id);
-		if (record is null) return null;
-
-		var decrypted = _encryption.Decrypt(record.EncryptedPassword, key);
 		try
 		{
-			return _secureStr.FromByteArray(decrypted);
+			var record = _repo.GetById(id);
+			if (record is null) return null;
+
+			var decrypted = _encryption.Decrypt(record.EncryptedPassword, key);
+			try
+			{
+				return _secureStr.FromByteArray(decrypted);
+			}
+			finally
+			{
+				_secureStr.ZeroMemory(decrypted);
+			}
 		}
 		finally
 		{
-			_secureStr.ZeroMemory(decrypted);
+			_secureStr.ZeroMemory(key);
 		}
 	}
 
@@ -99,47 +106,53 @@ public sealed class CredentialService : ICredentialService
 		ArgumentException.ThrowIfNullOrWhiteSpace(title);
 
 		var key = RequireSessionKey();
-
-		var existing = _repo.GetById(id)
-			?? throw new InvalidOperationException($"Credential mit ID {id} nicht gefunden.");
-
-		byte[] encryptedPassword;
-		if (newPassword is not null)
+		try
 		{
-			var passwordBytes = _secureStr.ToByteArray(newPassword);
-			try
+			var existing = _repo.GetById(id)
+				?? throw new InvalidOperationException($"Credential mit ID {id} nicht gefunden.");
+
+			byte[] encryptedPassword;
+			if (newPassword is not null)
 			{
-				encryptedPassword = _encryption.Encrypt(passwordBytes, key);
+				var passwordBytes = _secureStr.ToByteArray(newPassword);
+				try
+				{
+					encryptedPassword = _encryption.Encrypt(passwordBytes, key);
+				}
+				finally
+				{
+					_secureStr.ZeroMemory(passwordBytes);
+				}
 			}
-			finally
+			else
 			{
-				_secureStr.ZeroMemory(passwordBytes);
+				encryptedPassword = existing.EncryptedPassword;
 			}
-		}
-		else
-		{
-			encryptedPassword = existing.EncryptedPassword;
-		}
 
-		_repo.Update(new CredentialRecord
+			_repo.Update(new CredentialRecord
+			{
+				Id = id,
+				Title = title,
+				Username = username,
+				EncryptedPassword = encryptedPassword,
+				Url = url,
+				Notes = notes,
+				IconKey = iconKey,
+				CredentialType = credentialType,
+				CreatedAt = existing.CreatedAt,
+				UpdatedAt = DateTime.UtcNow
+			});
+		}
+		finally
 		{
-			Id = id,
-			Title = title,
-			Username = username,
-			EncryptedPassword = encryptedPassword,
-			Url = url,
-			Notes = notes,
-			IconKey = iconKey,
-			CredentialType = credentialType,
-			CreatedAt = existing.CreatedAt,
-			UpdatedAt = DateTime.UtcNow
-		});
+			_secureStr.ZeroMemory(key);
+		}
 	}
 
 	/// <inheritdoc/>
 	public void Remove(int id)
 	{
-		RequireSessionKey();
+		RequireUnlocked();
 		_repo.Remove(id);
 	}
 
@@ -151,5 +164,11 @@ public sealed class CredentialService : ICredentialService
 		if (key is null)
 			throw new InvalidOperationException("Sitzung ist gesperrt. Bitte zuerst entsperren.");
 		return key;
+	}
+
+	private void RequireUnlocked()
+	{
+		if (!_session.IsUnlocked)
+			throw new InvalidOperationException("Sitzung ist gesperrt. Bitte zuerst entsperren.");
 	}
 }

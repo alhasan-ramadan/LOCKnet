@@ -39,6 +39,8 @@ public class Database
 	/// </summary>
 	public void Initialize()
 	{
+		const string kdfParametersDefault = "TEXT NOT NULL DEFAULT '{\"HashAlgorithm\":\"SHA256\",\"Iterations\":600000,\"KeyLengthBytes\":32,\"SaltLengthBytes\":32}'";
+
 		using var connection = new SqliteConnection(_connectionString);
 		connection.Open();
 
@@ -86,12 +88,21 @@ public class Database
                 CREATE TABLE IF NOT EXISTS MasterKey (
                     Id INTEGER PRIMARY KEY CHECK(Id = 1),
                     PasswordHash BLOB NOT NULL,
+                    FormatVersion INTEGER NOT NULL DEFAULT 1,
+                    KdfIdentifier TEXT NOT NULL DEFAULT 'PBKDF2-SHA256',
+                    KdfParameters TEXT NOT NULL DEFAULT '{""HashAlgorithm"":""SHA256"",""Iterations"":600000,""KeyLengthBytes"":32,""SaltLengthBytes"":32}',
                     Salt BLOB NOT NULL,
+                    WrappedVaultKey BLOB,
                     CreatedAt TEXT DEFAULT CURRENT_TIMESTAMP,
                     UpdatedAt TEXT DEFAULT CURRENT_TIMESTAMP
                 );";
 			cmd.ExecuteNonQuery();
 		}
+
+		TryAddColumn(connection, "MasterKey", "FormatVersion", "INTEGER NOT NULL DEFAULT 1");
+		TryAddColumn(connection, "MasterKey", "KdfIdentifier", "TEXT NOT NULL DEFAULT 'PBKDF2-SHA256'");
+		TryAddColumn(connection, "MasterKey", "KdfParameters", kdfParametersDefault);
+		TryAddColumn(connection, "MasterKey", "WrappedVaultKey", "BLOB");
 
 		// Settings table
 		using (var cmd = connection.CreateCommand())
@@ -105,6 +116,19 @@ public class Database
                     UpdatedAt TEXT DEFAULT CURRENT_TIMESTAMP
                 );";
 			cmd.ExecuteNonQuery();
+		}
+	}
+
+	private static void TryAddColumn(SqliteConnection connection, string table, string column, string definition)
+	{
+		try
+		{
+			using var command = connection.CreateCommand();
+			command.CommandText = $"ALTER TABLE {table} ADD COLUMN {column} {definition};";
+			command.ExecuteNonQuery();
+		}
+		catch (SqliteException)
+		{
 		}
 	}
 }

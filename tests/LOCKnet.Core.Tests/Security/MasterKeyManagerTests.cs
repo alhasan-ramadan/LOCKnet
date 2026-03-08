@@ -9,18 +9,18 @@ namespace LOCKnet.Core.Tests.Security;
 
 sealed class InMemoryMasterKeyRepo : IMasterKeyRepository
 {
-	private MasterKeyRecord? _stored;
+	private VaultHeader? _stored;
 
-	public void Create(MasterKeyRecord key)
+	public void Create(VaultHeader header)
 	{
 		if (_stored is not null)
-			throw new InvalidOperationException("Master-Key existiert bereits.");
-		_stored = key;
+			throw new InvalidOperationException("Vault-Header existiert bereits.");
+		_stored = header;
 	}
 
-	public MasterKeyRecord? Get() => _stored;
+	public VaultHeader? Get() => _stored;
 
-	public void Update(MasterKeyRecord key) => _stored = key;
+	public void Update(VaultHeader header) => _stored = header;
 
 	public void Delete() => _stored = null;
 }
@@ -43,6 +43,7 @@ public class MasterKeyManagerTests
 		return new MasterKeyManager(
 			new Pbkdf2KeyDerivationService(),
 			repo,
+			new AesGcmEncryptionService(),
 			new SecureStringService());
 	}
 
@@ -66,7 +67,7 @@ public class MasterKeyManagerTests
 	// ── Initialize ────────────────────────────────────────────────────────────
 
 	[Fact]
-	public void Initialize_PersistsSaltAndHash()
+	public void Initialize_PersistsVaultHeaderAndWrappedKey()
 	{
 		var sut = BuildSut(out var repo);
 		sut.Initialize(MakeSecure("masterkey"));
@@ -74,7 +75,48 @@ public class MasterKeyManagerTests
 		var record = repo.Get();
 		Assert.NotNull(record);
 		Assert.NotEmpty(record.Salt);
-		Assert.NotEmpty(record.PasswordHash);
+		Assert.Empty(record.LegacyPasswordHash);
+		Assert.NotEmpty(record.WrappedVaultKey);
+		Assert.Equal("PBKDF2-SHA256", record.KdfIdentifier);
+	}
+
+	[Fact]
+	public void Unlock_LegacyHeaderMigration_ClearsLegacyPasswordHash()
+	{
+		var repo = new InMemoryMasterKeyRepo();
+		var kdf = new Pbkdf2KeyDerivationService();
+		var secure = new SecureStringService();
+		var sut = new MasterKeyManager(kdf, repo, new AesGcmEncryptionService(), secure);
+		var password = MakeSecure("legacy-password");
+		var passwordBytes = secure.ToByteArray(password);
+		var parameters = kdf.GetDefaultParameters();
+		var salt = kdf.GenerateSalt(parameters.SaltLengthBytes);
+
+		try
+		{
+			repo.Create(new VaultHeader
+			{
+				FormatVersion = 0,
+				KdfIdentifier = kdf.Identifier,
+				KdfParameters = parameters,
+				Salt = salt,
+				LegacyPasswordHash = kdf.ComputePasswordHash(passwordBytes, salt, parameters),
+				WrappedVaultKey = [],
+				CreatedAt = DateTime.UtcNow,
+				UpdatedAt = DateTime.UtcNow,
+			});
+		}
+		finally
+		{
+			secure.ZeroMemory(passwordBytes);
+		}
+
+		var unlocked = sut.Unlock(password);
+		var migrated = repo.Get()!;
+
+		Assert.NotNull(unlocked);
+		Assert.NotEmpty(migrated.WrappedVaultKey);
+		Assert.Empty(migrated.LegacyPasswordHash);
 	}
 
 	[Fact]
@@ -128,6 +170,22 @@ public class MasterKeyManagerTests
 
 		var key1 = sut.Unlock(MakeSecure(pw))!;
 		var key2 = sut.Unlock(MakeSecure(pw))!;
+
+		Assert.Equal(key1, key2);
+	}
+
+	[Fact]
+	public void Unlock_AfterInitialize_UsesWrappedVaultKeyRoundTrip()
+	{
+		var sut = BuildSut(out var repo);
+		const string password = "wrapped-vault-key";
+		sut.Initialize(MakeSecure(password));
+
+		var header = repo.Get()!;
+		Assert.NotEmpty(header.WrappedVaultKey);
+
+		var key1 = sut.Unlock(MakeSecure(password))!;
+		var key2 = sut.Unlock(MakeSecure(password))!;
 
 		Assert.Equal(key1, key2);
 	}
@@ -188,6 +246,19 @@ public class MasterKeyManagerTests
 		var saltAfter = repo.Get()!.Salt;
 		Assert.False(saltBefore.SequenceEqual(saltAfter),
 			"ChangePassword must generate a fresh salt.");
+	}
+
+	[Fact]
+	public void ChangePassword_RewrapsExistingVaultKey()
+	{
+		var sut = BuildSut(out _);
+		sut.Initialize(MakeSecure("old-password"));
+
+		var originalKey = sut.Unlock(MakeSecure("old-password"))!;
+		sut.ChangePassword(MakeSecure("old-password"), MakeSecure("new-password"));
+		var unlockedWithNewPassword = sut.Unlock(MakeSecure("new-password"))!;
+
+		Assert.Equal(originalKey, unlockedWithNewPassword);
 	}
 
 	// ── Initialize null guard ───────────────────────────────────────────────

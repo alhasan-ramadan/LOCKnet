@@ -47,7 +47,7 @@ public sealed class AppServices
 		// Security layer
 		var sessionManager = new SessionManager();
 		SessionManager = sessionManager;
-		MasterKeyManager = new MasterKeyManager(kdf, masterKeyRepo, secureStr);
+		MasterKeyManager = new MasterKeyManager(kdf, masterKeyRepo, encryption, secureStr);
 		ActivityMonitor = new ActivityMonitor(sessionManager)
 		{
 			Timeout = TimeSpan.FromSeconds(60)

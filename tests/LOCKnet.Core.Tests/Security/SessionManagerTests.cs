@@ -4,6 +4,12 @@ namespace LOCKnet.Core.Tests.Security;
 
 public class SessionManagerTests
 {
+	private static byte[] GetInternalKey(SessionManager sut)
+		=> (byte[]?)typeof(SessionManager)
+			.GetField("_sessionKey", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+			?.GetValue(sut)
+		?? [];
+
 	private static byte[] MakeKey() => new byte[32];
 
 	// ── IsUnlocked ────────────────────────────────────────────────────────────
@@ -51,6 +57,19 @@ public class SessionManagerTests
 	}
 
 	[Fact]
+	public void GetSessionKey_ReturnsCopy_NotLiveInternalBuffer()
+	{
+		var sut = new SessionManager();
+		sut.Open(MakeKey());
+
+		var first = sut.GetSessionKey()!;
+		first[0] = 0xAA;
+		var second = sut.GetSessionKey()!;
+
+		Assert.NotEqual(first[0], second[0]);
+	}
+
+	[Fact]
 	public void GetSessionKey_AfterLock_ReturnsNull()
 	{
 		var sut = new SessionManager();
@@ -90,6 +109,21 @@ public class SessionManagerTests
 		sut.Locked += (_, _) => count++;
 		sut.Lock();
 		Assert.Equal(1, count);
+	}
+
+	[Fact]
+	public void Lock_ZeroesInternalKeyBuffer()
+	{
+		var sut = new SessionManager();
+		var key = Enumerable.Range(1, 32).Select(i => (byte)i).ToArray();
+		sut.Open(key);
+
+		var internalKey = GetInternalKey(sut);
+		Assert.Contains(internalKey, b => b != 0);
+
+		sut.Lock();
+
+		Assert.All(internalKey, b => Assert.Equal(0, b));
 	}
 
 	// ── Open validation ───────────────────────────────────────────────────────

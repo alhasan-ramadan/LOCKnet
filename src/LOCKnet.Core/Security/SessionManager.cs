@@ -28,7 +28,7 @@ public sealed class SessionManager : ISessionManager
 	public byte[]? GetSessionKey()
 	{
 		lock (_lock)
-			return _sessionKey;
+			return _sessionKey?.ToArray();
 	}
 
 	/// <inheritdoc/>
@@ -38,13 +38,16 @@ public sealed class SessionManager : ISessionManager
 		if (sessionKey.Length != 32)
 			throw new ArgumentException("Session-Key muss genau 32 Bytes lang sein.", nameof(sessionKey));
 
+		var copy = sessionKey.ToArray();
+		CryptographicOperations.ZeroMemory(sessionKey);
+
 		lock (_lock)
 		{
 			// Alten Key sicher überschreiben falls vorhanden
 			if (_sessionKey is not null)
 				CryptographicOperations.ZeroMemory(_sessionKey);
 
-			_sessionKey = sessionKey;
+			_sessionKey = copy;
 		}
 	}
 

@@ -44,7 +44,9 @@ public partial class CredentialDetailViewModel : ViewModelBase
 	public string SecretFieldLabel => CredentialType == CredentialType.ApiKey ? "API-Schlüssel *" : "Passwort *";
 
 	/// <summary>Dynamischer Watermark-Text fuer das Geheimnis-Feld je nach Credential-Typ.</summary>
-	public string SecretFieldWatermark => CredentialType == CredentialType.ApiKey ? "API-Schlüssel eingeben" : "Passwort eingeben";
+	public string SecretFieldWatermark => CredentialType == CredentialType.ApiKey
+		? (IsEditMode ? "Leer lassen, um aktuellen API-Schlüssel zu behalten" : "API-Schlüssel eingeben")
+		: (IsEditMode ? "Leer lassen, um aktuelles Passwort zu behalten" : "Passwort eingeben");
 
 	/// <summary>Dynamisches Label fuer das Benutzername-Feld je nach Credential-Typ.</summary>
 	public string UsernameLabel => CredentialType == CredentialType.ApiKey ? "Client-ID / Bezeichner" : "Benutzername";
@@ -135,14 +137,6 @@ public partial class CredentialDetailViewModel : ViewModelBase
 		Notes = record.Notes ?? string.Empty;
 		IconKey = record.IconKey ?? string.Empty;
 		CredentialType = record.CredentialType;
-		// Passwort wird entschlüsselt geladen
-		try
-		{
-			var pw = AppServices.Current.CredentialService.GetPassword(record.Id);
-			if (pw is not null)
-				Password = SecureStringToString(pw);
-		}
-		catch { /* Im Fehlerfall leer lassen */ }
 
 		UpdateStrengthDetails(Password);
 	}
@@ -155,7 +149,7 @@ public partial class CredentialDetailViewModel : ViewModelBase
 		ErrorMessage = string.Empty;
 		try
 		{
-			var secure = ToSecureString(Password);
+			var secure = string.IsNullOrEmpty(Password) ? null : ToSecureString(Password);
 
 			if (IsEditMode)
 			{
@@ -170,6 +164,12 @@ public partial class CredentialDetailViewModel : ViewModelBase
 			}
 			else
 			{
+				if (secure is null)
+				{
+					ErrorMessage = CredentialType == CredentialType.ApiKey ? "API-Schlüssel ist erforderlich." : "Passwort ist erforderlich.";
+					return;
+				}
+
 				AppServices.Current.CredentialService.Add(
 					Title,
 					string.IsNullOrWhiteSpace(Username) ? null : Username,
@@ -188,7 +188,7 @@ public partial class CredentialDetailViewModel : ViewModelBase
 		}
 	}
 
-	private bool CanSave() => !string.IsNullOrWhiteSpace(Title) && Password.Length > 0;
+	private bool CanSave() => !string.IsNullOrWhiteSpace(Title) && (IsEditMode || Password.Length > 0);
 
 	[RelayCommand]
 	private void Cancel() => Cancelled?.Invoke(this, EventArgs.Empty);
@@ -248,13 +248,6 @@ public partial class CredentialDetailViewModel : ViewModelBase
 		foreach (var c in s) secure.AppendChar(c);
 		secure.MakeReadOnly();
 		return secure;
-	}
-
-	private static string SecureStringToString(SecureString s)
-	{
-		var ptr = System.Runtime.InteropServices.Marshal.SecureStringToGlobalAllocUnicode(s);
-		try { return System.Runtime.InteropServices.Marshal.PtrToStringUni(ptr) ?? string.Empty; }
-		finally { System.Runtime.InteropServices.Marshal.ZeroFreeGlobalAllocUnicode(ptr); }
 	}
 
 	private void UpdateStrengthDetails(string password)

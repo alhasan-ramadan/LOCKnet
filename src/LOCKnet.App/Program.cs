@@ -18,8 +18,15 @@ sealed class Program
 	}
 
 	public static AppBuilder BuildAvaloniaApp()
-		=> AppBuilder.Configure<App>()
+	{
+		var builder = AppBuilder.Configure<App>()
 			.UsePlatformDetect()
-			.WithInterFont()
-			.LogToTrace();
+			.WithInterFont();
+
+#if DEBUG
+		builder = builder.LogToTrace();
+#endif
+
+		return builder;
+	}
 }

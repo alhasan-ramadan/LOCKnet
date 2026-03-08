@@ -1,6 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using LOCKnet.App.ViewModels;
+using LOCKnet.Core.Crypto;
 using System.Security;
 
 namespace LOCKnet.App.ViewModels;
@@ -13,15 +13,6 @@ public partial class LoginViewModel : ViewModelBase
 	public event EventHandler? UnlockSucceeded;
 
 	[ObservableProperty]
-	[NotifyCanExecuteChangedFor(nameof(UnlockCommand))]
-	[NotifyCanExecuteChangedFor(nameof(SetupCommand))]
-	private string _password = string.Empty;
-
-	[ObservableProperty]
-	[NotifyCanExecuteChangedFor(nameof(SetupCommand))]
-	private string _confirmPassword = string.Empty;
-
-	[ObservableProperty]
 	private string _errorMessage = string.Empty;
 
 	[ObservableProperty]
@@ -32,16 +23,13 @@ public partial class LoginViewModel : ViewModelBase
 		IsSetupMode = !AppServices.Current.MasterKeyManager.IsInitialized;
 	}
 
-	// ── Commands ──────────────────────────────────────────────────────────────
-
-	[RelayCommand(CanExecute = nameof(CanUnlock))]
-	private void Unlock()
+	public void Unlock(SecureString password)
 	{
+		ArgumentNullException.ThrowIfNull(password);
 		ErrorMessage = string.Empty;
 		try
 		{
-			var secure = ToSecureString(Password);
-			var key = AppServices.Current.MasterKeyManager.Unlock(secure);
+			var key = AppServices.Current.MasterKeyManager.Unlock(password);
 			if (key is null)
 			{
 				ErrorMessage = "Falsches Passwort.";
@@ -54,22 +42,22 @@ public partial class LoginViewModel : ViewModelBase
 		}
 		catch (Exception ex)
 		{
-			ErrorMessage = ex.Message;
+			ErrorMessage = MapError(ex);
 		}
 	}
 
-	private bool CanUnlock() => Password.Length > 0;
-
-	[RelayCommand(CanExecute = nameof(CanSetup))]
-	private void Setup()
+	public void Setup(SecureString password, SecureString confirmPassword)
 	{
+		ArgumentNullException.ThrowIfNull(password);
+		ArgumentNullException.ThrowIfNull(confirmPassword);
+
 		ErrorMessage = string.Empty;
-		if (Password != ConfirmPassword)
+		if (!SecureEquals(password, confirmPassword))
 		{
 			ErrorMessage = "Passwörter stimmen nicht überein.";
 			return;
 		}
-		if (Password.Length < 8)
+		if (password.Length < 8)
 		{
 			ErrorMessage = "Passwort muss mindestens 8 Zeichen lang sein.";
 			return;
@@ -77,31 +65,41 @@ public partial class LoginViewModel : ViewModelBase
 
 		try
 		{
-			var secure = ToSecureString(Password);
-			AppServices.Current.MasterKeyManager.Initialize(secure);
+			AppServices.Current.MasterKeyManager.Initialize(password);
 			IsSetupMode = false;
 
-			// Direkt einloggen nach Setup
-			var key = AppServices.Current.MasterKeyManager.Unlock(secure);
+			var key = AppServices.Current.MasterKeyManager.Unlock(password);
 			AppServices.Current.SessionManager.Open(key!);
 			AppServices.Current.ActivityMonitor.Start();
 			UnlockSucceeded?.Invoke(this, EventArgs.Empty);
 		}
 		catch (Exception ex)
 		{
-			ErrorMessage = ex.Message;
+			ErrorMessage = MapError(ex);
 		}
 	}
 
-	private bool CanSetup() => Password.Length > 0 && ConfirmPassword.Length > 0;
-
-	// ── Helpers ───────────────────────────────────────────────────────────────
-
-	private static SecureString ToSecureString(string s)
+	private static bool SecureEquals(SecureString left, SecureString right)
 	{
-		var secure = new SecureString();
-		foreach (var c in s) secure.AppendChar(c);
-		secure.MakeReadOnly();
-		return secure;
+		var secureStringService = new SecureStringService();
+		var leftBytes = secureStringService.ToByteArray(left);
+		var rightBytes = secureStringService.ToByteArray(right);
+		try
+		{
+			return System.Security.Cryptography.CryptographicOperations.FixedTimeEquals(leftBytes, rightBytes);
+		}
+		finally
+		{
+			secureStringService.ZeroMemory(leftBytes);
+			secureStringService.ZeroMemory(rightBytes);
+		}
 	}
+
+	private static string MapError(Exception ex)
+		=> ex switch
+		{
+			InvalidOperationException => ex.Message,
+			ArgumentException => ex.Message,
+			_ => "Der Vorgang konnte nicht abgeschlossen werden."
+		};
 }

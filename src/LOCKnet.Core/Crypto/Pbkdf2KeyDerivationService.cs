@@ -1,3 +1,4 @@
+using LOCKnet.Core.DataAbstractions;
 using System.Security.Cryptography;
 
 namespace LOCKnet.Core.Crypto;
@@ -8,6 +9,7 @@ namespace LOCKnet.Core.Crypto;
 /// </summary>
 public sealed class Pbkdf2KeyDerivationService : IKeyDerivationService
 {
+	private const string KdfIdentifier = "PBKDF2-SHA256";
 	/// <summary>Anzahl der PBKDF2-Iterationen. OWASP empfiehlt ≥600.000 für HMAC-SHA256.</summary>
 	private const int Iterations = 600_000;
 
@@ -18,6 +20,18 @@ public sealed class Pbkdf2KeyDerivationService : IKeyDerivationService
 	private const int HashLengthBytes = 32;
 
 	/// <inheritdoc/>
+	public string Identifier => KdfIdentifier;
+
+	/// <inheritdoc/>
+	public VaultKdfParameters GetDefaultParameters() => new()
+	{
+		HashAlgorithm = "SHA256",
+		Iterations = Iterations,
+		KeyLengthBytes = KeyLengthBytes,
+		SaltLengthBytes = 32,
+	};
+
+	/// <inheritdoc/>
 	public byte[] GenerateSalt(int length = 32)
 	{
 		ArgumentOutOfRangeException.ThrowIfLessThan(length, 16, nameof(length));
@@ -26,23 +40,35 @@ public sealed class Pbkdf2KeyDerivationService : IKeyDerivationService
 
 	/// <inheritdoc/>
 	public byte[] DeriveKey(byte[] password, byte[] salt)
+		=> DeriveKey(password, salt, GetDefaultParameters());
+
+	/// <inheritdoc/>
+	public byte[] DeriveKey(byte[] password, byte[] salt, VaultKdfParameters parameters)
 	{
 		ArgumentNullException.ThrowIfNull(password);
 		ArgumentNullException.ThrowIfNull(salt);
+		ArgumentNullException.ThrowIfNull(parameters);
+		ValidateParameters(parameters);
 
 		return Rfc2898DeriveBytes.Pbkdf2(
 			password,
 			salt,
-			Iterations,
-			HashAlgorithmName.SHA256,
-			KeyLengthBytes);
+			parameters.Iterations,
+			ResolveHashAlgorithm(parameters.HashAlgorithm),
+			parameters.KeyLengthBytes);
 	}
 
 	/// <inheritdoc/>
 	public byte[] ComputePasswordHash(byte[] password, byte[] salt)
+		=> ComputePasswordHash(password, salt, GetDefaultParameters());
+
+	/// <inheritdoc/>
+	public byte[] ComputePasswordHash(byte[] password, byte[] salt, VaultKdfParameters parameters)
 	{
 		ArgumentNullException.ThrowIfNull(password);
 		ArgumentNullException.ThrowIfNull(salt);
+		ArgumentNullException.ThrowIfNull(parameters);
+		ValidateParameters(parameters);
 
 		// Separater Durchlauf mit anderem Kontext-Byte, damit
 		// DeriveKey-Ausgabe und PasswordHash nie identisch sind.
@@ -53,19 +79,44 @@ public sealed class Pbkdf2KeyDerivationService : IKeyDerivationService
 		return Rfc2898DeriveBytes.Pbkdf2(
 			password,
 			saltWithContext,
-			Iterations,
-			HashAlgorithmName.SHA256,
+			parameters.Iterations,
+			ResolveHashAlgorithm(parameters.HashAlgorithm),
 			HashLengthBytes);
 	}
 
 	/// <inheritdoc/>
 	public bool VerifyPassword(byte[] password, byte[] salt, byte[] storedHash)
+		=> VerifyPassword(password, salt, storedHash, GetDefaultParameters());
+
+	/// <inheritdoc/>
+	public bool VerifyPassword(byte[] password, byte[] salt, byte[] storedHash, VaultKdfParameters parameters)
 	{
 		ArgumentNullException.ThrowIfNull(password);
 		ArgumentNullException.ThrowIfNull(salt);
 		ArgumentNullException.ThrowIfNull(storedHash);
 
-		var computed = ComputePasswordHash(password, salt);
+		var computed = ComputePasswordHash(password, salt, parameters);
 		return CryptographicOperations.FixedTimeEquals(computed, storedHash);
+	}
+
+	private static HashAlgorithmName ResolveHashAlgorithm(string algorithm)
+		=> algorithm.ToUpperInvariant() switch
+		{
+			"SHA256" => HashAlgorithmName.SHA256,
+			_ => throw new NotSupportedException($"Nicht unterstuetzter PBKDF2-Hash-Algorithmus: {algorithm}"),
+		};
+
+	private static void ValidateParameters(VaultKdfParameters parameters)
+	{
+		if (parameters.Iterations is < 100_000 or > 5_000_000)
+			throw new InvalidOperationException("Persistierte PBKDF2-Iterationen liegen ausserhalb des erlaubten Bereichs.");
+
+		if (parameters.KeyLengthBytes != KeyLengthBytes)
+			throw new InvalidOperationException($"Persistierte PBKDF2-Schluessellaenge muss {KeyLengthBytes} Bytes betragen.");
+
+		if (parameters.SaltLengthBytes is < 16 or > 64)
+			throw new InvalidOperationException("Persistierte Salt-Laenge liegt ausserhalb des erlaubten Bereichs.");
+
+		_ = ResolveHashAlgorithm(parameters.HashAlgorithm);
 	}
 }

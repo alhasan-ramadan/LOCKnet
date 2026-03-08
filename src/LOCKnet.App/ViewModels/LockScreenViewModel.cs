@@ -1,5 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
+using System.Security;
 
 namespace LOCKnet.App.ViewModels;
 
@@ -11,27 +11,18 @@ public partial class LockScreenViewModel : ViewModelBase
 	public event EventHandler? UnlockSucceeded;
 
 	[ObservableProperty]
-	[NotifyCanExecuteChangedFor(nameof(UnlockCommand))]
-	private string _password = string.Empty;
-
-	[ObservableProperty]
 	private string _errorMessage = string.Empty;
 
-	[RelayCommand(CanExecute = nameof(CanUnlock))]
-	private void Unlock()
+	public void Unlock(SecureString password)
 	{
+		ArgumentNullException.ThrowIfNull(password);
 		ErrorMessage = string.Empty;
 		try
 		{
-			var secure = new System.Security.SecureString();
-			foreach (var c in Password) secure.AppendChar(c);
-			secure.MakeReadOnly();
-
-			var key = AppServices.Current.MasterKeyManager.Unlock(secure);
+			var key = AppServices.Current.MasterKeyManager.Unlock(password);
 			if (key is null)
 			{
 				ErrorMessage = "Falsches Passwort.";
-				Password = string.Empty;
 				return;
 			}
 
@@ -41,9 +32,7 @@ public partial class LockScreenViewModel : ViewModelBase
 		}
 		catch (Exception ex)
 		{
-			ErrorMessage = ex.Message;
+			ErrorMessage = ex is InvalidOperationException ? ex.Message : "Entsperren fehlgeschlagen.";
 		}
 	}
-
-	private bool CanUnlock() => Password.Length > 0;
 }

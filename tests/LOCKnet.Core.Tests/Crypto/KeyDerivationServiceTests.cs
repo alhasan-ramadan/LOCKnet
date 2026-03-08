@@ -1,4 +1,5 @@
 using LOCKnet.Core.Crypto;
+using LOCKnet.Core.DataAbstractions;
 
 namespace LOCKnet.Core.Tests.Crypto;
 
@@ -89,6 +90,22 @@ public class KeyDerivationServiceTests
 		var key2 = _sut.DeriveKey("password2"u8.ToArray(), salt);
 
 		Assert.False(key1.SequenceEqual(key2));
+	}
+
+	[Fact]
+	public void DeriveKey_InvalidPersistedParameters_Throws()
+	{
+		var password = "hunter2"u8.ToArray();
+		var salt = _sut.GenerateSalt();
+		var parameters = new VaultKdfParameters
+		{
+			HashAlgorithm = "SHA256",
+			Iterations = 10,
+			KeyLengthBytes = 32,
+			SaltLengthBytes = 32,
+		};
+
+		Assert.Throws<InvalidOperationException>(() => _sut.DeriveKey(password, salt, parameters));
 	}
 
 	// ── ComputePasswordHash ───────────────────────────────────────────────────
