@@ -118,11 +118,22 @@ LOCKnet.sln
 | Key derivation | PBKDF2-HMAC-SHA256 with persisted KDF parameters in the `VaultHeader` |
 | Vault unlock flow | Master password derives a KEK, unwraps the VaultKey, and migrates legacy records before use |
 | SQLite hardening | `journal_mode=DELETE`, `synchronous=FULL`, `temp_store=MEMORY`, `secure_delete=ON` |
-| Post-migration cleanup | Repository-guarded `VACUUM` compaction after plaintext-scrubbing migrations |
+| Post-migration cleanup | Pending cleanup uses a fresh-file rewrite (`VACUUM INTO` -> `*.rewrite.tmp` -> primary replacement) with startup recovery for leftover rewrite artifacts |
 | In-memory safety | Session key copies only, `ZeroMemory`, and reduced ViewModel plaintext retention |
 | Auto-lock | `ActivityMonitor` with configurable timeout (default 60 s) |
 | SQL injection | Parameterised queries everywhere — no string interpolation in SQL |
 | Tamper detection | AES-GCM authentication tag rejects any modified ciphertext |
+
+---
+
+### Storage Rewrite Cleanup
+
+- LOCKnet moved beyond `VACUUM`-only cleanup because plaintext-scrubbing migrations can still leave historical SQLite pages behind until the file is rebuilt. The new cleanup path creates a fresh database file in the same directory and only replaces the primary vault after the rewrite candidate passes SQLite integrity checks.
+- This improves storage hygiene on USB and flash media because the active vault file is rebuilt from the current logical database state instead of continuing to reuse the old file layout. It is stronger than in-place compaction, but it is not forensic erasure and does not defeat flash wear-leveling, host caches, or prior host compromise.
+- Rewrite cleanup is triggered only while `RequiresStorageCompaction` is set. Healthy unlocks return no pending cleanup state; degraded unlocks still succeed when cryptographic checks pass, but the user receives a storage-cleanup warning until the rewrite finishes successfully.
+- Before rewrite starts, Core validates that the header is current-format, current rows still decrypt with the active VaultKey, UUIDs are valid, encrypted metadata/secret envelopes exist, and no plaintext metadata residue remains. Malformed current rows are treated as corruption and stop cleanup instead of being copied forward.
+- Startup checks `*.rewrite.tmp` and `*.rewrite.bak` before SQLite opens the vault. A valid backup is restored if the primary file is missing or invalid, a valid temp file may be promoted if no backup exists, and pending cleanup is cleared only after the primary database is valid and old rewrite artifacts have really been removed.
+- Manual retry exists for pending cleanup, but it only applies while the vault is currently unlocked because the rewrite preflight needs the active session key.
 
 ---
 
@@ -365,11 +376,22 @@ LOCKnet.sln
 | Schlüsselableitung | PBKDF2-HMAC-SHA256 mit persistenten KDF-Parametern im `VaultHeader` |
 | Vault-Unlock-Flow | Master-Passwort leitet einen KEK ab, entpackt den VaultKey und migriert Legacy-Records vor der Nutzung |
 | SQLite-Haertung | `journal_mode=DELETE`, `synchronous=FULL`, `temp_store=MEMORY`, `secure_delete=ON` |
-| Cleanup nach Migration | Repository-geschuetzte `VACUUM`-Kompaktierung nach Klartext-Bereinigung |
+| Cleanup nach Migration | Ausstehende Bereinigung nutzt einen Fresh-File-Rewrite (`VACUUM INTO` -> `*.rewrite.tmp` -> Austausch der Hauptdatei) mit Startup-Recovery fuer verbliebene Rewrite-Artefakte |
 | RAM-Sicherheit | Nur Session-Key-Kopien, `ZeroMemory` und reduzierte ViewModel-Klartextspeicherung |
 | Auto-Lock | `ActivityMonitor` mit konfigurierbarem Timeout (Standard 60 s) |
 | SQL-Injection | Parameterbindung überall — keine String-Interpolation in SQL |
 | Manipulationsschutz | AES-GCM-Authentifizierungs-Tag lehnt manipulierten Ciphertext ab |
+
+---
+
+### Storage-Rewrite-Bereinigung
+
+- LOCKnet ist ueber eine reine `VACUUM`-Bereinigung hinausgegangen, weil Klartext-bereinigende Migrationen historische SQLite-Seiten im alten Dateilayout zuruecklassen koennen, bis die Vault-Datei neu aufgebaut wird. Der neue Cleanup-Pfad erstellt deshalb zuerst eine frische Datenbankdatei im selben Verzeichnis und ersetzt die Hauptdatei erst, wenn die Rewrite-Kopie die SQLite-Integritaetspruefung bestanden hat.
+- Das verbessert die Storage-Hygiene auf USB- und Flash-Medien, weil die aktive Vault-Datei aus dem aktuellen logischen Datenbestand neu geschrieben wird, statt das alte Dateilayout weiterzuverwenden. Das ist staerker als eine In-Place-Kompaktierung, aber keine forensische Loeschgarantie und schuetzt nicht gegen Wear-Leveling, Host-Caches oder bereits kompromittierte Hosts.
+- Rewrite-Cleanup wird nur ausgefuehrt, solange `RequiresStorageCompaction` gesetzt ist. Gesunde Unlocks liefern keinen ausstehenden Cleanup-Status; degradierte Unlocks funktionieren weiter, wenn die kryptografischen Pruefungen erfolgreich sind, zeigen aber einen Warnstatus an, bis der Rewrite wirklich abgeschlossen ist.
+- Bevor der Rewrite startet, validiert Core, dass Header und Credentials im aktuellen Format vorliegen, aktuelle Rows noch mit dem aktiven VaultKey authentifizierbar sind, UUIDs gueltig sind, verschluesselte Secret-/Metadaten-Envelopes vorhanden sind und keine Klartext-Metadatenreste mehr persistiert sind. Fehlgeformte aktuelle Rows werden als Korruption behandelt und nicht "best effort" weitergetragen.
+- Beim Start prueft LOCKnet `*.rewrite.tmp` und `*.rewrite.bak`, bevor SQLite die Vault oeffnet. Ein gueltiges Backup wird wiederhergestellt, wenn die Hauptdatei fehlt oder ungueltig ist; eine gueltige Temp-Datei kann uebernommen werden, wenn kein Backup existiert; der Pending-Status wird aber erst geloescht, wenn die Hauptdatenbank gueltig ist und alte Rewrite-Artefakte wirklich entfernt wurden.
+- Ein manueller Retry fuer ausstehende Bereinigung existiert, greift aber nur bei entsperrter Vault, weil die Rewrite-Vorpruefung den aktiven Session-Key benoetigt.
 
 ---
 

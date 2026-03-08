@@ -38,7 +38,7 @@ Core fungiert damit als zentrale Sicherheits- und Logikschicht, die vollständig
 * Leitet aus dem Master-Passwort einen KEK ab.
 * Entpackt bzw. verpackt damit den persistierten VaultKey.
 * Migriert Legacy-Credentialciphertexte atomar auf das aktuelle VaultKey-basierte Secret-Format.
-* Fuehrt nach Klartext-scrubbenden Migrationen eine SQLite-Kompaktierung aus und merkt ausstehende Cleanup-Laeufe im VaultHeader vor.
+* Fuehrt nach Klartext-scrubbenden Migrationen einen dateibasierten Storage-Rewrite aus und merkt ausstehende Cleanup-Laeufe im VaultHeader vor.
 * Speichert und aktualisiert den VaultHeader in der Data-Schicht.
 * Verwaltet die Entsperrung und Sperrung der Sitzung.
 
@@ -50,6 +50,16 @@ Core fungiert damit als zentrale Sicherheits- und Logikschicht, die vollständig
   * IKeyDerivationService
   * IEncryptionService
   * MasterKeyRepository (ueber Interface, speichert `VaultHeader`)
+
+### **Storage-Rewrite-Orchestrierung in Core**
+
+* Unlock und Password-Change trennen bewusst zwischen kryptografischer Korrektheit und Storage-Hygiene: Eine Vault kann erfolgreich entsperrt werden, obwohl die nachgelagerte Speicherbereinigung noch aussteht.
+* `MasterKeyManager` startet automatische Rewrite-Versuche nur, wenn `RequiresStorageCompaction` gesetzt ist. Nach einem fehlgeschlagenen Versuch gilt eine Backoff-Zeit von 10 Minuten; in dieser Zeit bleibt die Vault im degradierten, aber benutzbaren Zustand.
+* Vor einem neuen Rewrite ohne vorhandene Artefakte validiert Core den aktuellen Persistenzzustand mit dem aktiven VaultKey: aktueller Header ohne Legacy-Keymaterial, gueltige `CredentialUuid`, vorhandene Secret-/Metadaten-Envelopes, keine Klartext-Metadatenreste und erfolgreiche Entschluesselung aller aktuellen Records.
+* Schlaegt diese Vorpruefung fehl, wird kein Rewrite versucht. Stattdessen bleibt `RequiresStorageCompaction` gesetzt und der Fehler wird als `Corruption` im `VaultHeader` persistiert, damit UI und Tests eine klare Ursache sehen.
+* `RetryPendingStorageCompaction()` ist absichtlich an `ISessionManager` gebunden. Ein manueller Retry funktioniert nur mit entsperrter Session, weil die Envelope-Validierung den aktiven Session-Key benoetigt.
+* Password-Rotation loescht den Pending-Status nicht. `ChangePassword()` uebernimmt `RequiresStorageCompaction`, `LastStorageCompactionAttemptUtc`, `LastStorageCompactionFailureKind` und `LastStorageCompactionError` in den neuen Header, bis die Data-Schicht echten Rewrite-Erfolg meldet.
+* Die benutzergeeigneten Meldungen fuer den degradierten Zustand werden in Core aus `StorageCompactionFailureKind` abgeleitet. Busy/Locked, zu wenig Platz, I/O, Korruption und Unknown bleiben dadurch fuer App und spaetere Wartung unterscheidbar.
 
 ---
 
