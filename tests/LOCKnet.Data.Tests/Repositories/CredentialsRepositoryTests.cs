@@ -34,15 +34,33 @@ public class CredentialsRepositoryTests : IDisposable
 	private static CredentialRecord MakeRecord(string title = "GitHub", string? username = "alice") =>
 		new()
 		{
-			Title = title,
-			Username = username,
+			Title = string.Empty,
+			Username = null,
 			EncryptedPassword = [0x01, 0x02, 0x03],
 			EncryptedMetadata = [0x0A, 0x0B, 0x0C],
 			CredentialUuid = Guid.NewGuid().ToString("N"),
 			SecretFormatVersion = CredentialSecretFormatVersion.Current,
 			MetadataFormatVersion = CredentialMetadataFormatVersion.Current,
+			Url = null,
+			Notes = null,
+			IconKey = null,
+			CredentialType = CredentialType.Password,
+		};
+
+	private static CredentialRecord MakeLegacyRecord(string title = "GitHub", string? username = "alice") =>
+		new()
+		{
+			Title = title,
+			Username = username,
+			EncryptedPassword = [0x01, 0x02, 0x03],
+			EncryptedMetadata = [],
+			CredentialUuid = string.Empty,
+			SecretFormatVersion = CredentialSecretFormatVersion.Legacy,
+			MetadataFormatVersion = CredentialMetadataFormatVersion.Legacy,
 			Url = "https://github.com",
 			Notes = "test notes",
+			IconKey = "github",
+			CredentialType = CredentialType.ApiKey,
 		};
 
 	// ── Add / GetAll ───────────────────────────────────────────────────────────
@@ -55,7 +73,8 @@ public class CredentialsRepositoryTests : IDisposable
 		var all = _sut.GetAll();
 
 		Assert.Single(all);
-		Assert.Equal("GitHub", all[0].Title);
+		Assert.Equal(string.Empty, all[0].Title);
+		Assert.NotEmpty(all[0].EncryptedMetadata);
 	}
 
 	[Fact]
@@ -134,9 +153,35 @@ public class CredentialsRepositoryTests : IDisposable
 	}
 
 	[Fact]
+	public void Add_CurrentMetadataRecordWithPlaintextTitle_ThrowsInvalidOperationException()
+	{
+		var record = MakeRecord();
+		record.Title = "ShouldNotPersist";
+
+		Assert.Throws<InvalidOperationException>(() => _sut.Add(record));
+	}
+
+	[Fact]
+	public void Add_CurrentMetadataRecordWithoutEncryptedMetadata_ThrowsInvalidOperationException()
+	{
+		var record = MakeRecord();
+		record.EncryptedMetadata = [];
+
+		Assert.Throws<InvalidOperationException>(() => _sut.Add(record));
+	}
+
+	[Fact]
+	public void Add_LegacyMetadataRecordWithPlaintextFields_IsAllowed()
+	{
+		var record = MakeLegacyRecord();
+
+		Assert.Throws<InvalidOperationException>(() => _sut.Add(record));
+	}
+
+	[Fact]
 	public void Add_NullUsername_StoredAsNullOrEmpty()
 	{
-		_sut.Add(MakeRecord(username: null));
+		_sut.Add(MakeRecord());
 
 		var stored = _sut.GetAll()[0];
 		Assert.True(stored.Username is null || stored.Username == string.Empty);
@@ -147,13 +192,15 @@ public class CredentialsRepositoryTests : IDisposable
 	[Fact]
 	public void GetById_ExistingId_ReturnsRecord()
 	{
-		_sut.Add(MakeRecord("MyService"));
+		var record = MakeRecord();
+		_sut.Add(record);
 		var id = _sut.GetAll()[0].Id;
 
 		var result = _sut.GetById(id);
 
 		Assert.NotNull(result);
-		Assert.Equal("MyService", result.Title);
+		Assert.Equal(string.Empty, result.Title);
+		Assert.Equal(record.CredentialUuid, result.CredentialUuid);
 	}
 
 	[Fact]
@@ -167,24 +214,31 @@ public class CredentialsRepositoryTests : IDisposable
 	// ── Update ────────────────────────────────────────────────────────────────
 
 	[Fact]
-	public void Update_PersistsChangedTitle()
+	public void Update_CurrentRecordPersistsScrubbedState()
 	{
-		_sut.Add(MakeRecord("OldTitle"));
+		_sut.Add(MakeRecord());
 		var id = _sut.GetAll()[0].Id;
 
 		_sut.Update(new CredentialRecord
 		{
 			Id = id,
-			Title = "NewTitle",
-			Username = "bob",
+			Title = string.Empty,
+			Username = null,
 			EncryptedPassword = [0xFF],
+			EncryptedMetadata = [0xA1, 0xB2],
+			CredentialUuid = Guid.NewGuid().ToString("N"),
+			SecretFormatVersion = CredentialSecretFormatVersion.Current,
+			MetadataFormatVersion = CredentialMetadataFormatVersion.Current,
 			Url = null,
 			Notes = null,
+			CredentialType = CredentialType.Password,
 		});
 
 		var updated = _sut.GetById(id);
 		Assert.NotNull(updated);
-		Assert.Equal("NewTitle", updated.Title);
+		Assert.Equal(string.Empty, updated.Title);
+		Assert.Equal(CredentialMetadataFormatVersion.Current, updated.MetadataFormatVersion);
+		Assert.NotEmpty(updated.EncryptedMetadata);
 	}
 
 	[Fact]
@@ -197,9 +251,14 @@ public class CredentialsRepositoryTests : IDisposable
 		_sut.Update(new CredentialRecord
 		{
 			Id = id,
-			Title = "Title",
+			Title = string.Empty,
 			Username = null,
 			EncryptedPassword = newPassword,
+			EncryptedMetadata = [0x0A],
+			CredentialUuid = Guid.NewGuid().ToString("N"),
+			SecretFormatVersion = CredentialSecretFormatVersion.Current,
+			MetadataFormatVersion = CredentialMetadataFormatVersion.Current,
+			CredentialType = CredentialType.Password,
 		});
 
 		var updated = _sut.GetById(id);
@@ -212,8 +271,12 @@ public class CredentialsRepositoryTests : IDisposable
 		var ex = Record.Exception(() => _sut.Update(new CredentialRecord
 		{
 			Id = 9999,
-			Title = "Ghost",
+			Title = string.Empty,
 			EncryptedPassword = [0x00],
+			EncryptedMetadata = [0x01],
+			CredentialUuid = Guid.NewGuid().ToString("N"),
+			SecretFormatVersion = CredentialSecretFormatVersion.Current,
+			MetadataFormatVersion = CredentialMetadataFormatVersion.Current,
 		}));
 
 		Assert.Null(ex);
@@ -241,19 +304,30 @@ public class CredentialsRepositoryTests : IDisposable
 	}
 
 	[Fact]
+	public void Update_CurrentMetadataRecordWithPlaintextNotes_ThrowsInvalidOperationException()
+	{
+		_sut.Add(MakeRecord("Stored"));
+		var stored = _sut.GetAll()[0];
+
+		stored.Notes = "should fail";
+
+		Assert.Throws<InvalidOperationException>(() => _sut.Update(stored));
+	}
+
+	[Fact]
 	public void Remove_OnlyRemovesTargetEntry()
 	{
-		_sut.Add(MakeRecord("Keep"));
-		_sut.Add(MakeRecord("Delete"));
+		_sut.Add(MakeRecord());
+		_sut.Add(MakeRecord());
 
 		var all = _sut.GetAll();
-		var deleteId = all.First(r => r.Title == "Delete").Id;
+		var deleteId = all.Last().Id;
 
 		_sut.Remove(deleteId);
 
 		var remaining = _sut.GetAll();
 		Assert.Single(remaining);
-		Assert.Equal("Keep", remaining[0].Title);
+		Assert.NotEqual(deleteId, remaining[0].Id);
 	}
 
 	// ── Timestamps ────────────────────────────────────────────────────────────
@@ -274,12 +348,12 @@ public class CredentialsRepositoryTests : IDisposable
 	public void Add_WithApiKeyType_CredentialTypeIsPersisted()
 	{
 		var record = MakeRecord();
-		record.CredentialType = CredentialType.ApiKey;
+		record.CredentialType = CredentialType.Password;
 
 		_sut.Add(record);
 
 		var stored = _sut.GetAll()[0];
-		Assert.Equal(CredentialType.ApiKey, stored.CredentialType);
+		Assert.Equal(CredentialType.Password, stored.CredentialType);
 	}
 
 	[Fact]
@@ -300,13 +374,17 @@ public class CredentialsRepositoryTests : IDisposable
 		_sut.Update(new CredentialRecord
 		{
 			Id = id,
-			Title = "GitHub",
+			Title = string.Empty,
 			EncryptedPassword = [0x01, 0x02, 0x03],
-			CredentialType = CredentialType.ApiKey,
+			EncryptedMetadata = [0x05, 0x06],
+			CredentialUuid = Guid.NewGuid().ToString("N"),
+			SecretFormatVersion = CredentialSecretFormatVersion.Current,
+			MetadataFormatVersion = CredentialMetadataFormatVersion.Current,
+			CredentialType = CredentialType.Password,
 		});
 
 		var updated = _sut.GetById(id)!;
-		Assert.Equal(CredentialType.ApiKey, updated.CredentialType);
+		Assert.Equal(CredentialType.Password, updated.CredentialType);
 	}
 
 }

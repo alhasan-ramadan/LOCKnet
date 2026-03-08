@@ -16,4 +16,9 @@ public interface IVaultMigrationRepository
 	/// <param name="header">Der vollstaendig validierte Ziel-Header.</param>
 	/// <param name="credentials">Die zu aktualisierenden Credential-Datensaetze.</param>
 	void ApplyMigration(VaultHeader header, IReadOnlyList<CredentialRecord> credentials);
+
+	/// <summary>
+	/// Fuehrt eine SQLite-Kompaktierung auf dem Vault durch, um bereinigte Freelist-Seiten zu reduzieren.
+	/// </summary>
+	void CompactStorage();
 }

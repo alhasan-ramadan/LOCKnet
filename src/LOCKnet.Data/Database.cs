@@ -98,6 +98,7 @@ public class Database
                     KdfParameters TEXT NOT NULL DEFAULT '{""HashAlgorithm"":""SHA256"",""Iterations"":600000,""KeyLengthBytes"":32,""SaltLengthBytes"":32}',
                     Salt BLOB NOT NULL,
                     WrappedVaultKey BLOB,
+                    RequiresStorageCompaction INTEGER NOT NULL DEFAULT 0,
                     CreatedAt TEXT DEFAULT CURRENT_TIMESTAMP,
                     UpdatedAt TEXT DEFAULT CURRENT_TIMESTAMP
                 );";
@@ -109,6 +110,7 @@ public class Database
 		TryAddColumn(connection, "MasterKey", "KdfParameters", kdfParametersDefault);
 		TryAddColumn(connection, "MasterKey", "WrappedVaultKey", "BLOB");
 		TryAddColumn(connection, "MasterKey", "UsesLegacyKeyMaterial", "INTEGER NOT NULL DEFAULT 0");
+		TryAddColumn(connection, "MasterKey", "RequiresStorageCompaction", "INTEGER NOT NULL DEFAULT 0");
 
 		TryAddColumn(connection, "Credentials", "CredentialUuid", "TEXT NOT NULL DEFAULT ''");
 		TryAddColumn(connection, "Credentials", "SecretFormatVersion", "INTEGER NOT NULL DEFAULT 0");
@@ -121,6 +123,38 @@ public class Database
                 CREATE UNIQUE INDEX IF NOT EXISTS IX_Credentials_CredentialUuid
                 ON Credentials(CredentialUuid)
                 WHERE CredentialUuid <> '';";
+			cmd.ExecuteNonQuery();
+		}
+
+		using (var cmd = connection.CreateCommand())
+		{
+			cmd.CommandText = @"
+                CREATE TRIGGER IF NOT EXISTS TRG_Credentials_CurrentMetadata_Insert
+                BEFORE INSERT ON Credentials
+                WHEN NEW.MetadataFormatVersion = 1 AND (
+                    NEW.EncryptedMetadata IS NULL OR length(NEW.EncryptedMetadata) = 0 OR
+                    NEW.Title <> '' OR ifnull(NEW.Username, '') <> '' OR ifnull(NEW.URL, '') <> '' OR
+                    ifnull(NEW.Notes, '') <> '' OR ifnull(NEW.IconKey, '') <> '' OR ifnull(NEW.CredentialType, 0) <> 0
+                )
+                BEGIN
+                    SELECT RAISE(ABORT, 'Current metadata records must not persist plaintext metadata.');
+                END;";
+			cmd.ExecuteNonQuery();
+		}
+
+		using (var cmd = connection.CreateCommand())
+		{
+			cmd.CommandText = @"
+                CREATE TRIGGER IF NOT EXISTS TRG_Credentials_CurrentMetadata_Update
+                BEFORE UPDATE ON Credentials
+                WHEN NEW.MetadataFormatVersion = 1 AND (
+                    NEW.EncryptedMetadata IS NULL OR length(NEW.EncryptedMetadata) = 0 OR
+                    NEW.Title <> '' OR ifnull(NEW.Username, '') <> '' OR ifnull(NEW.URL, '') <> '' OR
+                    ifnull(NEW.Notes, '') <> '' OR ifnull(NEW.IconKey, '') <> '' OR ifnull(NEW.CredentialType, 0) <> 0
+                )
+                BEGIN
+                    SELECT RAISE(ABORT, 'Current metadata records must not persist plaintext metadata.');
+                END;";
 			cmd.ExecuteNonQuery();
 		}
 

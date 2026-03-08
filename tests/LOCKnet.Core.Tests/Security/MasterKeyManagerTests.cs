@@ -13,6 +13,8 @@ sealed class InMemoryVaultStore : IMasterKeyRepository, IVaultMigrationRepositor
 	private int _nextId = 1;
 
 	public bool ThrowOnApplyMigration { get; set; }
+	public bool ThrowOnCompactStorage { get; set; }
+	public int CompactStorageCallCount { get; private set; }
 
 	public void Create(VaultHeader header)
 	{
@@ -45,6 +47,13 @@ sealed class InMemoryVaultStore : IMasterKeyRepository, IVaultMigrationRepositor
 		}
 	}
 
+	public void CompactStorage()
+	{
+		CompactStorageCallCount++;
+		if (ThrowOnCompactStorage)
+			throw new InvalidOperationException("Simulierter Kompaktierungsfehler.");
+	}
+
 	public CredentialRecord AddCredential(CredentialRecord credential)
 	{
 		var stored = CloneCredential(credential);
@@ -71,6 +80,7 @@ sealed class InMemoryVaultStore : IMasterKeyRepository, IVaultMigrationRepositor
 		WrappedVaultKey = header.WrappedVaultKey.ToArray(),
 		LegacyPasswordHash = header.LegacyPasswordHash.ToArray(),
 		UsesLegacyKeyMaterial = header.UsesLegacyKeyMaterial,
+		RequiresStorageCompaction = header.RequiresStorageCompaction,
 		CreatedAt = header.CreatedAt,
 		UpdatedAt = header.UpdatedAt,
 	};
@@ -278,6 +288,7 @@ public class MasterKeyManagerTests
 		Assert.Equal(VaultHeaderFormatVersion.Current, header.FormatVersion);
 		Assert.False(header.UsesLegacyKeyMaterial);
 		Assert.Empty(header.LegacyPasswordHash);
+		Assert.False(header.RequiresStorageCompaction);
 		Assert.Equal(CredentialSecretFormatVersion.Current, credential.SecretFormatVersion);
 		Assert.Equal(CredentialMetadataFormatVersion.Current, credential.MetadataFormatVersion);
 		Assert.NotEmpty(credential.CredentialUuid);
@@ -314,6 +325,8 @@ public class MasterKeyManagerTests
 		Assert.Equal(currentRecord.EncryptedMetadata, unchangedCurrent.EncryptedMetadata);
 		Assert.Equal("legacy-secret", System.Text.Encoding.UTF8.GetString(envelope.Decrypt(migratedLegacy, reopenedKey, header.FormatVersion)));
 		Assert.Equal("Legacy", envelope.DecryptMetadata(migratedLegacy, reopenedKey, header.FormatVersion).Title);
+		Assert.Equal(1, store.CompactStorageCallCount);
+		Assert.False(store.Get()!.RequiresStorageCompaction);
 	}
 
 	[Fact]
@@ -333,6 +346,24 @@ public class MasterKeyManagerTests
 		var key = sut.Unlock(MakeSecure("legacy-password"));
 		Assert.NotNull(key);
 		Assert.Equal(VaultHeaderFormatVersion.Current, store.Get()!.FormatVersion);
+	}
+
+	[Fact]
+	public void Unlock_WhenCompactionFails_KeepsPendingFlagForRetry()
+	{
+		var sut = BuildSut(out var store);
+		SeedLegacyVault(store, "legacy-password", withWrappedLegacyKey: false);
+		store.ThrowOnCompactStorage = true;
+
+		Assert.Throws<InvalidOperationException>(() => sut.Unlock(MakeSecure("legacy-password")));
+		Assert.True(store.Get()!.RequiresStorageCompaction);
+		Assert.Equal(1, store.CompactStorageCallCount);
+
+		store.ThrowOnCompactStorage = false;
+		var key = sut.Unlock(MakeSecure("legacy-password"));
+		Assert.NotNull(key);
+		Assert.False(store.Get()!.RequiresStorageCompaction);
+		Assert.Equal(2, store.CompactStorageCallCount);
 	}
 
 	[Fact]

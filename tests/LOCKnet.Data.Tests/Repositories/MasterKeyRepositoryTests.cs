@@ -45,6 +45,7 @@ public class MasterKeyRepositoryTests : IDisposable
 			LegacyPasswordHash = Enumerable.Repeat(seed, 32).ToArray(),
 			Salt = Enumerable.Repeat((byte)(seed + 1), 32).ToArray(),
 			WrappedVaultKey = Enumerable.Repeat((byte)(seed + 2), 48).ToArray(),
+			RequiresStorageCompaction = seed % 2 == 0,
 			CreatedAt = DateTime.UtcNow,
 			UpdatedAt = DateTime.UtcNow,
 		};
@@ -75,6 +76,7 @@ public class MasterKeyRepositoryTests : IDisposable
 		Assert.Equal(key.KdfParameters.Iterations, retrieved.KdfParameters.Iterations);
 		Assert.Equal(key.Salt, retrieved.Salt);
 		Assert.Equal(key.WrappedVaultKey, retrieved.WrappedVaultKey);
+		Assert.Equal(key.RequiresStorageCompaction, retrieved.RequiresStorageCompaction);
 	}
 
 	[Fact]
@@ -117,6 +119,7 @@ public class MasterKeyRepositoryTests : IDisposable
 			LegacyPasswordHash = Enumerable.Repeat((byte)0xF0, 32).ToArray(),
 			Salt = Enumerable.Repeat((byte)0xF1, 32).ToArray(),
 			WrappedVaultKey = Enumerable.Repeat((byte)0xF2, 48).ToArray(),
+			RequiresStorageCompaction = true,
 			CreatedAt = DateTime.UtcNow,
 			UpdatedAt = DateTime.UtcNow,
 		};
@@ -129,6 +132,7 @@ public class MasterKeyRepositoryTests : IDisposable
 		Assert.Equal(updatedKey.KdfParameters.Iterations, retrieved.KdfParameters.Iterations);
 		Assert.Equal(updatedKey.Salt, retrieved.Salt);
 		Assert.Equal(updatedKey.WrappedVaultKey, retrieved.WrappedVaultKey);
+		Assert.Equal(updatedKey.RequiresStorageCompaction, retrieved.RequiresStorageCompaction);
 	}
 
 	[Fact]
@@ -152,6 +156,7 @@ public class MasterKeyRepositoryTests : IDisposable
 			LegacyPasswordHash = Enumerable.Repeat((byte)0xFF, 32).ToArray(),
 			Salt = Enumerable.Repeat((byte)0xEE, 32).ToArray(),
 			WrappedVaultKey = Enumerable.Repeat((byte)0xDD, 48).ToArray(),
+			RequiresStorageCompaction = true,
 			CreatedAt = originalCreated,
 			UpdatedAt = DateTime.UtcNow,
 		});

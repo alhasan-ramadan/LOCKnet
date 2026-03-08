@@ -221,6 +221,8 @@ public sealed class CredentialService : ICredentialService
 
 	private CredentialRecord MaterializeRecord(CredentialRecord persisted, byte[] key, int vaultFormatVersion)
 	{
+		ValidatePersistedCurrentRecord(persisted);
+
 		var materialized = _credentialEnvelope.DecryptMetadata(persisted, key, vaultFormatVersion);
 		materialized.EncryptedPassword = persisted.EncryptedPassword.ToArray();
 		materialized.EncryptedMetadata = persisted.EncryptedMetadata.ToArray();
@@ -253,4 +255,26 @@ public sealed class CredentialService : ICredentialService
 
 	private static string EnsureCredentialUuid(string credentialUuid)
 		=> Guid.TryParseExact(credentialUuid, "N", out _) ? credentialUuid : Guid.NewGuid().ToString("N");
+
+	private static void ValidatePersistedCurrentRecord(CredentialRecord persisted)
+	{
+		if (persisted.MetadataFormatVersion != CredentialMetadataFormatVersion.Current)
+			return;
+
+		if (!Guid.TryParseExact(persisted.CredentialUuid, "N", out _))
+			throw new InvalidOperationException("Aktuelle Records enthaelten eine ungueltige CredentialUuid.");
+
+		if (persisted.EncryptedMetadata.Length == 0)
+			throw new InvalidOperationException("Aktuelle Records enthaelten keine verschluesselten Metadaten.");
+
+		if (!string.IsNullOrEmpty(persisted.Title) ||
+			!string.IsNullOrEmpty(persisted.Username) ||
+			!string.IsNullOrEmpty(persisted.Url) ||
+			!string.IsNullOrEmpty(persisted.Notes) ||
+			!string.IsNullOrEmpty(persisted.IconKey) ||
+			persisted.CredentialType != CredentialType.Password)
+		{
+			throw new InvalidOperationException("Aktuelle Records enthalten unerwartete Klartext-Metadaten.");
+		}
+	}
 }

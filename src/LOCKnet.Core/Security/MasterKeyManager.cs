@@ -75,6 +75,7 @@ public sealed class MasterKeyManager : IMasterKeyManager
 				WrappedVaultKey = wrappedVaultKey,
 				LegacyPasswordHash = [],
 				UsesLegacyKeyMaterial = false,
+				RequiresStorageCompaction = false,
 				CreatedAt = DateTime.UtcNow,
 				UpdatedAt = DateTime.UtcNow
 			});
@@ -128,11 +129,14 @@ public sealed class MasterKeyManager : IMasterKeyManager
 				if (migration is not null)
 				{
 					_vaultMigrationRepo.ApplyMigration(migration.Header, migration.Credentials);
+					CompleteStorageCompactionIfRequired(migration.Header);
 					targetVaultKey = migration.ActiveVaultKey;
 					resultKey = targetVaultKey;
 					targetVaultKey = null;
 					return resultKey;
 				}
+
+				CompleteStorageCompactionIfRequired(record);
 
 				resultKey = currentVaultKey;
 				currentVaultKey = null;
@@ -150,6 +154,7 @@ public sealed class MasterKeyManager : IMasterKeyManager
 				?? throw new InvalidOperationException("Legacy-Vault konnte nicht in das aktuelle Format migriert werden.");
 
 			_vaultMigrationRepo.ApplyMigration(legacyMigration.Header, legacyMigration.Credentials);
+			CompleteStorageCompactionIfRequired(legacyMigration.Header);
 			targetVaultKey = legacyMigration.ActiveVaultKey;
 			resultKey = targetVaultKey;
 			targetVaultKey = null;
@@ -199,6 +204,7 @@ public sealed class MasterKeyManager : IMasterKeyManager
 				WrappedVaultKey = wrappedVaultKey,
 				LegacyPasswordHash = [],
 				UsesLegacyKeyMaterial = false,
+				RequiresStorageCompaction = false,
 				CreatedAt = record.CreatedAt,
 				UpdatedAt = DateTime.UtcNow
 			});
@@ -217,8 +223,10 @@ public sealed class MasterKeyManager : IMasterKeyManager
 		var credentials = _vaultMigrationRepo.GetAllCredentials();
 		var migratedCredentials = new List<CredentialRecord>();
 		var targetVaultKey = usesLegacyKey ? RandomNumberGenerator.GetBytes(32) : currentVaultKey.ToArray();
+		var requiresStorageCompaction = header.RequiresStorageCompaction;
 		var headerNeedsUpgrade = header.FormatVersion != VaultHeaderFormatVersion.Current ||
 			header.UsesLegacyKeyMaterial != usesLegacyKey ||
+			header.RequiresStorageCompaction ||
 			header.LegacyPasswordHash.Length > 0 ||
 			header.WrappedVaultKey.Length != WrappedVaultKeyPacketBytes;
 
@@ -231,6 +239,7 @@ public sealed class MasterKeyManager : IMasterKeyManager
 
 				var needsSecretMigration = NeedsSecretMigration(credential) || usesLegacyKey;
 				var needsMetadataMigration = NeedsMetadataMigration(credential) || usesLegacyKey;
+				requiresStorageCompaction |= HasPlaintextMetadataResidue(credential);
 				byte[]? secretPlaintext = null;
 				CredentialRecord? metadataRecord = null;
 				try
@@ -284,6 +293,7 @@ public sealed class MasterKeyManager : IMasterKeyManager
 			migratedHeader.LegacyPasswordHash = [];
 			migratedHeader.WrappedVaultKey = _encryption.Encrypt(targetVaultKey, kek);
 			migratedHeader.UsesLegacyKeyMaterial = false;
+			migratedHeader.RequiresStorageCompaction = requiresStorageCompaction;
 			migratedHeader.UpdatedAt = DateTime.UtcNow;
 
 			return new CredentialMigrationPlan(migratedHeader, migratedCredentials, targetVaultKey);
@@ -346,6 +356,26 @@ public sealed class MasterKeyManager : IMasterKeyManager
 
 		if (header.WrappedVaultKey.Length != WrappedVaultKeyPacketBytes)
 			throw new InvalidOperationException("VaultHeader enthaelt einen ungueltigen WrappedVaultKey.");
+	}
+
+	private void CompleteStorageCompactionIfRequired(VaultHeader header)
+	{
+		if (!header.RequiresStorageCompaction)
+			return;
+
+		try
+		{
+			_vaultMigrationRepo.CompactStorage();
+		}
+		catch (Exception ex)
+		{
+			throw new InvalidOperationException("SQLite-Kompaktierung fehlgeschlagen. Freien Speicherplatz, Dateisperren und I/O-Fehler pruefen.", ex);
+		}
+
+		var compacted = CloneHeader(header);
+		compacted.RequiresStorageCompaction = false;
+		compacted.UpdatedAt = DateTime.UtcNow;
+		_repo.Update(compacted);
 	}
 
 	private static bool NeedsCredentialMigration(CredentialRecord credential, bool usesLegacyKey)
@@ -416,6 +446,7 @@ public sealed class MasterKeyManager : IMasterKeyManager
 		WrappedVaultKey = header.WrappedVaultKey.ToArray(),
 		LegacyPasswordHash = header.LegacyPasswordHash.ToArray(),
 		UsesLegacyKeyMaterial = header.UsesLegacyKeyMaterial,
+		RequiresStorageCompaction = header.RequiresStorageCompaction,
 		CreatedAt = header.CreatedAt,
 		UpdatedAt = header.UpdatedAt,
 	};

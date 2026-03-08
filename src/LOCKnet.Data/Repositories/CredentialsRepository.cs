@@ -17,6 +17,8 @@ public class CredentialsRepository : RepositoryBase, ICredentialRepository
 	/// <inheritdoc/>
 	public void Add(CredentialRecord credential)
 	{
+		StoredCredentialGuard.ValidateForPersistence(credential);
+
 		using var conn = GetConnection();
 		using var cmd = conn.CreateCommand();
 		cmd.CommandText = @"
@@ -68,6 +70,8 @@ public class CredentialsRepository : RepositoryBase, ICredentialRepository
 	/// <inheritdoc/>
 	public void Update(CredentialRecord credential)
 	{
+		StoredCredentialGuard.ValidateForPersistence(credential);
+
 		using var conn = GetConnection();
 		using var cmd = conn.CreateCommand();
 		cmd.CommandText = @"

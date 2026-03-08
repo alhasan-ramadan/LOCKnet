@@ -319,6 +319,20 @@ public class CredentialServiceTests
 	}
 
 	[Fact]
+	public void GetAll_WithPlaintextResidueOnCurrentRecord_ThrowsInvalidOperationException()
+	{
+		var (sut, session, repo) = BuildSut();
+		OpenSession(session);
+
+		sut.Add("Residue", null, MakeSecure("secret"));
+		var record = repo.GetAll()[0];
+		record.Title = "plaintext";
+		repo.Update(record);
+
+		Assert.Throws<InvalidOperationException>(() => sut.GetAll());
+	}
+
+	[Fact]
 	public void Update_NonExistentId_Throws()
 	{
 		var (sut, session, _) = BuildSut();

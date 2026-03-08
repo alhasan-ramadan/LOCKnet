@@ -36,6 +36,9 @@ public sealed class VaultMigrationRepository : RepositoryBase, IVaultMigrationRe
 		ArgumentNullException.ThrowIfNull(header);
 		ArgumentNullException.ThrowIfNull(credentials);
 
+		foreach (var credential in credentials)
+			StoredCredentialGuard.ValidateForPersistence(credential);
+
 		using var conn = GetConnection();
 		ConfigureMigrationConnection(conn);
 
@@ -127,6 +130,20 @@ public sealed class VaultMigrationRepository : RepositoryBase, IVaultMigrationRe
 
 			throw;
 		}
+	}
+
+	public void CompactStorage()
+	{
+		using var conn = GetConnection();
+		ConfigureMigrationConnection(conn);
+		using (var checkpoint = conn.CreateCommand())
+		{
+			checkpoint.CommandText = "PRAGMA wal_checkpoint(TRUNCATE);";
+			checkpoint.ExecuteNonQuery();
+		}
+		using var cmd = conn.CreateCommand();
+		cmd.CommandText = "VACUUM;";
+		cmd.ExecuteNonQuery();
 	}
 
 	private static void ConfigureMigrationConnection(SqliteConnection conn)

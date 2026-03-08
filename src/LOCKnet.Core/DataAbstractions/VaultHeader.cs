@@ -39,6 +39,11 @@ public sealed class VaultHeader
 	/// </summary>
 	public bool UsesLegacyKeyMaterial { get; set; }
 
+	/// <summary>
+	/// Markiert, dass nach einer Migration oder Plausibilitaetsverletzung noch eine SQLite-Kompaktierung aussteht.
+	/// </summary>
+	public bool RequiresStorageCompaction { get; set; }
+
 	/// <summary>UTC-Zeitstempel der Erstellung.</summary>
 	public DateTime CreatedAt { get; set; }
 

@@ -38,6 +38,7 @@ Core fungiert damit als zentrale Sicherheits- und Logikschicht, die vollständig
 * Leitet aus dem Master-Passwort einen KEK ab.
 * Entpackt bzw. verpackt damit den persistierten VaultKey.
 * Migriert Legacy-Credentialciphertexte atomar auf das aktuelle VaultKey-basierte Secret-Format.
+* Fuehrt nach Klartext-scrubbenden Migrationen eine SQLite-Kompaktierung aus und merkt ausstehende Cleanup-Laeufe im VaultHeader vor.
 * Speichert und aktualisiert den VaultHeader in der Data-Schicht.
 * Verwaltet die Entsperrung und Sperrung der Sitzung.
 
@@ -60,6 +61,7 @@ Core fungiert damit als zentrale Sicherheits- und Logikschicht, die vollständig
 * Schreibt Secrets nur im versionierten Envelope-Format mit AAD-Bindung.
 * Schreibt Credential-Metadaten verschluesselt und laesst im SQLite-Schema nur minimierte Klartextreste zurueck.
 * Entschlüsselt Secrets und Metadaten nur auf expliziten Aufruf und faellt bei Tampering hart aus.
+* Lehnt aktuelle Records am Persistenzrand ab, wenn Klartext-Metadaten versehentlich wieder auftauchen.
 * Validiert Eingaben (Titel, URL, Pflichtfelder).
 * Orchestriert Kommunikation mit CredentialsRepository.
 

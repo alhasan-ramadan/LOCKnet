@@ -8,6 +8,7 @@ namespace LOCKnet.Data.Tests.Repositories;
 public class VaultMigrationRepositoryTests : IDisposable
 {
 	private readonly SqliteConnection _keepAlive;
+	private readonly string _connectionString;
 	private readonly MasterKeyRepository _masterKeyRepository;
 	private readonly CredentialsRepository _credentialsRepository;
 	private readonly VaultMigrationRepository _sut;
@@ -16,6 +17,7 @@ public class VaultMigrationRepositoryTests : IDisposable
 	{
 		var dbName = $"vault_migration_{Guid.NewGuid():N}";
 		var connectionString = $"Data Source={dbName};Mode=Memory;Cache=Shared";
+		_connectionString = connectionString;
 
 		_keepAlive = new SqliteConnection(connectionString);
 		_keepAlive.Open();
@@ -50,22 +52,26 @@ public class VaultMigrationRepositoryTests : IDisposable
 			UpdatedAt = DateTime.UtcNow,
 		});
 
-		_credentialsRepository.Add(new CredentialRecord
+		using (var connection = new SqliteConnection(_connectionString))
 		{
-			Title = "GitHub",
-			Username = "legacy-user",
-			EncryptedPassword = [0x01, 0x02, 0x03],
-			EncryptedMetadata = [],
-			CredentialUuid = string.Empty,
-			SecretFormatVersion = CredentialSecretFormatVersion.Legacy,
-			MetadataFormatVersion = CredentialMetadataFormatVersion.Legacy,
-			CredentialType = CredentialType.ApiKey,
-			Url = "https://legacy.example",
-			Notes = "legacy-note",
-			IconKey = "legacy-icon",
-			CreatedAt = DateTime.UtcNow,
-			UpdatedAt = DateTime.UtcNow,
-		});
+			connection.Open();
+			using var command = connection.CreateCommand();
+			command.CommandText = @"
+                INSERT INTO Credentials (Title, Username, EncryptedPassword, EncryptedMetadata, CredentialUuid, SecretFormatVersion, MetadataFormatVersion, URL, Notes, IconKey, CredentialType)
+                VALUES ($title, $username, $password, $encryptedMetadata, $credentialUuid, $secretFormatVersion, $metadataFormatVersion, $url, $notes, $iconKey, $credentialType);";
+			command.Parameters.AddWithValue("$title", "GitHub");
+			command.Parameters.AddWithValue("$username", "legacy-user");
+			command.Parameters.AddWithValue("$password", new byte[] { 0x01, 0x02, 0x03 });
+			command.Parameters.AddWithValue("$encryptedMetadata", DBNull.Value);
+			command.Parameters.AddWithValue("$credentialUuid", string.Empty);
+			command.Parameters.AddWithValue("$secretFormatVersion", CredentialSecretFormatVersion.Legacy);
+			command.Parameters.AddWithValue("$metadataFormatVersion", CredentialMetadataFormatVersion.Legacy);
+			command.Parameters.AddWithValue("$url", "https://legacy.example");
+			command.Parameters.AddWithValue("$notes", "legacy-note");
+			command.Parameters.AddWithValue("$iconKey", "legacy-icon");
+			command.Parameters.AddWithValue("$credentialType", (int)CredentialType.ApiKey);
+			command.ExecuteNonQuery();
+		}
 
 		var credential = _credentialsRepository.GetAll().Single();
 		var migratedCredential = new CredentialRecord
@@ -105,5 +111,42 @@ public class VaultMigrationRepositoryTests : IDisposable
 		Assert.Equal(migratedCredential.EncryptedMetadata, storedCredential.EncryptedMetadata);
 		Assert.Equal(string.Empty, storedCredential.Title);
 		Assert.Null(storedCredential.Username);
+	}
+
+	[Fact]
+	public void ApplyMigration_CurrentRecordWithPlaintextMetadata_ThrowsInvalidOperationException()
+	{
+		_masterKeyRepository.Create(new VaultHeader
+		{
+			FormatVersion = VaultHeaderFormatVersion.Current,
+			KdfIdentifier = "PBKDF2-SHA256",
+			KdfParameters = new VaultKdfParameters
+			{
+				HashAlgorithm = "SHA256",
+				Iterations = 600_000,
+				KeyLengthBytes = 32,
+				SaltLengthBytes = 32,
+			},
+			Salt = Enumerable.Repeat((byte)0xAA, 32).ToArray(),
+			WrappedVaultKey = Enumerable.Repeat((byte)0xCC, 60).ToArray(),
+			LegacyPasswordHash = [],
+			CreatedAt = DateTime.UtcNow,
+			UpdatedAt = DateTime.UtcNow,
+		});
+
+		var invalid = new CredentialRecord
+		{
+			Id = 1,
+			Title = "plaintext",
+			EncryptedPassword = [0x01, 0x02],
+			EncryptedMetadata = [0x03, 0x04],
+			CredentialUuid = Guid.NewGuid().ToString("N"),
+			SecretFormatVersion = CredentialSecretFormatVersion.Current,
+			MetadataFormatVersion = CredentialMetadataFormatVersion.Current,
+			CreatedAt = DateTime.UtcNow,
+			UpdatedAt = DateTime.UtcNow,
+		};
+
+		Assert.Throws<InvalidOperationException>(() => _sut.ApplyMigration(_masterKeyRepository.Get()!, [invalid]));
 	}
 }
