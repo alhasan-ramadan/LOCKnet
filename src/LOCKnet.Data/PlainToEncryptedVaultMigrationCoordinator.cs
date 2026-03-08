@@ -19,6 +19,8 @@ internal sealed class PlainToEncryptedVaultMigrationCoordinator
 	internal PlainToEncryptedVaultMigrationExecutionResult Execute(PlainToEncryptedVaultMigrationRequest request, IEncryptedVaultMigrationExporter exporter)
 	{
 		ArgumentNullException.ThrowIfNull(exporter);
+		if (exporter.TargetMode != request.TargetMode)
+			throw new InvalidOperationException("Exporter-Zielmodus passt nicht zum angeforderten Storage-Migrationsziel.");
 
 		var utcNow = DateTime.UtcNow;
 		var plan = Prepare(request);
@@ -33,10 +35,23 @@ internal sealed class PlainToEncryptedVaultMigrationCoordinator
 				throw new InvalidOperationException("Exporter hat kein Zielartefakt erstellt.");
 
 			exporter.ValidateExportedVault(plan.EncryptedTempPath);
+
+			var finalizationPendingHeader = MarkFinalizationPending(inProgressHeader, request.TargetMode, DateTime.UtcNow);
+			exporter.PersistMigratedHeader(plan.EncryptedTempPath, finalizationPendingHeader);
 			StorageRewriteArtifacts.ReplacePrimaryDatabase(plan.EncryptedTempPath, plan.SourcePath, plan.PlainBackupPath);
 
-			var finalizationPendingHeader = MarkFinalizationPending(_headerRepository.Get() ?? inProgressHeader, request.TargetMode, DateTime.UtcNow);
-			_headerRepository.Update(finalizationPendingHeader);
+			if (!File.Exists(plan.PlainBackupPath))
+			{
+				var clearedHeader = ClearMigrationState(finalizationPendingHeader, DateTime.UtcNow);
+				exporter.PersistMigratedHeader(plan.SourcePath, clearedHeader);
+				return new PlainToEncryptedVaultMigrationExecutionResult(
+					clearedHeader.StorageMigrationState,
+					clearedHeader.StorageMigrationTargetMode,
+					clearedHeader.LastStorageMigrationAttemptUtc,
+					clearedHeader.LastStorageMigrationError,
+					plan.EncryptedTempPath,
+					plan.PlainBackupPath);
+			}
 
 			return new PlainToEncryptedVaultMigrationExecutionResult(
 				finalizationPendingHeader.StorageMigrationState,
@@ -61,9 +76,10 @@ internal sealed class PlainToEncryptedVaultMigrationCoordinator
 		}
 	}
 
-	internal PlainToEncryptedVaultMigrationExecutionResult FinalizeSuccessfulMigration(VaultHeader header)
+	internal PlainToEncryptedVaultMigrationExecutionResult FinalizeSuccessfulMigration(VaultHeader header, IEncryptedVaultMigrationExporter exporter)
 	{
 		ArgumentNullException.ThrowIfNull(header);
+		ArgumentNullException.ThrowIfNull(exporter);
 
 		var sourcePath = _sourceConnectionFactory.Storage.DatabasePath
 			?? throw new InvalidOperationException("Finalisierung der Plain-zu-encrypted-Migration benoetigt eine dateibasierte Vault.");
@@ -74,8 +90,8 @@ internal sealed class PlainToEncryptedVaultMigrationCoordinator
 		if (File.Exists(backupPath) && !StorageRewriteArtifacts.TryDeleteFile(backupPath))
 			throw new IOException("Alte Plain-Sicherung konnte nicht entfernt werden.");
 
-		var cleared = ClearMigrationState(_headerRepository.Get() ?? header, DateTime.UtcNow);
-		_headerRepository.Update(cleared);
+		var cleared = ClearMigrationState(header, DateTime.UtcNow);
+		exporter.PersistMigratedHeader(sourcePath, cleared);
 
 		return new PlainToEncryptedVaultMigrationExecutionResult(
 			cleared.StorageMigrationState,

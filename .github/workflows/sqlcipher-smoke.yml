@@ -1,0 +1,86 @@
+name: SQLCipher Smoke
+
+env:
+  USE_OFFICIAL_SQLCIPHER: "false"
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "src/LOCKnet.Data/**"
+      - "tests/LOCKnet.Data.Tests/**"
+      - ".github/workflows/sqlcipher-smoke.yml"
+  push:
+    branches: ["main", "dev"]
+    paths:
+      - "src/LOCKnet.Data/**"
+      - "tests/LOCKnet.Data.Tests/**"
+      - ".github/workflows/sqlcipher-smoke.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  runtime-smoke:
+    name: Runtime Smoke (${{ matrix.os }} / ${{ matrix.rid }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            rid: win-x64
+            run_smoke: true
+          - os: ubuntu-latest
+            rid: linux-x64
+            run_smoke: true
+          - os: macos-latest
+            rid: osx-x64
+            run_smoke: true
+          - os: macos-latest
+            rid: osx-arm64
+            run_smoke: false
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
+
+      - name: Restore
+        run: dotnet restore /p:UseOfficialSqlCipher=${{ env.USE_OFFICIAL_SQLCIPHER }}
+
+      - name: Publish CLI smoke artifact (${{ matrix.rid }})
+        run: >-
+          dotnet publish src/LOCKnet.CLI/LOCKnet.CLI.csproj
+          -c Release
+          -r ${{ matrix.rid }}
+          /p:UseOfficialSqlCipher=${{ env.USE_OFFICIAL_SQLCIPHER }}
+          --self-contained false
+          -o publish/sqlcipher-smoke/${{ matrix.rid }}
+
+      - name: Run SQLCipher runtime smoke tests
+        if: matrix.run_smoke
+        run: >-
+          dotnet test tests/LOCKnet.Data.Tests/LOCKnet.Data.Tests.csproj
+          -c Release
+          /p:UseOfficialSqlCipher=${{ env.USE_OFFICIAL_SQLCIPHER }}
+          --filter "FullyQualifiedName~SqlCipherEncryptedVaultMigrationExporterTests"
+
+      - name: Official SQLCipher path dry-run (expected to fail without licensed native packages)
+        if: matrix.run_smoke
+        continue-on-error: true
+        run: >-
+          dotnet test tests/LOCKnet.Data.Tests/LOCKnet.Data.Tests.csproj
+          -c Release
+          /p:UseOfficialSqlCipher=true
+          --filter "FullyQualifiedName~SqlCipherEncryptedVaultMigrationExporterTests.ProbeRuntime_LoadsSqlCipherProvider"
+
+      - name: Upload published smoke artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sqlcipher-smoke-${{ matrix.os }}-${{ matrix.rid }}
+          path: publish/sqlcipher-smoke/${{ matrix.rid }}/

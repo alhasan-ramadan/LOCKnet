@@ -4,6 +4,11 @@
         <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <UseOfficialSqlCipher>false</UseOfficialSqlCipher>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(UseOfficialSqlCipher)' == 'true'">
+        <DefineConstants>$(DefineConstants);USE_OFFICIAL_SQLCIPHER_PATH</DefineConstants>
     </PropertyGroup>
 
     <ItemGroup>
@@ -11,7 +16,16 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.0" />
+      <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="10.0.0" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(UseOfficialSqlCipher)' == 'true'">
+      <PackageReference Include="SQLitePCLRaw.bundle_zetetic" Version="2.1.11" />
+      <PackageReference Include="SQLitePCLRaw.provider.sqlcipher" Version="2.1.11" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(UseOfficialSqlCipher)' != 'true'">
+      <PackageReference Include="SQLitePCLRaw.bundle_e_sqlcipher" Version="2.1.11" />
     </ItemGroup>
 
 </Project>

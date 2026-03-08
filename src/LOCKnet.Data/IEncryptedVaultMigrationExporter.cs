@@ -24,4 +24,11 @@ public interface IEncryptedVaultMigrationExporter
 	/// </summary>
 	/// <param name="destinationPath">Pfad zur exportierten Ziel-Vault.</param>
 	void ValidateExportedVault(string destinationPath);
+
+	/// <summary>
+	/// Persistiert den migrierten Header in die Ziel-Vault, bevor oder nachdem diese zur Hauptdatei geworden ist.
+	/// </summary>
+	/// <param name="databasePath">Pfad zur Ziel-Vault.</param>
+	/// <param name="header">Der zu persistierende Headerzustand.</param>
+	void PersistMigratedHeader(string databasePath, VaultHeader header);
 }

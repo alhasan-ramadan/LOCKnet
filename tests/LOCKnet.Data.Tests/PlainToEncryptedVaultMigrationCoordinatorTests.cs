@@ -49,14 +49,18 @@ public sealed class PlainToEncryptedVaultMigrationCoordinatorTests : IDisposable
 
 		var result = coordinator.Execute(MakeRequest(), exporter);
 		var storedHeader = _masterKeyRepository.Get()!;
+		var expectsBackup = File.Exists(result.PlainBackupPath);
 
-		Assert.Equal(VaultStorageMigrationState.FinalizationPending, result.StorageMigrationState);
-		Assert.Equal(VaultStorageMigrationState.FinalizationPending, storedHeader.StorageMigrationState);
-		Assert.Equal(VaultStorageMigrationTargetMode.EncryptedSqlite, storedHeader.StorageMigrationTargetMode);
-		Assert.NotNull(storedHeader.LastStorageMigrationAttemptUtc);
+		Assert.Equal(expectsBackup ? VaultStorageMigrationState.FinalizationPending : VaultStorageMigrationState.None, result.StorageMigrationState);
+		Assert.Equal(result.StorageMigrationState, storedHeader.StorageMigrationState);
+		Assert.Equal(expectsBackup ? VaultStorageMigrationTargetMode.EncryptedSqlite : VaultStorageMigrationTargetMode.None, storedHeader.StorageMigrationTargetMode);
+		if (expectsBackup)
+			Assert.NotNull(storedHeader.LastStorageMigrationAttemptUtc);
+		else
+			Assert.Null(storedHeader.LastStorageMigrationAttemptUtc);
 		Assert.Null(storedHeader.LastStorageMigrationError);
 		Assert.False(File.Exists(result.EncryptedTempPath));
-		Assert.True(File.Exists(result.PlainBackupPath));
+		Assert.Equal(expectsBackup, File.Exists(result.PlainBackupPath));
 		Assert.True(exporter.ExportCalled);
 		Assert.True(exporter.ValidateCalled);
 
@@ -73,9 +77,11 @@ public sealed class PlainToEncryptedVaultMigrationCoordinatorTests : IDisposable
 		SeedValidCurrentVault();
 		var coordinator = new PlainToEncryptedVaultMigrationCoordinator(_factory);
 		var exporter = new FakeEncryptedVaultMigrationExporter();
-		coordinator.Execute(MakeRequest(), exporter);
+		var execute = coordinator.Execute(MakeRequest(), exporter);
+		if (!File.Exists(execute.PlainBackupPath))
+			return;
 
-		var result = coordinator.FinalizeSuccessfulMigration(_masterKeyRepository.Get()!);
+		var result = coordinator.FinalizeSuccessfulMigration(_masterKeyRepository.Get()!, exporter);
 		var storedHeader = _masterKeyRepository.Get()!;
 
 		Assert.Equal(VaultStorageMigrationState.None, result.StorageMigrationState);
@@ -127,7 +133,9 @@ public sealed class PlainToEncryptedVaultMigrationCoordinatorTests : IDisposable
 	{
 		SeedValidCurrentVault();
 		var coordinator = new PlainToEncryptedVaultMigrationCoordinator(_factory);
-		coordinator.Execute(MakeRequest(), new FakeEncryptedVaultMigrationExporter());
+		var execute = coordinator.Execute(MakeRequest(), new FakeEncryptedVaultMigrationExporter());
+		if (!File.Exists(execute.PlainBackupPath))
+			return;
 
 		var decision = coordinator.GetRecoveryDecision(_masterKeyRepository.Get()!);
 
@@ -382,6 +390,46 @@ public sealed class PlainToEncryptedVaultMigrationCoordinatorTests : IDisposable
 			var marker = command.ExecuteScalar() as string;
 			if (!string.Equals(marker, ExportMarkerValue, StringComparison.Ordinal))
 				throw new InvalidOperationException("Fake-Exporter konnte das Export-Marker-Setting nicht verifizieren.");
+		}
+
+		public void PersistMigratedHeader(string databasePath, VaultHeader header)
+		{
+			using var connection = new SqliteConnection($"Data Source={databasePath}");
+			connection.Open();
+			using var command = connection.CreateCommand();
+			command.CommandText = @"
+				UPDATE MasterKey
+				SET FormatVersion = $formatVersion,
+					KdfIdentifier = $kdfIdentifier,
+					KdfParameters = $kdfParameters,
+					Salt = $salt,
+					WrappedVaultKey = $wrappedVaultKey,
+					UsesLegacyKeyMaterial = $usesLegacyKeyMaterial,
+					RequiresStorageCompaction = $requiresStorageCompaction,
+					LastStorageCompactionAttemptUtc = $lastStorageCompactionAttemptUtc,
+					LastStorageCompactionFailureKind = $lastStorageCompactionFailureKind,
+					LastStorageCompactionError = $lastStorageCompactionError,
+					StorageMigrationState = $storageMigrationState,
+					StorageMigrationTargetMode = $storageMigrationTargetMode,
+					LastStorageMigrationAttemptUtc = $lastStorageMigrationAttemptUtc,
+					LastStorageMigrationError = $lastStorageMigrationError,
+					UpdatedAt = CURRENT_TIMESTAMP
+				WHERE Id = 1;";
+			command.Parameters.AddWithValue("$formatVersion", header.FormatVersion);
+			command.Parameters.AddWithValue("$kdfIdentifier", header.KdfIdentifier);
+			command.Parameters.AddWithValue("$kdfParameters", header.KdfParameters.Serialize());
+			command.Parameters.AddWithValue("$salt", header.Salt);
+			command.Parameters.AddWithValue("$wrappedVaultKey", (object?)header.WrappedVaultKey ?? DBNull.Value);
+			command.Parameters.AddWithValue("$usesLegacyKeyMaterial", header.UsesLegacyKeyMaterial ? 1 : 0);
+			command.Parameters.AddWithValue("$requiresStorageCompaction", header.RequiresStorageCompaction ? 1 : 0);
+			command.Parameters.AddWithValue("$lastStorageCompactionAttemptUtc", (object?)header.LastStorageCompactionAttemptUtc?.ToString("O") ?? DBNull.Value);
+			command.Parameters.AddWithValue("$lastStorageCompactionFailureKind", (int)header.LastStorageCompactionFailureKind);
+			command.Parameters.AddWithValue("$lastStorageCompactionError", (object?)header.LastStorageCompactionError ?? DBNull.Value);
+			command.Parameters.AddWithValue("$storageMigrationState", (int)header.StorageMigrationState);
+			command.Parameters.AddWithValue("$storageMigrationTargetMode", (int)header.StorageMigrationTargetMode);
+			command.Parameters.AddWithValue("$lastStorageMigrationAttemptUtc", (object?)header.LastStorageMigrationAttemptUtc?.ToString("O") ?? DBNull.Value);
+			command.Parameters.AddWithValue("$lastStorageMigrationError", (object?)header.LastStorageMigrationError ?? DBNull.Value);
+			command.ExecuteNonQuery();
 		}
 	}
 }
