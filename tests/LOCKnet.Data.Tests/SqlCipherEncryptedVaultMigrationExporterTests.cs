@@ -1,6 +1,7 @@
 using LOCKnet.Core.DataAbstractions;
 using LOCKnet.Data.Repositories;
 using Microsoft.Data.Sqlite;
+using System.Reflection;
 
 namespace LOCKnet.Data.Tests;
 
@@ -209,6 +210,139 @@ public sealed class SqlCipherEncryptedVaultMigrationExporterTests : IDisposable
 		Assert.True(HasPlainSqliteHeader(_plainDatabasePath));
 	}
 
+	[Fact]
+	public void ValidateExportedVault_WhenTargetFileMissing_ThrowsInvalidTarget()
+	{
+		var exporter = new SqlCipherEncryptedVaultMigrationExporter(Password);
+
+		var ex = Assert.Throws<SqlCipherEncryptedVaultMigrationException>(() => exporter.ValidateExportedVault(_exportedDatabasePath));
+
+		Assert.Equal(SqlCipherExporterFailureKind.InvalidTarget, ex.FailureKind);
+	}
+
+	[Fact]
+	public void ValidateExportedVault_WhenMasterKeyRowMissing_ThrowsValidationFailure()
+	{
+		var exporter = new SqlCipherEncryptedVaultMigrationExporter(Password);
+		exporter.ExportPlaintextVault(_plainFactory.Storage.ConnectionString, _exportedDatabasePath);
+
+		using (var connection = OpenEncryptedConnectionReadWrite(_exportedDatabasePath, Password))
+		{
+			using var command = connection.CreateCommand();
+			command.CommandText = "DELETE FROM MasterKey;";
+			command.ExecuteNonQuery();
+		}
+
+		var ex = Assert.Throws<SqlCipherEncryptedVaultMigrationException>(() => exporter.ValidateExportedVault(_exportedDatabasePath));
+
+		Assert.Equal(SqlCipherExporterFailureKind.ValidationFailure, ex.FailureKind);
+		Assert.Contains("MasterKey", ex.Message);
+	}
+
+	[Fact]
+	public void ValidateExportedVault_WhenRequiredTableMissing_ThrowsValidationFailure()
+	{
+		var exporter = new SqlCipherEncryptedVaultMigrationExporter(Password);
+		exporter.ExportPlaintextVault(_plainFactory.Storage.ConnectionString, _exportedDatabasePath);
+
+		using (var connection = OpenEncryptedConnectionReadWrite(_exportedDatabasePath, Password))
+		{
+			using var command = connection.CreateCommand();
+			command.CommandText = "DROP TABLE Settings;";
+			command.ExecuteNonQuery();
+		}
+
+		var ex = Assert.Throws<SqlCipherEncryptedVaultMigrationException>(() => exporter.ValidateExportedVault(_exportedDatabasePath));
+
+		Assert.Equal(SqlCipherExporterFailureKind.ValidationFailure, ex.FailureKind);
+		Assert.Contains("Settings", ex.Message);
+	}
+
+	[Fact]
+	public void ExportPlaintextVault_WhenDestinationCannotBeCreated_ThrowsMigrationExportFailure()
+	{
+		var exporter = new SqlCipherEncryptedVaultMigrationExporter(Password);
+
+		var ex = Assert.Throws<SqlCipherEncryptedVaultMigrationException>(() => exporter.ExportPlaintextVault(_plainFactory.Storage.ConnectionString, _tempDirectory));
+
+		Assert.Equal(SqlCipherExporterFailureKind.MigrationExportFailure, ex.FailureKind);
+	}
+
+	[Fact]
+	public void TryOpenEncryptedVault_WhenTargetFileMissing_ReturnsInvalidTarget()
+	{
+		var exporter = new SqlCipherEncryptedVaultMigrationExporter(Password);
+
+		var result = exporter.TryOpenEncryptedVault(_exportedDatabasePath, Password);
+
+		Assert.False(result.Success);
+		Assert.Equal(SqlCipherExporterFailureKind.InvalidTarget, result.FailureKind);
+	}
+
+	[Fact]
+	public void ExportPlaintextVault_WhenRuntimeUnavailable_ThrowsProviderFailure()
+	{
+		var exporter = new SqlCipherEncryptedVaultMigrationExporter(
+			Password,
+			() => new SqlCipherRuntimeProbeResult(
+				false,
+				null,
+				null,
+				SqlCipherProviderPackagingPath.LegacyBundleESqlCipher,
+				false,
+				SqlCipherExporterFailureKind.NativeProviderLoadFailure,
+				"runtime unavailable"));
+
+		var ex = Assert.Throws<SqlCipherEncryptedVaultMigrationException>(() => exporter.ExportPlaintextVault(_plainFactory.Storage.ConnectionString, _exportedDatabasePath));
+
+		Assert.Equal(SqlCipherExporterFailureKind.NativeProviderLoadFailure, ex.FailureKind);
+	}
+
+	[Fact]
+	public void ClassifyOpenFailure_PrivateMethod_HandlesSqliteMessagesAndInnerExceptions()
+	{
+		var method = typeof(SqlCipherEncryptedVaultMigrationExporter).GetMethod("ClassifyOpenFailure", BindingFlags.NonPublic | BindingFlags.Static)!;
+
+		var sqliteError26 = new SqliteException("file is not a database", 26);
+		var wrongKeyKind = (SqlCipherExporterFailureKind)method.Invoke(null, [sqliteError26])!;
+		Assert.Equal(SqlCipherExporterFailureKind.WrongKey, wrongKeyKind);
+
+		var sqliteInvalid = new SqliteException("generic sqlite failure", 1);
+		var invalidTargetKind = (SqlCipherExporterFailureKind)method.Invoke(null, [sqliteInvalid])!;
+		Assert.Equal(SqlCipherExporterFailureKind.InvalidTarget, invalidTargetKind);
+
+		var nested = new InvalidOperationException("outer", new SqliteException("not a database", 1));
+		var nestedKind = (SqlCipherExporterFailureKind)method.Invoke(null, [nested])!;
+		Assert.Equal(SqlCipherExporterFailureKind.WrongKey, nestedKind);
+
+		var unknown = (SqlCipherExporterFailureKind)method.Invoke(null, [new Exception("other")])!;
+		Assert.Equal(SqlCipherExporterFailureKind.OperationalFailure, unknown);
+	}
+
+	[Fact]
+	public void RuntimeProbeAndOpenResult_RecordsExposeAllProperties()
+	{
+		var probe = new SqlCipherRuntimeProbeResult(
+			true,
+			"4.5.0",
+			"3.45.1",
+			SqlCipherProviderPackagingPath.OfficialZetetic,
+			true,
+			SqlCipherExporterFailureKind.None,
+			null);
+		Assert.Equal("3.45.1", probe.SqliteVersion);
+
+		var open = new SqlCipherVaultOpenResult(
+			false,
+			null,
+			SqlCipherProviderPackagingPath.LegacyBundleESqlCipher,
+			false,
+			SqlCipherExporterFailureKind.InvalidTarget,
+			"missing");
+		Assert.Equal(SqlCipherProviderPackagingPath.LegacyBundleESqlCipher, open.ProviderPath);
+		Assert.False(open.IsProductionCrediblePath);
+	}
+
 	private PlainToEncryptedVaultMigrationRequest MakeRequest()
 		=> new(
 			_masterKeyRepository.Get()!,
@@ -333,6 +467,20 @@ public sealed class SqlCipherEncryptedVaultMigrationExporterTests : IDisposable
 		{
 			DataSource = databasePath,
 			Mode = SqliteOpenMode.ReadOnly,
+			Password = password,
+		};
+
+		var connection = new SqliteConnection(builder.ToString());
+		connection.Open();
+		return connection;
+	}
+
+	private static SqliteConnection OpenEncryptedConnectionReadWrite(string databasePath, string password)
+	{
+		var builder = new SqliteConnectionStringBuilder
+		{
+			DataSource = databasePath,
+			Mode = SqliteOpenMode.ReadWrite,
 			Password = password,
 		};
 

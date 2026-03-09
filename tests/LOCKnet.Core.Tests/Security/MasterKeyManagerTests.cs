@@ -597,4 +597,111 @@ public class MasterKeyManagerTests
 		sut.Initialize(MakeSecure("pw"));
 		Assert.Throws<ArgumentNullException>(() => sut.Unlock(null!));
 	}
+
+	[Fact]
+	public void ChangePassword_WithWrongCurrentPassword_ThrowsUnauthorizedAccessException()
+	{
+		var sut = BuildSut(out _);
+		sut.Initialize(MakeSecure("correct-current"));
+
+		Assert.Throws<UnauthorizedAccessException>(() => sut.ChangePassword(MakeSecure("wrong-current"), MakeSecure("new-pass")));
+	}
+
+	[Fact]
+	public void Unlock_LegacyVault_WrongPassword_ReturnsNull()
+	{
+		var sut = BuildSut(out var store);
+		SeedLegacyVault(store, "legacy-pass", withWrappedLegacyKey: false);
+
+		var unlock = sut.Unlock(MakeSecure("wrong-pass"));
+
+		Assert.Null(unlock);
+	}
+
+	[Fact]
+	public void RetryPendingStorageCompaction_WhenSessionLocked_ReturnsBusyState()
+	{
+		var sut = BuildSut(out var store);
+		sut.Initialize(MakeSecure("pw"));
+		var header = store.Get()!;
+		header.RequiresStorageCompaction = true;
+		store.Update(header);
+
+		var info = sut.RetryPendingStorageCompaction();
+
+		Assert.True(info.IsPending);
+		Assert.Equal(StorageCompactionFailureKind.BusyOrLocked, info.FailureKind);
+		Assert.Contains("gesperrt", info.UserMessage);
+	}
+
+	[Fact]
+	public void Unlock_WithSaltLengthMismatch_Throws()
+	{
+		var sut = BuildSut(out var store);
+		sut.Initialize(MakeSecure("pw"));
+		var header = store.Get()!;
+		header.Salt = [0x01, 0x02, 0x03];
+		store.Update(header);
+
+		Assert.Throws<InvalidOperationException>(() => sut.Unlock(MakeSecure("pw")));
+	}
+
+	[Fact]
+	public void Unlock_WithUnsupportedHeaderVersion_Throws()
+	{
+		var sut = BuildSut(out var store);
+		sut.Initialize(MakeSecure("pw"));
+		var header = store.Get()!;
+		header.FormatVersion = 999;
+		store.Update(header);
+
+		Assert.Throws<InvalidOperationException>(() => sut.Unlock(MakeSecure("pw")));
+	}
+
+	[Fact]
+	public void Unlock_WithLegacyHeaderContainingWrappedKey_Throws()
+	{
+		var sut = BuildSut(out var store);
+		SeedLegacyVault(store, "legacy", withWrappedLegacyKey: false);
+		var header = store.Get()!;
+		header.WrappedVaultKey = Enumerable.Repeat((byte)0xAB, 60).ToArray();
+		store.Update(header);
+
+		Assert.Throws<InvalidOperationException>(() => sut.Unlock(MakeSecure("legacy")));
+	}
+
+	[Fact]
+	public void Unlock_WithLegacyHeaderWithoutPasswordHash_Throws()
+	{
+		var sut = BuildSut(out var store);
+		SeedLegacyVault(store, "legacy", withWrappedLegacyKey: false);
+		var header = store.Get()!;
+		header.LegacyPasswordHash = [];
+		store.Update(header);
+
+		Assert.Throws<InvalidOperationException>(() => sut.Unlock(MakeSecure("legacy")));
+	}
+
+	[Theory]
+	[InlineData(StorageCompactionFailureKind.BusyOrLocked, "gesperrt")]
+	[InlineData(StorageCompactionFailureKind.InsufficientSpace, "freier Speicherplatz")]
+	[InlineData(StorageCompactionFailureKind.Io, "I/O-Fehler")]
+	[InlineData(StorageCompactionFailureKind.Corruption, "inkonsistent")]
+	[InlineData(StorageCompactionFailureKind.Unknown, "konnte nicht abgeschlossen")]
+	public void GetStorageCompactionInfo_WhenPending_MapsFailureKindToUserMessage(StorageCompactionFailureKind failureKind, string expectedSnippet)
+	{
+		var sut = BuildSut(out var store);
+		sut.Initialize(MakeSecure("pw"));
+		var header = store.Get()!;
+		header.RequiresStorageCompaction = true;
+		header.LastStorageCompactionFailureKind = failureKind;
+		header.LastStorageCompactionAttemptUtc = DateTime.UtcNow.AddMinutes(-1);
+		store.Update(header);
+
+		var info = sut.GetStorageCompactionInfo();
+
+		Assert.True(info.IsPending);
+		Assert.Equal(failureKind, info.FailureKind);
+		Assert.Contains(expectedSnippet, info.UserMessage);
+	}
 }

@@ -336,4 +336,332 @@ public class VaultMigrationRepositoryTests : IDisposable
 		Assert.Equal(StorageCompactionFailureKind.Unknown, info.FailureKind);
 		Assert.Contains("dateibasierter Rewrite", info.UserMessage);
 	}
+
+	[Fact]
+	public void ApplyMigration_WhenCredentialUpdateFails_RollsBackTransactionAndRethrows()
+	{
+		_masterKeyRepository.Create(new VaultHeader
+		{
+			FormatVersion = VaultHeaderFormatVersion.Current,
+			KdfIdentifier = "PBKDF2-SHA256",
+			KdfParameters = new VaultKdfParameters
+			{
+				HashAlgorithm = "SHA256",
+				Iterations = 600_000,
+				KeyLengthBytes = 32,
+				SaltLengthBytes = 32,
+			},
+			Salt = Enumerable.Repeat((byte)0xAA, 32).ToArray(),
+			WrappedVaultKey = Enumerable.Repeat((byte)0xCC, 60).ToArray(),
+			LegacyPasswordHash = [],
+			CreatedAt = DateTime.UtcNow,
+			UpdatedAt = DateTime.UtcNow,
+		});
+
+		_credentialsRepository.Add(new CredentialRecord
+		{
+			Title = string.Empty,
+			Username = null,
+			EncryptedPassword = [0x01, 0x02, 0x03],
+			EncryptedMetadata = [0x04, 0x05, 0x06],
+			CredentialUuid = Guid.NewGuid().ToString("N"),
+			SecretFormatVersion = CredentialSecretFormatVersion.Current,
+			MetadataFormatVersion = CredentialMetadataFormatVersion.Current,
+			CredentialType = CredentialType.Password,
+		});
+
+		var existing = _credentialsRepository.GetAll().Single();
+		var headerBefore = _masterKeyRepository.Get()!;
+		var invalidCredential = new CredentialRecord
+		{
+			Id = existing.Id,
+			Title = null!,
+			Username = existing.Username,
+			EncryptedPassword = [0x09, 0x08, 0x07],
+			EncryptedMetadata = existing.EncryptedMetadata,
+			CredentialUuid = existing.CredentialUuid,
+			SecretFormatVersion = CredentialSecretFormatVersion.Current,
+			MetadataFormatVersion = CredentialMetadataFormatVersion.Current,
+			CredentialType = CredentialType.Password,
+			CreatedAt = existing.CreatedAt,
+			UpdatedAt = DateTime.UtcNow,
+		};
+
+		Assert.ThrowsAny<Exception>(() => _sut.ApplyMigration(headerBefore, [invalidCredential]));
+
+		var persisted = _credentialsRepository.GetById(existing.Id)!;
+		Assert.Equal(existing.EncryptedPassword, persisted.EncryptedPassword);
+		Assert.Equal(existing.CredentialUuid, persisted.CredentialUuid);
+	}
+
+	[Fact]
+	public void CompactStorage_WhenSqliteExceptionOccurs_ReturnsPendingWithMappedMessage()
+	{
+		var tempDirectory = Path.Combine(Path.GetTempPath(), $"locknet-vault-migration-{Guid.NewGuid():N}");
+		Directory.CreateDirectory(tempDirectory);
+		try
+		{
+			var databasePath = Path.Combine(tempDirectory, "locknet.db");
+			new Database(databasePath).Initialize();
+			var factory = new PlainSqliteConnectionFactory(databasePath);
+			var headerRepo = new MasterKeyRepository(factory);
+			headerRepo.Create(new VaultHeader
+			{
+				FormatVersion = VaultHeaderFormatVersion.Current,
+				KdfIdentifier = "PBKDF2-SHA256",
+				KdfParameters = new VaultKdfParameters(),
+				Salt = Enumerable.Repeat((byte)0xAA, 32).ToArray(),
+				WrappedVaultKey = Enumerable.Repeat((byte)0xCC, 60).ToArray(),
+				LegacyPasswordHash = [],
+				CreatedAt = DateTime.UtcNow,
+				UpdatedAt = DateTime.UtcNow,
+			});
+
+			var sqliteException = CreateSqliteException(1, "simulated sqlite failure");
+			var sut = new VaultMigrationRepository(
+				factory,
+				new StorageRewriteHooks
+				{
+					BeforeVacuumInto = _ => throw sqliteException,
+				});
+
+			var info = sut.CompactStorage();
+
+			Assert.True(info.IsPending);
+			Assert.Equal(StorageCompactionFailureKind.Unknown, info.FailureKind);
+			Assert.Contains("simulated sqlite failure", info.LastError);
+		}
+		finally
+		{
+			try
+			{
+				if (Directory.Exists(tempDirectory))
+					Directory.Delete(tempDirectory, recursive: true);
+			}
+			catch (IOException)
+			{
+			}
+		}
+	}
+
+	[Fact]
+	public void CompactStorage_WhenBackupArtifactCannotBeDeletedDuringFinalization_ReturnsBusyOrLocked()
+	{
+		var tempDirectory = Path.Combine(Path.GetTempPath(), $"locknet-vault-migration-{Guid.NewGuid():N}");
+		Directory.CreateDirectory(tempDirectory);
+		try
+		{
+			var databasePath = Path.Combine(tempDirectory, "locknet.db");
+			new Database(databasePath).Initialize();
+			var factory = new PlainSqliteConnectionFactory(databasePath);
+			var headerRepo = new MasterKeyRepository(factory);
+			headerRepo.Create(new VaultHeader
+			{
+				FormatVersion = VaultHeaderFormatVersion.Current,
+				KdfIdentifier = "PBKDF2-SHA256",
+				KdfParameters = new VaultKdfParameters(),
+				Salt = Enumerable.Repeat((byte)0xAA, 32).ToArray(),
+				WrappedVaultKey = Enumerable.Repeat((byte)0xCC, 60).ToArray(),
+				LegacyPasswordHash = [],
+				CreatedAt = DateTime.UtcNow,
+				UpdatedAt = DateTime.UtcNow,
+			});
+
+			var backupPath = StorageRewriteArtifacts.GetBackupPath(databasePath);
+			File.Copy(databasePath, backupPath, overwrite: true);
+			using var lockedBackup = new FileStream(backupPath, FileMode.Open, FileAccess.Read, FileShare.None);
+
+			var sut = new VaultMigrationRepository(factory);
+			var info = sut.CompactStorage();
+
+			Assert.True(info.IsPending);
+			Assert.Equal(StorageCompactionFailureKind.BusyOrLocked, info.FailureKind);
+			Assert.Contains("Sicherung", info.UserMessage);
+		}
+		finally
+		{
+			try
+			{
+				if (Directory.Exists(tempDirectory))
+					Directory.Delete(tempDirectory, recursive: true);
+			}
+			catch (IOException)
+			{
+			}
+		}
+	}
+
+	[Fact]
+	public void CompactStorage_WhenMainInvalidAndTempArtifactCannotBeDeleted_ReturnsBusyOrLocked()
+	{
+		var tempDirectory = Path.Combine(Path.GetTempPath(), $"locknet-vault-migration-{Guid.NewGuid():N}");
+		Directory.CreateDirectory(tempDirectory);
+		try
+		{
+			var databasePath = Path.Combine(tempDirectory, "locknet.db");
+			new Database(databasePath).Initialize();
+			var factory = new PlainSqliteConnectionFactory(databasePath);
+			var headerRepo = new MasterKeyRepository(factory);
+			headerRepo.Create(new VaultHeader
+			{
+				FormatVersion = VaultHeaderFormatVersion.Current,
+				KdfIdentifier = "PBKDF2-SHA256",
+				KdfParameters = new VaultKdfParameters(),
+				Salt = Enumerable.Repeat((byte)0xAA, 32).ToArray(),
+				WrappedVaultKey = Enumerable.Repeat((byte)0xCC, 60).ToArray(),
+				LegacyPasswordHash = [],
+				CreatedAt = DateTime.UtcNow,
+				UpdatedAt = DateTime.UtcNow,
+			});
+
+			var tempPath = StorageRewriteArtifacts.GetTempPath(databasePath);
+			File.Copy(databasePath, tempPath, overwrite: true);
+			SqliteConnection.ClearAllPools();
+			Thread.Sleep(50);
+			File.WriteAllBytes(databasePath, [0x01, 0x02, 0x03]);
+			using var lockedTemp = new FileStream(tempPath, FileMode.Open, FileAccess.Read, FileShare.None);
+
+			var sut = new VaultMigrationRepository(factory);
+			var info = sut.CompactStorage();
+
+			Assert.True(info.IsPending);
+			Assert.Equal(StorageCompactionFailureKind.BusyOrLocked, info.FailureKind);
+			Assert.Contains("Tempdatei", info.LastError);
+		}
+		finally
+		{
+			try
+			{
+				if (Directory.Exists(tempDirectory))
+					Directory.Delete(tempDirectory, recursive: true);
+			}
+			catch (IOException)
+			{
+			}
+		}
+	}
+
+	[Fact]
+	public void CompactStorage_WhenBackupDeletionAfterReplaceFails_ReturnsPendingBusyOrLocked()
+	{
+		var tempDirectory = Path.Combine(Path.GetTempPath(), $"locknet-vault-migration-{Guid.NewGuid():N}");
+		Directory.CreateDirectory(tempDirectory);
+		FileStream? lockedBackup = null;
+		try
+		{
+			var databasePath = Path.Combine(tempDirectory, "locknet.db");
+			new Database(databasePath).Initialize();
+			var factory = new PlainSqliteConnectionFactory(databasePath);
+			var headerRepo = new MasterKeyRepository(factory);
+			headerRepo.Create(new VaultHeader
+			{
+				FormatVersion = VaultHeaderFormatVersion.Current,
+				KdfIdentifier = "PBKDF2-SHA256",
+				KdfParameters = new VaultKdfParameters(),
+				Salt = Enumerable.Repeat((byte)0xAA, 32).ToArray(),
+				WrappedVaultKey = Enumerable.Repeat((byte)0xCC, 60).ToArray(),
+				LegacyPasswordHash = [],
+				CreatedAt = DateTime.UtcNow,
+				UpdatedAt = DateTime.UtcNow,
+			});
+
+			var sut = new VaultMigrationRepository(
+				factory,
+				new StorageRewriteHooks
+				{
+					AfterReplace = (_, backupPath) =>
+					{
+						if (!string.IsNullOrWhiteSpace(backupPath) && File.Exists(backupPath))
+							lockedBackup = new FileStream(backupPath, FileMode.Open, FileAccess.Read, FileShare.None);
+					}
+				});
+
+			var info = sut.CompactStorage();
+
+			Assert.True(info.IsPending);
+			Assert.Equal(StorageCompactionFailureKind.BusyOrLocked, info.FailureKind);
+			Assert.Contains("alte Vault-Datei", info.UserMessage);
+		}
+		finally
+		{
+			lockedBackup?.Dispose();
+			try
+			{
+				if (Directory.Exists(tempDirectory))
+					Directory.Delete(tempDirectory, recursive: true);
+			}
+			catch (IOException)
+			{
+			}
+		}
+	}
+
+	[Fact]
+	public void CompactStorage_WhenTempDeletionAfterReplaceFails_ReturnsPendingBusyOrLocked()
+	{
+		var tempDirectory = Path.Combine(Path.GetTempPath(), $"locknet-vault-migration-{Guid.NewGuid():N}");
+		Directory.CreateDirectory(tempDirectory);
+		FileStream? lockedTemp = null;
+		try
+		{
+			var databasePath = Path.Combine(tempDirectory, "locknet.db");
+			new Database(databasePath).Initialize();
+			var factory = new PlainSqliteConnectionFactory(databasePath);
+			var headerRepo = new MasterKeyRepository(factory);
+			headerRepo.Create(new VaultHeader
+			{
+				FormatVersion = VaultHeaderFormatVersion.Current,
+				KdfIdentifier = "PBKDF2-SHA256",
+				KdfParameters = new VaultKdfParameters(),
+				Salt = Enumerable.Repeat((byte)0xAA, 32).ToArray(),
+				WrappedVaultKey = Enumerable.Repeat((byte)0xCC, 60).ToArray(),
+				LegacyPasswordHash = [],
+				CreatedAt = DateTime.UtcNow,
+				UpdatedAt = DateTime.UtcNow,
+			});
+
+			var sut = new VaultMigrationRepository(
+				factory,
+				new StorageRewriteHooks
+				{
+					AfterReplace = (primaryPath, _) =>
+					{
+						var tempPath = StorageRewriteArtifacts.GetTempPath(primaryPath);
+						File.WriteAllBytes(tempPath, [0x42]);
+						lockedTemp = new FileStream(tempPath, FileMode.Open, FileAccess.Read, FileShare.None);
+					}
+				});
+
+			var info = sut.CompactStorage();
+
+			Assert.True(info.IsPending);
+			Assert.Equal(StorageCompactionFailureKind.BusyOrLocked, info.FailureKind);
+			Assert.Contains("Tempdatei", info.LastError);
+		}
+		finally
+		{
+			lockedTemp?.Dispose();
+			try
+			{
+				if (Directory.Exists(tempDirectory))
+					Directory.Delete(tempDirectory, recursive: true);
+			}
+			catch (IOException)
+			{
+			}
+		}
+	}
+
+	private static SqliteException CreateSqliteException(int sqliteCode, string message)
+	{
+		var constructor = typeof(SqliteException).GetConstructor([typeof(string), typeof(int)]);
+		if (constructor is not null)
+			return (SqliteException)constructor.Invoke([message, sqliteCode]);
+
+		var fallback = typeof(SqliteException).GetConstructor([typeof(string), typeof(int), typeof(int)]);
+		if (fallback is not null)
+			return (SqliteException)fallback.Invoke([message, sqliteCode, sqliteCode]);
+
+		throw new InvalidOperationException("SqliteException constructor could not be resolved for tests.");
+	}
 }

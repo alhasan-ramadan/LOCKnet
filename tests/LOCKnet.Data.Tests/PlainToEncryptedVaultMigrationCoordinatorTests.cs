@@ -280,6 +280,184 @@ public sealed class PlainToEncryptedVaultMigrationCoordinatorTests : IDisposable
 		Assert.Null(cleared.LastStorageMigrationError);
 	}
 
+	[Fact]
+	public void Execute_WhenExporterTargetModeDiffers_ThrowsInvalidOperationException()
+	{
+		SeedValidCurrentVault();
+		var coordinator = new PlainToEncryptedVaultMigrationCoordinator(_factory);
+		var exporter = new WrongTargetModeExporter();
+
+		Assert.Throws<InvalidOperationException>(() => coordinator.Execute(MakeRequest(), exporter));
+	}
+
+	[Fact]
+	public void Execute_WhenExporterDoesNotCreateTargetFile_MarksMigrationAsFailed()
+	{
+		SeedValidCurrentVault();
+		var coordinator = new PlainToEncryptedVaultMigrationCoordinator(_factory);
+		var exporter = new MissingTargetExporter();
+
+		var result = coordinator.Execute(MakeRequest(), exporter);
+
+		Assert.Equal(VaultStorageMigrationState.Failed, result.StorageMigrationState);
+		Assert.Contains("kein Zielartefakt", result.LastStorageMigrationError);
+	}
+
+	[Fact]
+	public void FinalizeSuccessfulMigration_WhenHeaderStateIsNotFinalizationPending_Throws()
+	{
+		SeedValidCurrentVault();
+		var coordinator = new PlainToEncryptedVaultMigrationCoordinator(_factory);
+		var exporter = new FakeEncryptedVaultMigrationExporter();
+		var header = _masterKeyRepository.Get()!;
+
+		Assert.Throws<InvalidOperationException>(() => coordinator.FinalizeSuccessfulMigration(header, exporter));
+	}
+
+	[Fact]
+	public void Prepare_WithUnsupportedSourceStorageMode_Throws()
+	{
+		var descriptor = new VaultStorageDescriptor(
+			VaultStorageMode.EncryptedSqlite,
+			"Data Source=test.db",
+			Path.Combine(_tempDirectory, "test.db"),
+			requiresKeyAtOpen: true);
+		var factory = new ThrowingFactory(descriptor);
+		var coordinator = new PlainToEncryptedVaultMigrationCoordinator(factory);
+
+		var ex = Assert.Throws<InvalidOperationException>(() => coordinator.Prepare(new PlainToEncryptedVaultMigrationRequest(
+			new VaultHeader
+			{
+				FormatVersion = VaultHeaderFormatVersion.Current,
+				KdfIdentifier = "PBKDF2-SHA256",
+				KdfParameters = new VaultKdfParameters(),
+				Salt = Enumerable.Repeat((byte)0x01, 32).ToArray(),
+				WrappedVaultKey = Enumerable.Repeat((byte)0x02, 60).ToArray(),
+				LegacyPasswordHash = [],
+			},
+			[],
+			VaultStorageMigrationTargetMode.EncryptedSqlite,
+			SourceValidatedWithActiveVaultKey: true)));
+
+		Assert.Contains("Plain-SQLite", ex.Message);
+	}
+
+	[Fact]
+	public void Prepare_WhenStorageRequiresOpenTimeKey_Throws()
+	{
+		var descriptor = new VaultStorageDescriptor(
+			VaultStorageMode.PlainSqlite,
+			"Data Source=test.db",
+			Path.Combine(_tempDirectory, "test.db"),
+			requiresKeyAtOpen: true);
+		var factory = new ThrowingFactory(descriptor);
+		var coordinator = new PlainToEncryptedVaultMigrationCoordinator(factory);
+
+		var ex = Assert.Throws<InvalidOperationException>(() => coordinator.Prepare(new PlainToEncryptedVaultMigrationRequest(
+			new VaultHeader
+			{
+				FormatVersion = VaultHeaderFormatVersion.Current,
+				KdfIdentifier = "PBKDF2-SHA256",
+				KdfParameters = new VaultKdfParameters(),
+				Salt = Enumerable.Repeat((byte)0x01, 32).ToArray(),
+				WrappedVaultKey = Enumerable.Repeat((byte)0x02, 60).ToArray(),
+				LegacyPasswordHash = [],
+			},
+			[],
+			VaultStorageMigrationTargetMode.EncryptedSqlite,
+			SourceValidatedWithActiveVaultKey: true)));
+
+		Assert.Contains("Open-Time-Keying", ex.Message);
+	}
+
+	[Theory]
+	[InlineData(VaultStorageMigrationState.InProgress)]
+	[InlineData(VaultStorageMigrationState.FinalizationPending)]
+	public void Prepare_WhenHeaderHasActiveMigrationState_Throws(VaultStorageMigrationState state)
+	{
+		SeedValidCurrentVault();
+		var coordinator = new PlainToEncryptedVaultMigrationCoordinator(_factory);
+		var header = _masterKeyRepository.Get()!;
+		header.StorageMigrationState = state;
+
+		var ex = Assert.Throws<InvalidOperationException>(() => coordinator.Prepare(new PlainToEncryptedVaultMigrationRequest(
+			header,
+			_credentialsRepository.GetAll(),
+			VaultStorageMigrationTargetMode.EncryptedSqlite,
+			SourceValidatedWithActiveVaultKey: true)));
+
+		Assert.Contains("parallel", ex.Message);
+	}
+
+	[Fact]
+	public void Prepare_WhenLegacyPasswordHashStillPresent_Throws()
+	{
+		SeedValidCurrentVault();
+		var coordinator = new PlainToEncryptedVaultMigrationCoordinator(_factory);
+		var header = _masterKeyRepository.Get()!;
+		header.LegacyPasswordHash = [0x01];
+
+		var ex = Assert.Throws<InvalidOperationException>(() => coordinator.Prepare(new PlainToEncryptedVaultMigrationRequest(
+			header,
+			_credentialsRepository.GetAll(),
+			VaultStorageMigrationTargetMode.EncryptedSqlite,
+			SourceValidatedWithActiveVaultKey: true)));
+
+		Assert.Contains("Legacy-Passwort-Hash", ex.Message);
+	}
+
+	[Fact]
+	public void Prepare_WhenCredentialContainsPlaintextResidue_Throws()
+	{
+		SeedValidCurrentVault();
+		var coordinator = new PlainToEncryptedVaultMigrationCoordinator(_factory);
+		var credential = _credentialsRepository.GetAll().Single();
+		credential.Title = "plain";
+
+		var ex = Assert.Throws<InvalidOperationException>(() => coordinator.Prepare(new PlainToEncryptedVaultMigrationRequest(
+			_masterKeyRepository.Get()!,
+			[credential],
+			VaultStorageMigrationTargetMode.EncryptedSqlite,
+			SourceValidatedWithActiveVaultKey: true)));
+
+		Assert.Contains("Klartext-Metadaten", ex.Message);
+	}
+
+	[Fact]
+	public void RecoveryDecision_WithUnknownMigrationState_ReturnsFailDecision()
+	{
+		SeedValidCurrentVault();
+		var coordinator = new PlainToEncryptedVaultMigrationCoordinator(_factory);
+		var header = _masterKeyRepository.Get()!;
+		header.StorageMigrationState = (VaultStorageMigrationState)999;
+
+		var decision = coordinator.GetRecoveryDecision(header);
+
+		Assert.Equal(PlainToEncryptedVaultMigrationRecoveryAction.Fail, decision.Action);
+		Assert.Contains("Unbekannter", decision.Message);
+	}
+
+	[Fact]
+	public void RecoveryDecision_WithNullPathAndNoState_ReturnsNone()
+	{
+		var header = new VaultHeader
+		{
+			FormatVersion = VaultHeaderFormatVersion.Current,
+			KdfIdentifier = "PBKDF2-SHA256",
+			KdfParameters = new VaultKdfParameters(),
+			Salt = Enumerable.Repeat((byte)0x01, 32).ToArray(),
+			WrappedVaultKey = Enumerable.Repeat((byte)0x02, 60).ToArray(),
+			LegacyPasswordHash = [],
+		};
+		var descriptor = new VaultStorageDescriptor(VaultStorageMode.PlainSqlite, "Data Source=:memory:", databasePath: null, requiresKeyAtOpen: false);
+		var coordinator = new PlainToEncryptedVaultMigrationCoordinator(new ThrowingFactory(descriptor));
+
+		var decision = coordinator.GetRecoveryDecision(header);
+
+		Assert.Equal(PlainToEncryptedVaultMigrationRecoveryAction.None, decision.Action);
+		Assert.Null(decision.Message);
+	}
+
 	private void SeedValidCurrentVault()
 	{
 		if (_masterKeyRepository.Get() is null)
@@ -431,5 +609,53 @@ public sealed class PlainToEncryptedVaultMigrationCoordinatorTests : IDisposable
 			command.Parameters.AddWithValue("$lastStorageMigrationError", (object?)header.LastStorageMigrationError ?? DBNull.Value);
 			command.ExecuteNonQuery();
 		}
+	}
+
+	private sealed class WrongTargetModeExporter : IEncryptedVaultMigrationExporter
+	{
+		public VaultStorageMigrationTargetMode TargetMode => VaultStorageMigrationTargetMode.None;
+
+		public void ExportPlaintextVault(string sourceConnectionString, string destinationPath)
+		{
+		}
+
+		public void ValidateExportedVault(string destinationPath)
+		{
+		}
+
+		public void PersistMigratedHeader(string databasePath, VaultHeader header)
+		{
+		}
+	}
+
+	private sealed class MissingTargetExporter : IEncryptedVaultMigrationExporter
+	{
+		public VaultStorageMigrationTargetMode TargetMode => VaultStorageMigrationTargetMode.EncryptedSqlite;
+
+		public void ExportPlaintextVault(string sourceConnectionString, string destinationPath)
+		{
+			if (File.Exists(destinationPath))
+				File.Delete(destinationPath);
+		}
+
+		public void ValidateExportedVault(string destinationPath)
+		{
+		}
+
+		public void PersistMigratedHeader(string databasePath, VaultHeader header)
+		{
+		}
+	}
+
+	private sealed class ThrowingFactory : ISqliteConnectionFactory
+	{
+		public ThrowingFactory(VaultStorageDescriptor storage)
+		{
+			Storage = storage;
+		}
+
+		public VaultStorageDescriptor Storage { get; }
+
+		public SqliteConnection OpenConnection() => throw new InvalidOperationException("Should not open connection in this test path.");
 	}
 }

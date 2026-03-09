@@ -220,6 +220,90 @@ public sealed class StorageRewriteIntegrationTests : IDisposable
 		Assert.True(_masterKeyRepository.Get()!.RequiresStorageCompaction);
 	}
 
+	[Fact]
+	public void CompactStorage_WhenMasterKeyRowMissing_ReturnsCorruption()
+	{
+		var sut = new VaultMigrationRepository(_connectionString);
+
+		var info = sut.CompactStorage();
+
+		Assert.True(info.IsPending);
+		Assert.Equal(StorageCompactionFailureKind.Corruption, info.FailureKind);
+		Assert.Contains("inkonsistent", info.UserMessage);
+	}
+
+	[Fact]
+	public void CompactStorage_WhenBackupAndTempArtifactsExist_FinalizesArtifactsAndReturnsSuccess()
+	{
+		_masterKeyManager.Initialize(MakeSecure("vault-password"));
+		var sut = new VaultMigrationRepository(_connectionString);
+		var backupPath = StorageRewriteArtifacts.GetBackupPath(_databasePath);
+		var tempPath = StorageRewriteArtifacts.GetTempPath(_databasePath);
+		File.Copy(_databasePath, backupPath, overwrite: true);
+		File.Copy(_databasePath, tempPath, overwrite: true);
+
+		var info = sut.CompactStorage();
+
+		Assert.False(info.IsPending);
+		Assert.Equal(StorageCompactionFailureKind.None, info.FailureKind);
+		Assert.False(File.Exists(backupPath));
+		Assert.False(File.Exists(tempPath));
+	}
+
+	[Fact]
+	public void CompactStorage_WhenMainInvalidButBackupExists_ReturnsCorruptionPending()
+	{
+		_masterKeyManager.Initialize(MakeSecure("vault-password"));
+		var sut = new VaultMigrationRepository(_connectionString);
+		var backupPath = StorageRewriteArtifacts.GetBackupPath(_databasePath);
+		File.Copy(_databasePath, backupPath, overwrite: true);
+		SqliteConnection.ClearAllPools();
+		Thread.Sleep(50);
+		File.WriteAllBytes(_databasePath, [0x01, 0x02, 0x03]);
+
+		var info = sut.CompactStorage();
+
+		Assert.True(info.IsPending);
+		Assert.Equal(StorageCompactionFailureKind.Corruption, info.FailureKind);
+		Assert.Contains("Vorhandene Rewrite-Artefakte", info.UserMessage);
+	}
+
+	[Fact]
+	public void CompactStorage_WhenHookThrowsUnauthorizedAccess_ReturnsBusyOrLocked()
+	{
+		_masterKeyManager.Initialize(MakeSecure("vault-password"));
+		var sut = new VaultMigrationRepository(
+			_connectionString,
+			new StorageRewriteHooks
+			{
+				BeforeVacuumInto = _ => throw new UnauthorizedAccessException("denied")
+			});
+
+		var info = sut.CompactStorage();
+
+		Assert.True(info.IsPending);
+		Assert.Equal(StorageCompactionFailureKind.BusyOrLocked, info.FailureKind);
+		Assert.Contains("gesperrt", info.UserMessage);
+	}
+
+	[Fact]
+	public void CompactStorage_WhenHookThrowsInvalidOperation_ReturnsCorruption()
+	{
+		_masterKeyManager.Initialize(MakeSecure("vault-password"));
+		var sut = new VaultMigrationRepository(
+			_connectionString,
+			new StorageRewriteHooks
+			{
+				BeforeVacuumInto = _ => throw new InvalidOperationException("invalid rewrite")
+			});
+
+		var info = sut.CompactStorage();
+
+		Assert.True(info.IsPending);
+		Assert.Equal(StorageCompactionFailureKind.Corruption, info.FailureKind);
+		Assert.Contains("inkonsistent", info.UserMessage);
+	}
+
 	private void UnlockAndOpenSession(string password)
 	{
 		var unlock = _masterKeyManager.Unlock(MakeSecure(password))!;
