@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE coverage SYSTEM "http://cobertura.sourceforge.net/xml/coverage-04.dtd">
-<coverage line-rate="0.5846567310041534" branch-rate="0.5" lines-covered="2393" lines-valid="4093" branches-covered="551" branches-valid="1102" complexity="1383" version="0" timestamp="1773010499">
+<coverage line-rate="0.5846567310041534" branch-rate="0.5" lines-covered="2393" lines-valid="4093" branches-covered="551" branches-valid="1102" complexity="1383" version="0" timestamp="1773031019">
   <sources>
     <source>/home/runner/work/LOCKnet/LOCKnet/src/</source>
     <source>/home/runner/work/LOCKnet/LOCKnet/src/LOCKnet.Core/</source>
