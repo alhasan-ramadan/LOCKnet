@@ -142,6 +142,11 @@ public partial class CredentialListViewModel : ViewModelBase
 	private void CopyPassword()
 	{
 		if (SelectedCredential is null) return;
+		if (SelectedCredential.CredentialType == CredentialType.BackupCodes)
+		{
+			StatusMessage = "Backup-Codes bitte in der Bearbeitungsansicht kopieren.";
+			return;
+		}
 		try
 		{
 			var pw = AppServices.Current.CredentialService.GetPassword(SelectedCredential.Id);

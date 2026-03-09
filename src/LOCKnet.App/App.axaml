@@ -53,6 +53,7 @@
 		<conv:IconSelectedBrushConverter x:Key="IconSelectedBrushConverter"/>
 		<conv:StringToMaterialIconKindConverter x:Key="StringToMaterialIconKindConverter"/>
 		<conv:CredentialTypeIsApiKeyConverter x:Key="CredentialTypeIsApiKeyConverter"/>
+		<conv:CredentialTypeIsBackupCodesConverter x:Key="CredentialTypeIsBackupCodesConverter"/>
     </Application.Resources>
 
     <Application.Styles>

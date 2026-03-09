@@ -1,8 +1,11 @@
+using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LOCKnet.Core.DataAbstractions;
 using LOCKnet.Core.Services;
+using System.Collections.ObjectModel;
 using System.Security;
+using System.Text.Json;
 
 namespace LOCKnet.App.ViewModels;
 
@@ -21,6 +24,7 @@ public partial class CredentialDetailViewModel : ViewModelBase
 	[ObservableProperty]
 	[NotifyPropertyChangedFor(nameof(IsPasswordCredential))]
 	[NotifyPropertyChangedFor(nameof(IsApiKeyCredential))]
+	[NotifyPropertyChangedFor(nameof(IsBackupCodesCredential))]
 	[NotifyPropertyChangedFor(nameof(SecretFieldLabel))]
 	[NotifyPropertyChangedFor(nameof(SecretFieldWatermark))]
 	[NotifyPropertyChangedFor(nameof(UsernameLabel))]
@@ -40,6 +44,13 @@ public partial class CredentialDetailViewModel : ViewModelBase
 		set { if (value) CredentialType = CredentialType.ApiKey; }
 	}
 
+	/// <summary>Gibt an ob der aktuelle Typ 'Backup-Codes' ist.</summary>
+	public bool IsBackupCodesCredential
+	{
+		get => CredentialType == CredentialType.BackupCodes;
+		set { if (value) CredentialType = CredentialType.BackupCodes; }
+	}
+
 	/// <summary>Dynamisches Label fuer das Geheimnis-Feld je nach Credential-Typ.</summary>
 	public string SecretFieldLabel => CredentialType == CredentialType.ApiKey ? "API-Schlüssel *" : "Passwort *";
 
@@ -49,7 +60,12 @@ public partial class CredentialDetailViewModel : ViewModelBase
 		: (IsEditMode ? "Leer lassen, um aktuelles Passwort zu behalten" : "Passwort eingeben");
 
 	/// <summary>Dynamisches Label fuer das Benutzername-Feld je nach Credential-Typ.</summary>
-	public string UsernameLabel => CredentialType == CredentialType.ApiKey ? "Client-ID / Bezeichner" : "Benutzername";
+	public string UsernameLabel => CredentialType switch
+	{
+		CredentialType.ApiKey => "Client-ID / Bezeichner",
+		CredentialType.BackupCodes => "Account / E-Mail",
+		_ => "Benutzername"
+	};
 	[ObservableProperty]
 	[NotifyCanExecuteChangedFor(nameof(SaveCommand))]
 	private string _title = string.Empty;
@@ -118,6 +134,14 @@ public partial class CredentialDetailViewModel : ViewModelBase
 	[ObservableProperty]
 	private bool _showGenerator;
 
+	[ObservableProperty]
+	private string _backupCodesInput = string.Empty;
+
+	[ObservableProperty]
+	private bool _showUsedBackupCodes = true;
+
+	public ObservableCollection<BackupCodeItemModel> BackupCodes { get; } = [];
+
 	public bool IsEditMode => _editId.HasValue;
 	public string WindowTitle => IsEditMode ? "Credential bearbeiten" : "Neues Credential";
 
@@ -137,6 +161,8 @@ public partial class CredentialDetailViewModel : ViewModelBase
 		Notes = record.Notes ?? string.Empty;
 		IconKey = record.IconKey ?? string.Empty;
 		CredentialType = record.CredentialType;
+		if (CredentialType == CredentialType.BackupCodes)
+			LoadBackupCodes(record.Id);
 
 		UpdateStrengthDetails(Password);
 	}
@@ -149,6 +175,26 @@ public partial class CredentialDetailViewModel : ViewModelBase
 		ErrorMessage = string.Empty;
 		try
 		{
+			if (CredentialType == CredentialType.BackupCodes)
+			{
+				if (BackupCodes.Count == 0)
+				{
+					ErrorMessage = "Mindestens ein Backup-Code ist erforderlich.";
+					return;
+				}
+
+				Password = JsonSerializer.Serialize(new BackupCodesPayload
+				{
+					Items = BackupCodes.Select((item, index) => new BackupCodeEntry
+					{
+						Value = item.Value,
+						IsUsed = item.IsUsed,
+						UsedAt = item.IsUsed ? item.UsedAt : null,
+						SortOrder = index,
+					}).ToList()
+				});
+			}
+
 			var secure = string.IsNullOrEmpty(Password) ? null : ToSecureString(Password);
 
 			if (IsEditMode)
@@ -188,7 +234,80 @@ public partial class CredentialDetailViewModel : ViewModelBase
 		}
 	}
 
-	private bool CanSave() => !string.IsNullOrWhiteSpace(Title) && (IsEditMode || Password.Length > 0);
+	private bool CanSave()
+	{
+		if (string.IsNullOrWhiteSpace(Title))
+			return false;
+
+		if (CredentialType == CredentialType.BackupCodes)
+			return BackupCodes.Count > 0;
+
+		return IsEditMode || Password.Length > 0;
+	}
+
+	[RelayCommand]
+	private void ImportBackupCodes()
+	{
+		foreach (var code in BackupCodeParser.Parse(BackupCodesInput))
+		{
+			if (BackupCodes.Any(x => string.Equals(x.Value, code, StringComparison.OrdinalIgnoreCase)))
+				continue;
+
+			BackupCodes.Add(new BackupCodeItemModel
+			{
+				Value = code,
+				IsUsed = false,
+			});
+		}
+
+		BackupCodesInput = string.Empty;
+		SaveCommand.NotifyCanExecuteChanged();
+	}
+
+	[RelayCommand]
+	private void ToggleBackupCodeUsed(BackupCodeItemModel? item)
+	{
+		if (item is null)
+			return;
+
+		item.IsUsed = !item.IsUsed;
+		item.UsedAt = item.IsUsed ? DateTime.UtcNow : null;
+	}
+
+	[RelayCommand]
+	private void RemoveBackupCode(BackupCodeItemModel? item)
+	{
+		if (item is null)
+			return;
+
+		BackupCodes.Remove(item);
+		SaveCommand.NotifyCanExecuteChanged();
+	}
+
+	[RelayCommand]
+	private void CopyBackupCode(BackupCodeItemModel? item)
+	{
+		if (item is null)
+			return;
+
+		_ = CopyToClipboardAsync(item.Value);
+	}
+
+	[RelayCommand]
+	private void CopyActiveBackupCodes()
+	{
+		var text = string.Join(Environment.NewLine, BackupCodes.Where(c => !c.IsUsed).Select(c => c.Value));
+		if (text.Length > 0)
+			_ = CopyToClipboardAsync(text);
+	}
+
+	[RelayCommand]
+	private void CopyAllBackupCodes()
+	{
+		var text = string.Join(Environment.NewLine, BackupCodes.Select(c => c.Value));
+		if (text.Length > 0)
+			_ = CopyToClipboardAsync(text);
+	}
 
 	[RelayCommand]
 	private void Cancel() => Cancelled?.Invoke(this, EventArgs.Empty);
@@ -217,6 +336,14 @@ public partial class CredentialDetailViewModel : ViewModelBase
 
 	[RelayCommand]
 	private void SetIcon(string key) => IconKey = key;
+
+	partial void OnCredentialTypeChanged(CredentialType value)
+	{
+		if (value != CredentialType.BackupCodes)
+			BackupCodesInput = string.Empty;
+
+		SaveCommand.NotifyCanExecuteChanged();
+	}
 
 	partial void OnPasswordChanged(string value) => UpdateStrengthDetails(value);
 
@@ -267,4 +394,89 @@ public partial class CredentialDetailViewModel : ViewModelBase
 
 		return Math.Clamp(StrengthScore + 1, 1, 5);
 	}
+
+	private void LoadBackupCodes(int id)
+	{
+		var secure = AppServices.Current.CredentialService.GetPassword(id);
+		if (secure is null)
+			return;
+
+		var raw = SecureStringToString(secure);
+		if (string.IsNullOrWhiteSpace(raw))
+			return;
+
+		try
+		{
+			var payload = JsonSerializer.Deserialize<BackupCodesPayload>(raw);
+			if (payload?.Items is null)
+				return;
+
+			BackupCodes.Clear();
+			foreach (var entry in payload.Items.OrderBy(i => i.SortOrder))
+			{
+				BackupCodes.Add(new BackupCodeItemModel
+				{
+					Value = entry.Value,
+					IsUsed = entry.IsUsed,
+					UsedAt = entry.IsUsed ? entry.UsedAt : null
+				});
+			}
+		}
+		catch (JsonException)
+		{
+			foreach (var code in BackupCodeParser.Parse(raw))
+			{
+				BackupCodes.Add(new BackupCodeItemModel
+				{
+					Value = code,
+					IsUsed = false,
+				});
+			}
+		}
+	}
+
+	private static string SecureStringToString(SecureString s)
+	{
+		var ptr = System.Runtime.InteropServices.Marshal.SecureStringToGlobalAllocUnicode(s);
+		try { return System.Runtime.InteropServices.Marshal.PtrToStringUni(ptr) ?? string.Empty; }
+		finally { System.Runtime.InteropServices.Marshal.ZeroFreeGlobalAllocUnicode(ptr); }
+	}
+
+	private static async Task CopyToClipboardAsync(string text)
+	{
+		var clipboard = Avalonia.Application.Current?.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop
+			? TopLevel.GetTopLevel(desktop.MainWindow)?.Clipboard
+			: null;
+		if (clipboard is null)
+			return;
+
+		await clipboard.SetTextAsync(text);
+		_ = Task.Delay(TimeSpan.FromSeconds(30)).ContinueWith(_ =>
+			Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(async () => await clipboard.ClearAsync()));
+	}
+
+	private sealed class BackupCodesPayload
+	{
+		public List<BackupCodeEntry> Items { get; set; } = [];
+	}
+
+	private sealed class BackupCodeEntry
+	{
+		public string Value { get; set; } = string.Empty;
+		public bool IsUsed { get; set; }
+		public DateTime? UsedAt { get; set; }
+		public int SortOrder { get; set; }
+	}
+}
+
+public partial class BackupCodeItemModel : ObservableObject
+{
+	[ObservableProperty]
+	private string _value = string.Empty;
+
+	[ObservableProperty]
+	private bool _isUsed;
+
+	[ObservableProperty]
+	private DateTime? _usedAt;
 }

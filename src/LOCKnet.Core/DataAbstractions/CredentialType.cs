@@ -10,4 +10,7 @@ public enum CredentialType
 
 	/// <summary>API-Schlüssel, Token oder Secret — kein Benutzername erforderlich.</summary>
 	ApiKey = 1,
+
+	/// <summary>Sammlung von Recovery-/Backup-Codes mit Einzelstatus pro Code.</summary>
+	BackupCodes = 2,
 }

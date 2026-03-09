@@ -166,6 +166,19 @@ public sealed class AppViewModelTests
 		editVm.Password = "new-secret";
 		editVm.SaveCommand.Execute(null);
 		Assert.False(string.IsNullOrWhiteSpace(editVm.ErrorMessage));
+
+		using var unlockPassword = AppServicesScope.MakeSecure("test-master-password");
+		var unlock = AppServices.Current.MasterKeyManager.Unlock(unlockPassword)!;
+		AppServices.Current.SessionManager.Open(unlock.VaultKey);
+
+		var backupVm = new CredentialDetailViewModel();
+		backupVm.CredentialType = CredentialType.BackupCodes;
+		backupVm.Title = "Google Recovery";
+		backupVm.BackupCodesInput = "code-1; code-2\ncode-1";
+		backupVm.ImportBackupCodesCommand.Execute(null);
+		Assert.Equal(2, backupVm.BackupCodes.Count);
+		backupVm.SaveCommand.Execute(null);
+		Assert.Contains(AppServices.Current.CredentialService.GetAll(), c => c.CredentialType == CredentialType.BackupCodes);
 	}
 
 	[Fact]

@@ -22,6 +22,17 @@ public sealed class AppConvertersAndLocatorTests
 	}
 
 	[Fact]
+	public void CredentialTypeIsBackupCodesConverter_ConvertsBothDirections()
+	{
+		var converter = new CredentialTypeIsBackupCodesConverter();
+
+		Assert.True((bool)converter.Convert(CredentialType.BackupCodes, typeof(bool), null, CultureInfo.InvariantCulture));
+		Assert.False((bool)converter.Convert(CredentialType.Password, typeof(bool), null, CultureInfo.InvariantCulture));
+		Assert.Equal(CredentialType.BackupCodes, converter.ConvertBack(true, typeof(CredentialType), null, CultureInfo.InvariantCulture));
+		Assert.Equal(CredentialType.Password, converter.ConvertBack(false, typeof(CredentialType), null, CultureInfo.InvariantCulture));
+	}
+
+	[Fact]
 	public void IconSelectedBrushConverter_ReturnsSelectedAndUnselectedBrushes()
 	{
 		var converter = new IconSelectedBrushConverter();
