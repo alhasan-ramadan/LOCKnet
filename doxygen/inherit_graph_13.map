@@ -1,19 +1,19 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
 <area shape="rect" id="Node000000" href="$interfaceLOCKnet_1_1Core_1_1DataAbstractions_1_1ICredentialRepository.html" title="Verwaltet verschlüsselte Zugangsdaten in der Datenbank." alt="" coords="5,5,237,45"/>
 <area shape="rect" id="Node000001" href="$classLOCKnet_1_1Data_1_1Repositories_1_1CredentialsRepository.html" title="SQLite&#45;Implementierung von ICredentialRepository." alt="" coords="285,13,488,53"/>
-<area shape="poly" id="edge11_Node000000_Node000001" title=" " alt="" coords="251,27,285,28,285,33,251,32"/>
+<area shape="poly" id="edge12_Node000000_Node000001" title=" " alt="" coords="251,27,285,28,285,33,251,32"/>
 <area shape="rect" id="Node000004" href="$interfaceLOCKnet_1_1Core_1_1DataAbstractions_1_1IMasterKeyRepository.html" title="Verwaltet den einzigen Vault&#45;Header der Anwendung." alt="" coords="5,69,237,109"/>
 <area shape="rect" id="Node000003" href="$classLOCKnet_1_1Data_1_1Repositories_1_1MasterKeyRepository.html" title="SQLite&#45;Implementierung von IMasterKeyRepository." alt="" coords="285,85,488,125"/>
-<area shape="poly" id="edge12_Node000004_Node000003" title=" " alt="" coords="251,94,285,97,285,102,251,100"/>
+<area shape="poly" id="edge13_Node000004_Node000003" title=" " alt="" coords="251,94,285,97,285,102,251,100"/>
 <area shape="rect" id="Node000006" href="$interfaceLOCKnet_1_1Core_1_1DataAbstractions_1_1ISettingsRepository.html" title="Verwaltet Konfigurationseinstellungen als Key&#45;Value&#45;Paare." alt="" coords="5,197,237,237"/>
 <area shape="rect" id="Node000005" href="$classLOCKnet_1_1Data_1_1Repositories_1_1SettingsRepository.html" title="SQLite&#45;Implementierung von ISettingsRepository." alt="" coords="285,165,488,205"/>
-<area shape="poly" id="edge13_Node000006_Node000005" title=" " alt="" coords="251,199,285,195,285,200,251,204"/>
+<area shape="poly" id="edge14_Node000006_Node000005" title=" " alt="" coords="251,199,285,195,285,200,251,204"/>
 <area shape="rect" id="Node000008" href="$interfaceLOCKnet_1_1Core_1_1DataAbstractions_1_1IVaultMigrationRepository.html" title="Fuehrt Header&#45; und Credential&#45;Migrationsupdates atomar in einer Transaktion aus." alt="" coords="5,261,237,301"/>
 <area shape="rect" id="Node000007" href="$classLOCKnet_1_1Data_1_1Repositories_1_1VaultMigrationRepository.html" title="SQLite&#45;Implementierung von IVaultMigrationRepository fuer atomare Header&#45; und Credential&#45;Migrationen." alt="" coords="285,245,488,285"/>
-<area shape="poly" id="edge14_Node000008_Node000007" title=" " alt="" coords="251,271,285,269,285,274,251,276"/>
+<area shape="poly" id="edge15_Node000008_Node000007" title=" " alt="" coords="251,271,285,269,285,274,251,276"/>
 <area shape="rect" id="Node000002" href="$classLOCKnet_1_1Data_1_1Repositories_1_1RepositoryBase.html" title="Abstrakte Basisklasse für alle SQLite&#45;Repositories." alt="" coords="20,133,223,173"/>
-<area shape="poly" id="edge15_Node000002_Node000001" title=" " alt="" coords="223,126,236,119,250,108,260,96,269,84,284,71,322,51,325,56,287,76,273,88,264,99,254,112,239,124,226,130"/>
-<area shape="poly" id="edge16_Node000002_Node000003" title=" " alt="" coords="236,130,285,121,286,126,237,135"/>
-<area shape="poly" id="edge17_Node000002_Node000005" title=" " alt="" coords="237,165,285,170,285,176,236,170"/>
-<area shape="poly" id="edge18_Node000002_Node000007" title=" " alt="" coords="220,175,239,183,263,198,287,215,341,243,339,248,284,220,260,203,236,188,218,180"/>
+<area shape="poly" id="edge16_Node000002_Node000001" title=" " alt="" coords="223,126,236,119,250,108,260,96,269,84,284,71,322,51,325,56,287,76,273,88,264,99,254,112,239,124,226,130"/>
+<area shape="poly" id="edge17_Node000002_Node000003" title=" " alt="" coords="236,130,285,121,286,126,237,135"/>
+<area shape="poly" id="edge18_Node000002_Node000005" title=" " alt="" coords="237,165,285,170,285,176,236,170"/>
+<area shape="poly" id="edge19_Node000002_Node000007" title=" " alt="" coords="220,175,239,183,263,198,287,215,341,243,339,248,284,220,260,203,236,188,218,180"/>
 </map>

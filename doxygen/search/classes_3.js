@@ -1,20 +1,5 @@
 var searchData=
 [
-  ['iactivitymonitor_0',['IActivityMonitor',['../interfaceLOCKnet_1_1Core_1_1Security_1_1IActivityMonitor.html',1,'LOCKnet::Core::Security']]],
-  ['iconselectedbrushconverter_1',['IconSelectedBrushConverter',['../classLOCKnet_1_1App_1_1Converters_1_1IconSelectedBrushConverter.html',1,'LOCKnet::App::Converters']]],
-  ['icredentialenvelopeservice_2',['ICredentialEnvelopeService',['../interfaceLOCKnet_1_1Core_1_1Crypto_1_1ICredentialEnvelopeService.html',1,'LOCKnet::Core::Crypto']]],
-  ['icredentialrepository_3',['ICredentialRepository',['../interfaceLOCKnet_1_1Core_1_1DataAbstractions_1_1ICredentialRepository.html',1,'LOCKnet::Core::DataAbstractions']]],
-  ['icredentialservice_4',['ICredentialService',['../interfaceLOCKnet_1_1Core_1_1Services_1_1ICredentialService.html',1,'LOCKnet::Core::Services']]],
-  ['iencryptedvaultmigrationexporter_5',['IEncryptedVaultMigrationExporter',['../interfaceLOCKnet_1_1Data_1_1IEncryptedVaultMigrationExporter.html',1,'LOCKnet::Data']]],
-  ['iencryptionservice_6',['IEncryptionService',['../interfaceLOCKnet_1_1Core_1_1Crypto_1_1IEncryptionService.html',1,'LOCKnet::Core::Crypto']]],
-  ['ikeyderivationservice_7',['IKeyDerivationService',['../interfaceLOCKnet_1_1Core_1_1Crypto_1_1IKeyDerivationService.html',1,'LOCKnet::Core::Crypto']]],
-  ['imasterkeymanager_8',['IMasterKeyManager',['../interfaceLOCKnet_1_1Core_1_1Security_1_1IMasterKeyManager.html',1,'LOCKnet::Core::Security']]],
-  ['imasterkeyrepository_9',['IMasterKeyRepository',['../interfaceLOCKnet_1_1Core_1_1DataAbstractions_1_1IMasterKeyRepository.html',1,'LOCKnet::Core::DataAbstractions']]],
-  ['ipasswordgeneratorservice_10',['IPasswordGeneratorService',['../interfaceLOCKnet_1_1Core_1_1Services_1_1IPasswordGeneratorService.html',1,'LOCKnet::Core::Services']]],
-  ['ipasswordstrengthservice_11',['IPasswordStrengthService',['../interfaceLOCKnet_1_1Core_1_1Services_1_1IPasswordStrengthService.html',1,'LOCKnet::Core::Services']]],
-  ['isecurestringservice_12',['ISecureStringService',['../interfaceLOCKnet_1_1Core_1_1Crypto_1_1ISecureStringService.html',1,'LOCKnet::Core::Crypto']]],
-  ['isessionmanager_13',['ISessionManager',['../interfaceLOCKnet_1_1Core_1_1Security_1_1ISessionManager.html',1,'LOCKnet::Core::Security']]],
-  ['isettingsrepository_14',['ISettingsRepository',['../interfaceLOCKnet_1_1Core_1_1DataAbstractions_1_1ISettingsRepository.html',1,'LOCKnet::Core::DataAbstractions']]],
-  ['isqliteconnectionfactory_15',['ISqliteConnectionFactory',['../interfaceLOCKnet_1_1Data_1_1ISqliteConnectionFactory.html',1,'LOCKnet::Data']]],
-  ['ivaultmigrationrepository_16',['IVaultMigrationRepository',['../interfaceLOCKnet_1_1Core_1_1DataAbstractions_1_1IVaultMigrationRepository.html',1,'LOCKnet::Core::DataAbstractions']]]
+  ['database_0',['Database',['../classLOCKnet_1_1Data_1_1Database.html',1,'LOCKnet::Data']]],
+  ['designdata_1',['DesignData',['../classLOCKnet_1_1App_1_1ViewModels_1_1DesignData.html',1,'LOCKnet::App::ViewModels']]]
 ];

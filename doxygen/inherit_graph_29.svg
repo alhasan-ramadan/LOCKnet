@@ -11,10 +11,10 @@
 <!-- Node0 -->
 <g id="Node000000" class="node">
 <title>Node0</title>
-<g id="a_Node000000"><a xlink:href="classLOCKnet_1_1Data_1_1VaultStorageModeDetector.html" target="_top" xlink:title="Ermittelt den aktuell verwendeten Storage&#45;Modus fuer eine Vault.">
+<g id="a_Node000000"><a xlink:href="classLOCKnet_1_1Data_1_1VaultStorageDescriptor.html" target="_top" xlink:title="Beschreibt die aktuell erkannte Storage&#45;Konfiguration fuer eine Vault&#45;Datei.">
 <polygon fill="white" stroke="#666666" points="150,-30 0,-30 0,0 150,0 150,-30"/>
 <text text-anchor="start" x="8" y="-18" font-family="Helvetica,sans-Serif" font-size="10.00">LOCKnet.Data.VaultStorage</text>
-<text text-anchor="middle" x="75" y="-7" font-family="Helvetica,sans-Serif" font-size="10.00">ModeDetector</text>
+<text text-anchor="middle" x="75" y="-7" font-family="Helvetica,sans-Serif" font-size="10.00">Descriptor</text>
 </a>
 </g>
 </g>

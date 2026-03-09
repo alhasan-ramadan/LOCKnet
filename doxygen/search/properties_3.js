@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['encryptedmetadata_0',['EncryptedMetadata',['../classLOCKnet_1_1Core_1_1DataAbstractions_1_1CredentialRecord.html#a76caa013667108decbb26853b816d743',1,'LOCKnet::Core::DataAbstractions::CredentialRecord']]],
-  ['encryptedpassword_1',['EncryptedPassword',['../classLOCKnet_1_1Core_1_1DataAbstractions_1_1CredentialRecord.html#aaa7523c68ae8758456e817698586cc5c',1,'LOCKnet::Core::DataAbstractions::CredentialRecord']]]
+  ['databasepath_0',['DatabasePath',['../classLOCKnet_1_1Data_1_1VaultStorageDescriptor.html#a9813d5ac39566038c2589c0ac671702f',1,'LOCKnet::Data::VaultStorageDescriptor']]]
 ];

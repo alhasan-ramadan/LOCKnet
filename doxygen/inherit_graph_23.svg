@@ -11,20 +11,20 @@
 <!-- Node0 -->
 <g id="Node000000" class="node">
 <title>Node0</title>
-<g id="a_Node000000"><a xlink:href="interfaceLOCKnet_1_1Core_1_1Services_1_1IPasswordStrengthService.html" target="_top" xlink:title="Bewertet die Staerke eines Passworts und liefert Score sowie Darstellungsmetadaten.">
+<g id="a_Node000000"><a xlink:href="interfaceLOCKnet_1_1Core_1_1Services_1_1IPasswordGeneratorService.html" target="_top" xlink:title="Erzeugt kryptographisch sichere Passwoerter auf Basis konfigurierbarer Optionen.">
 <polygon fill="white" stroke="#666666" points="180,-30 0,-30 0,0 180,0 180,-30"/>
 <text text-anchor="start" x="8" y="-18" font-family="Helvetica,sans-Serif" font-size="10.00">LOCKnet.Core.Services.IPassword</text>
-<text text-anchor="middle" x="90" y="-7" font-family="Helvetica,sans-Serif" font-size="10.00">StrengthService</text>
+<text text-anchor="middle" x="90" y="-7" font-family="Helvetica,sans-Serif" font-size="10.00">GeneratorService</text>
 </a>
 </g>
 </g>
 <!-- Node1 -->
 <g id="Node000001" class="node">
 <title>Node1</title>
-<g id="a_Node000001"><a xlink:href="classLOCKnet_1_1Core_1_1Services_1_1PasswordStrengthService.html" target="_top" xlink:title="Standardimplementierung fuer IPasswordStrengthService.">
+<g id="a_Node000001"><a xlink:href="classLOCKnet_1_1Core_1_1Services_1_1PasswordGeneratorService.html" target="_top" xlink:title="Standardimplementierung fuer IPasswordGeneratorService.">
 <polygon fill="white" stroke="#666666" points="393,-30 216,-30 216,0 393,0 393,-30"/>
 <text text-anchor="start" x="224" y="-18" font-family="Helvetica,sans-Serif" font-size="10.00">LOCKnet.Core.Services.Password</text>
-<text text-anchor="middle" x="304.5" y="-7" font-family="Helvetica,sans-Serif" font-size="10.00">StrengthService</text>
+<text text-anchor="middle" x="304.5" y="-7" font-family="Helvetica,sans-Serif" font-size="10.00">GeneratorService</text>
 </a>
 </g>
 </g>

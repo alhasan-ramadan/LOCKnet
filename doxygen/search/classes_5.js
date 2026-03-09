@@ -1,6 +1,5 @@
 var searchData=
 [
-  ['mainwindowviewmodel_0',['MainWindowViewModel',['../classLOCKnet_1_1App_1_1ViewModels_1_1MainWindowViewModel.html',1,'LOCKnet::App::ViewModels']]],
-  ['masterkeymanager_1',['MasterKeyManager',['../classLOCKnet_1_1Core_1_1Security_1_1MasterKeyManager.html',1,'LOCKnet::Core::Security']]],
-  ['masterkeyrepository_2',['MasterKeyRepository',['../classLOCKnet_1_1Data_1_1Repositories_1_1MasterKeyRepository.html',1,'LOCKnet::Data::Repositories']]]
+  ['lockscreenviewmodel_0',['LockScreenViewModel',['../classLOCKnet_1_1App_1_1ViewModels_1_1LockScreenViewModel.html',1,'LOCKnet::App::ViewModels']]],
+  ['loginviewmodel_1',['LoginViewModel',['../classLOCKnet_1_1App_1_1ViewModels_1_1LoginViewModel.html',1,'LOCKnet::App::ViewModels']]]
 ];

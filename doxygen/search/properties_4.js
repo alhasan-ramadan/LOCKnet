@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['failurekind_0',['FailureKind',['../classLOCKnet_1_1Core_1_1DataAbstractions_1_1StorageCompactionInfo.html#a1e9bbfb2dfb5ceefa4df1b5001c1301a',1,'LOCKnet::Core::DataAbstractions::StorageCompactionInfo']]],
-  ['formatversion_1',['FormatVersion',['../classLOCKnet_1_1Core_1_1DataAbstractions_1_1VaultHeader.html#a718138c728ce2ad707ab82676a5f874c',1,'LOCKnet::Core::DataAbstractions::VaultHeader']]]
+  ['encryptedmetadata_0',['EncryptedMetadata',['../classLOCKnet_1_1Core_1_1DataAbstractions_1_1CredentialRecord.html#a76caa013667108decbb26853b816d743',1,'LOCKnet::Core::DataAbstractions::CredentialRecord']]],
+  ['encryptedpassword_1',['EncryptedPassword',['../classLOCKnet_1_1Core_1_1DataAbstractions_1_1CredentialRecord.html#aaa7523c68ae8758456e817698586cc5c',1,'LOCKnet::Core::DataAbstractions::CredentialRecord']]]
 ];

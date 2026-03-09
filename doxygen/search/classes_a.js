@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['unlockresult_0',['UnlockResult',['../classLOCKnet_1_1Core_1_1Security_1_1UnlockResult.html',1,'LOCKnet::Core::Security']]]
+  ['tutorialviewmodel_0',['TutorialViewModel',['../classLOCKnet_1_1App_1_1ViewModels_1_1TutorialViewModel.html',1,'LOCKnet::App::ViewModels']]]
 ];
