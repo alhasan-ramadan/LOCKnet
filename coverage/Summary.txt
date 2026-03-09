@@ -1,90 +1,90 @@
 Summary
-  Generated on: 03/09/2026 - 04:36:59
-  Coverage date: 03/09/2026 - 04:36:50 - 03/09/2026 - 04:36:58
+  Generated on: 03/09/2026 - 10:52:16
+  Coverage date: 03/09/2026 - 10:52:00 - 03/09/2026 - 10:52:15
   Parser: MultiReport (2x Cobertura)
   Assemblies: 3
   Classes: 64
   Files: 60
-  Line coverage: 58.4%
-  Covered lines: 2393
-  Uncovered lines: 1700
+  Line coverage: 93.9%
+  Covered lines: 3846
+  Uncovered lines: 247
   Coverable lines: 4093
   Total lines: 6730
-  Branch coverage: 50% (551 of 1102)
-  Covered branches: 551
+  Branch coverage: 78.9% (870 of 1102)
+  Covered branches: 870
   Total branches: 1102
-  Method coverage: 67.8% (304 of 448)
-  Full method coverage: 56% (251 of 448)
-  Covered methods: 304
-  Fully covered methods: 251
+  Method coverage: 98.2% (440 of 448)
+  Full method coverage: 87.5% (392 of 448)
+  Covered methods: 440
+  Fully covered methods: 392
   Total methods: 448
 
-LOCKnet.App                                                                                                                                                2.2%
-  LOCKnet.App.App                                                                                                                                            0%
-  LOCKnet.App.AppServices                                                                                                                                   87%
-  LOCKnet.App.Converters.CredentialTypeIsApiKeyConverter                                                                                                     0%
-  LOCKnet.App.Converters.IconSelectedBrushConverter                                                                                                          0%
-  LOCKnet.App.Converters.StringToMaterialIconKindConverter                                                                                                   0%
-  LOCKnet.App.Program                                                                                                                                        0%
-  LOCKnet.App.ViewLocator                                                                                                                                    0%
-  LOCKnet.App.ViewModels.CredentialDetailViewModel                                                                                                           0%
-  LOCKnet.App.ViewModels.CredentialListDesignViewModel                                                                                                       0%
-  LOCKnet.App.ViewModels.CredentialListViewModel                                                                                                             0%
-  LOCKnet.App.ViewModels.DesignData                                                                                                                          0%
-  LOCKnet.App.ViewModels.LockScreenViewModel                                                                                                                 0%
-  LOCKnet.App.ViewModels.LoginViewModel                                                                                                                      0%
-  LOCKnet.App.ViewModels.MainWindowViewModel                                                                                                                 0%
-  LOCKnet.App.ViewModels.TutorialStep                                                                                                                        0%
-  LOCKnet.App.ViewModels.TutorialViewModel                                                                                                                   0%
-  LOCKnet.App.Views.CredentialDetailView                                                                                                                     0%
-  LOCKnet.App.Views.CredentialListView                                                                                                                       0%
-  LOCKnet.App.Views.LockScreenView                                                                                                                           0%
-  LOCKnet.App.Views.LoginView                                                                                                                                0%
-  LOCKnet.App.Views.MainWindow                                                                                                                               0%
-  LOCKnet.App.Views.TutorialView                                                                                                                             0%
+LOCKnet.App                                                                                                                                               97.2%
+  LOCKnet.App.App                                                                                                                                          100%
+  LOCKnet.App.AppServices                                                                                                                                  100%
+  LOCKnet.App.Converters.CredentialTypeIsApiKeyConverter                                                                                                   100%
+  LOCKnet.App.Converters.IconSelectedBrushConverter                                                                                                        100%
+  LOCKnet.App.Converters.StringToMaterialIconKindConverter                                                                                                86.6%
+  LOCKnet.App.Program                                                                                                                                       50%
+  LOCKnet.App.ViewLocator                                                                                                                                  100%
+  LOCKnet.App.ViewModels.CredentialDetailViewModel                                                                                                         100%
+  LOCKnet.App.ViewModels.CredentialListDesignViewModel                                                                                                    96.1%
+  LOCKnet.App.ViewModels.CredentialListViewModel                                                                                                            88%
+  LOCKnet.App.ViewModels.DesignData                                                                                                                        100%
+  LOCKnet.App.ViewModels.LockScreenViewModel                                                                                                               100%
+  LOCKnet.App.ViewModels.LoginViewModel                                                                                                                    100%
+  LOCKnet.App.ViewModels.MainWindowViewModel                                                                                                              91.1%
+  LOCKnet.App.ViewModels.TutorialStep                                                                                                                      100%
+  LOCKnet.App.ViewModels.TutorialViewModel                                                                                                                98.3%
+  LOCKnet.App.Views.CredentialDetailView                                                                                                                   100%
+  LOCKnet.App.Views.CredentialListView                                                                                                                     100%
+  LOCKnet.App.Views.LockScreenView                                                                                                                        98.2%
+  LOCKnet.App.Views.LoginView                                                                                                                             97.8%
+  LOCKnet.App.Views.MainWindow                                                                                                                             100%
+  LOCKnet.App.Views.TutorialView                                                                                                                           100%
 
-LOCKnet.Core                                                                                                                                              79.6%
+LOCKnet.Core                                                                                                                                              96.7%
   LOCKnet.Core.Crypto.AesGcmEncryptionService                                                                                                             97.2%
-  LOCKnet.Core.Crypto.CredentialEnvelopeService                                                                                                           81.5%
+  LOCKnet.Core.Crypto.CredentialEnvelopeService                                                                                                           99.3%
   LOCKnet.Core.Crypto.Pbkdf2KeyDerivationService                                                                                                          95.3%
   LOCKnet.Core.Crypto.SecureStringService                                                                                                                 90.6%
   LOCKnet.Core.DataAbstractions.CredentialRecord                                                                                                           100%
   LOCKnet.Core.DataAbstractions.StorageCompactionInfo                                                                                                      100%
   LOCKnet.Core.DataAbstractions.VaultHeader                                                                                                                100%
   LOCKnet.Core.DataAbstractions.VaultKdfParameters                                                                                                         100%
-  LOCKnet.Core.Security.ActivityMonitor                                                                                                                   97.9%
-  LOCKnet.Core.Security.MasterKeyManager                                                                                                                  88.9%
+  LOCKnet.Core.Security.ActivityMonitor                                                                                                                    100%
+  LOCKnet.Core.Security.MasterKeyManager                                                                                                                    94%
   LOCKnet.Core.Security.SessionManager                                                                                                                     100%
   LOCKnet.Core.Security.UnlockResult                                                                                                                       100%
   LOCKnet.Core.Services.CredentialService                                                                                                                 97.9%
-  LOCKnet.Core.Services.PasswordGeneratorOptions                                                                                                             0%
-  LOCKnet.Core.Services.PasswordGeneratorService                                                                                                             0%
-  LOCKnet.Core.Services.PasswordStrength                                                                                                                     0%
-  LOCKnet.Core.Services.PasswordStrengthService                                                                                                              0%
-  System.Text.RegularExpressions.Generated                                                                                                                   0%
-  System.Text.RegularExpressions.Generated.<RegexGenerator_g>F0BF6AB5C5DD8853393C459DB9A153EC324943034AB6F6FD67F4C1573633C776E__SpecialCharacterRegex_0      0%
+  LOCKnet.Core.Services.PasswordGeneratorOptions                                                                                                           100%
+  LOCKnet.Core.Services.PasswordGeneratorService                                                                                                           100%
+  LOCKnet.Core.Services.PasswordStrength                                                                                                                   100%
+  LOCKnet.Core.Services.PasswordStrengthService                                                                                                            100%
+  System.Text.RegularExpressions.Generated                                                                                                                 100%
+  System.Text.RegularExpressions.Generated.<RegexGenerator_g>F0BF6AB5C5DD8853393C459DB9A153EC324943034AB6F6FD67F4C1573633C776E__SpecialCharacterRegex_0    100%
 
-LOCKnet.Data                                                                                                                                              82.5%
+LOCKnet.Data                                                                                                                                              89.4%
   LOCKnet.Data.Database                                                                                                                                    100%
   LOCKnet.Data.PlainSqliteConnectionFactory                                                                                                               94.4%
-  LOCKnet.Data.PlainToEncryptedVaultMigrationArtifacts                                                                                                    82.1%
-  LOCKnet.Data.PlainToEncryptedVaultMigrationCoordinator                                                                                                  79.2%
+  LOCKnet.Data.PlainToEncryptedVaultMigrationArtifacts                                                                                                    89.2%
+  LOCKnet.Data.PlainToEncryptedVaultMigrationCoordinator                                                                                                  86.9%
   LOCKnet.Data.PlainToEncryptedVaultMigrationExecutionResult                                                                                               100%
   LOCKnet.Data.PlainToEncryptedVaultMigrationPlan                                                                                                          100%
-  LOCKnet.Data.PlainToEncryptedVaultMigrationRecoveryDecision                                                                                             77.7%
+  LOCKnet.Data.PlainToEncryptedVaultMigrationRecoveryDecision                                                                                             88.8%
   LOCKnet.Data.PlainToEncryptedVaultMigrationRequest                                                                                                       100%
   LOCKnet.Data.Repositories.CredentialsRepository                                                                                                          100%
   LOCKnet.Data.Repositories.MasterKeyRepository                                                                                                            100%
   LOCKnet.Data.Repositories.RepositoryBase                                                                                                                 100%
   LOCKnet.Data.Repositories.SettingsRepository                                                                                                             100%
-  LOCKnet.Data.Repositories.StorageRewriteHooks                                                                                                           66.6%
+  LOCKnet.Data.Repositories.StorageRewriteHooks                                                                                                            100%
   LOCKnet.Data.Repositories.StoredCredentialGuard                                                                                                         89.4%
-  LOCKnet.Data.Repositories.VaultMigrationRepository                                                                                                      62.8%
+  LOCKnet.Data.Repositories.VaultMigrationRepository                                                                                                      82.4%
   LOCKnet.Data.SqlCipherEncryptedVaultMigrationException                                                                                                   100%
-  LOCKnet.Data.SqlCipherEncryptedVaultMigrationExporter                                                                                                   84.8%
-  LOCKnet.Data.SqlCipherRuntimeProbeResult                                                                                                                87.5%
-  LOCKnet.Data.SqlCipherVaultOpenResult                                                                                                                   71.4%
-  LOCKnet.Data.StorageRewriteArtifacts                                                                                                                    70.7%
+  LOCKnet.Data.SqlCipherEncryptedVaultMigrationExporter                                                                                                   90.6%
+  LOCKnet.Data.SqlCipherRuntimeProbeResult                                                                                                                 100%
+  LOCKnet.Data.SqlCipherVaultOpenResult                                                                                                                   85.7%
+  LOCKnet.Data.StorageRewriteArtifacts                                                                                                                    73.5%
   LOCKnet.Data.VaultStorageBootstrap                                                                                                                        95%
   LOCKnet.Data.VaultStorageDescriptor                                                                                                                      100%
   LOCKnet.Data.VaultStorageModeDetector                                                                                                                    100%
